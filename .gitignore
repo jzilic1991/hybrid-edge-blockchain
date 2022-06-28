@@ -1,0 +1,7 @@
+node_modules
+build
+key_file
+key_file.pub
+package-lock.json
+.env
+src/__pycache__
