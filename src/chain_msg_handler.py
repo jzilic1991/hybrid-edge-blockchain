@@ -1,24 +1,21 @@
-# user-defined libs
+# built-in libs
 import os
 import json
 import time
 
-from threading import Thread
-from util import Testnets, PrivateKeys
-
-
-# built-in libs
 from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
 
+# user-defined libs
+from util import Testnets, PrivateKeys
 
-class ChainMsgHandler :
+
+class ChainMsgHandler:
 	
 
 	def __init__ (self, testnet):
 
 		self.__prepare_basics (testnet)
-		self.__prepare_threads ()
 
 
 	def get_base (cls):
@@ -31,7 +28,7 @@ class ChainMsgHandler :
 		return cls._smart_contract.functions.getReputationScore(nodeid).call()[0] / cls._base
 
 
-	def register_node (cls, name):
+	async def register_node (cls, name):
 
 		registration_event = cls._smart_contract.events.NodeRegistered ()
 		tx = cls._smart_contract.functions.registerNode(name).buildTransaction({
@@ -48,7 +45,7 @@ class ChainMsgHandler :
 		return result[0]['args']
 
 
-	def update_reputation_score (cls, transactions):
+	async def update_reputation_score (cls, transactions):
 
 		# print ('Incentive: ' + str (incentive / cls._base))
 		reputation_update_event = cls._smart_contract.events.ReputationUpdate ()
@@ -136,8 +133,3 @@ class ChainMsgHandler :
 			cls._key = ''
 
 		cls._account = cls._w3.eth.account.privateKeyToAccount (cls._key)
-
-
-	def __prepare_threads (cls):
-		t1 = Thread(target = cls.deploy_smart_contract)
-		t1.start ()

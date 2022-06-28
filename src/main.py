@@ -13,32 +13,41 @@ from util import Testnets
 cluster_nodes = list ()
 update_rep_finished = True
 cached_transaction_pool = tuple ()
+chain = ChainMsgHandler (Testnets.ROPSTEN)
 
 
 # public functions
-# def register_nodes (chain):
-#     nodes = list ()
-
-#     nodes.append (chain.register_node ('Node A'))
-#     nodes.append (chain.register_node ('Node B'))
-
-#     return nodes
-
-
-# def init_rep_scores (chain, nodes):
-#     for i in range (2):
-#         chain.update_reputation_score (nodes[0], int(round(random.uniform (-1, 1), 3) * 1000))
-
-#     for i in range (2):
-#         chain.update_reputation_score (nodes[1], int(round(random.uniform (-1, 1), 3) * 1000))
-
-# general-purpose public functions
 def start_update_reputation_thread ():
     
     t2 = Thread(target = wrapper_update_reputation, args = (cached_transaction_pool,))
     t2.start ()
 
     cached_transaction_pool = tuple ()
+
+
+def register_nodes ():
+    
+    names = ("Node A", "Node B")
+
+    t3 = Thread(target = wrapper_node_registration, args = (names[0],))
+    t4 = Thread(target = wrapper_node_registration, args = (names[1],))
+    
+    t3.start ()
+    t4.start ()
+
+    while t3.is_alive () or t4.is_alive ():
+        continue    
+
+
+def update_rep_scores ():
+    
+    for node in cluster_nodes:
+        for i in range (2):
+            cached_transaction_pool += ({ 'id': node['id'], 'reward': int(round(random.uniform (-1, 1), 3) * 1000) })
+
+    start_update_reputation_thread ()
+    
+
 
 
 
@@ -66,7 +75,7 @@ def node_registration_completed (future):
 
 
 # asynchornous functions
-async def deploy_smart_contract (chain):
+async def deploy_smart_contract ():
     
     task = asyncio.create_task (chain.deploy_smart_contract ())
     task.add_done_callback (deploy_sc_task_completed)
@@ -87,9 +96,9 @@ async def node_registration (name):
 
 
 # wrapper functions for async functions
-def wrapper_deploy_sc (chain):
+def wrapper_deploy_sc ():
 
-    asyncio.run (deploy_smart_contract (chain))
+    asyncio.run (deploy_smart_contract ())
 
 
 def wrapper_update_reputation (transactions):
@@ -105,11 +114,8 @@ def wrapper_node_registration (name):
 
 
 
-# blockchain handler instantiation
-chain = ChainMsgHandler (Testnets.ROPSTEN)
-
 # thread smart contract deployment
-t1 = Thread(target = wrapper_deploy_sc, args = (chain,))
+t1 = Thread(target = wrapper_deploy_sc)
 t1.start ()
 
 # web server instantiation
@@ -147,7 +153,7 @@ def register_node ():
     while t3.is_alive ():
         continue
 
-    return jsonify ('Node registration status: ' + cluster_nodes[-1])
+    return jsonify ('Node registration status: ' + str (cluster_nodes[-1]))
 
 
 @app.route('/get_rep')
