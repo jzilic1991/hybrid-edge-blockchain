@@ -62,7 +62,7 @@ class ChainMsgHandler:
 		result = reputation_update_event.processReceipt(tx_receipt)
 		end = time.time ()
 		# print ('Elapsed time is ' + str (round (end - start, 3)) + ' s')
-		print ("Current reputation score for " + node['name'] + " (id: " + str (node["id"]) + ") is " + 
+		return ("Node id: " + str (transactions[0]["id"]) + " has reputation score " + 
 	        str (result[0]['args']['value'] / cls._base))
 
 

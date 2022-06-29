@@ -2,6 +2,29 @@ const Reputation = artifacts.require ('./Reputation.sol')
 
 require ('chai').use (require ('chai-as-promised')).should()
 
+
+function getRandomInt (min, max) {
+
+    min = Math.ceil(min);
+    max = Math.floor(max);
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+
+}
+
+
+function computeScore (contractScore, base, weight, transaction) {
+
+	contractScore = (contractScore * (base - weight) + weight * transaction[1])
+	var residual = contractScore % base
+	contractScore = contractScore - residual
+	contractScore = contractScore / base
+
+	return contractScore
+
+}
+
+
 contract ('Reputation', () => {
 
 	let reputation, accounts
@@ -125,7 +148,7 @@ contract ('Reputation', () => {
 			event = result.logs[0].args
 			var idA = event.id
 
-			for (var i = 0; i < 50; i++) {
+			for (var i = 0; i < 5; i++) {
 
 				reward = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
 				incentive = reward * BASE
@@ -134,9 +157,9 @@ contract ('Reputation', () => {
 				contractScore = contractScore - residual
 				contractScore = contractScore / BASE
 
-				result = await reputation.updateNodeReputation (idA, incentive, { from: accounts[0] })
+				result = await reputation.updateNodeReputation ([[idA, incentive]], { from: accounts[0] })
 				event = result.logs[0].args
-				value = (event.value / BASE).toFixed (3)
+				value = (event.rsp[0].value / BASE).toFixed (3)
 
 				assert.equal ((contractScore / BASE).toFixed (3), value, "Reputation score is not correct!")
 				
@@ -177,6 +200,7 @@ contract ('Reputation', () => {
 			assert.equal (repScoreB['0'].words[0], 0, "Initial reputation score is not correct!")
 
 			for (var i = 0; i < 3; i++) {
+
 				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
 				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
 				var incentiveA = rewardA * BASE
@@ -192,13 +216,13 @@ contract ('Reputation', () => {
 				contractScoreB = contractScoreB - residual
 				contractScoreB	 = contractScoreB / BASE
 
-				var result = await reputation.updateNodeReputation (idA, incentiveA, { from: accounts[0] })
+				var result = await reputation.updateNodeReputation ([[idA, incentiveA]], { from: accounts[0] })
 				event = result.logs[0].args
-				var valueA = (event.value / BASE).toFixed (3)
+				var valueA = (event.rsp[0].value / BASE).toFixed (3)
 
-				result = await reputation.updateNodeReputation (idB, incentiveB, { from: accounts[0] })
+				result = await reputation.updateNodeReputation ([[idB, incentiveB]], { from: accounts[0] })
 				event = result.logs[0].args
-				var valueB = (event.value / BASE).toFixed (3)
+				var valueB = (event.rsp[0].value / BASE).toFixed (3)
 
 				assert.equal ((contractScoreA / BASE).toFixed (3), valueA, "Reputation score is not correct!")
 				assert.equal ((contractScoreB / BASE).toFixed (3), valueB, "Reputation score is not correct!")
@@ -213,6 +237,210 @@ contract ('Reputation', () => {
 									
 				assert.equal ((contractScoreA / BASE).toFixed (3), repScoreA, "Reputation score is not correct!")
 				assert.equal ((contractScoreB / BASE).toFixed (3), repScoreB, "Reputation score is not correct!")
+
+			}
+
+		})
+
+		it ('multi-transaction reputation updates for multiple nodes', async () => {
+
+			const nodeAstr = "Node A"
+			const nodeBstr = "Node B"
+			const nodeCstr = "Node C"
+			const BASE = await reputation.BASE.call ({ from: accounts[0] })
+			const WEIGHT = await reputation.WEIGHT.call ({ from: accounts[0] })
+
+			var contractScoreA = 0
+			var contractScoreB = 0
+			var contractScoreC = 0
+
+			var result = await reputation.registerNode (nodeAstr, { from: accounts[0] })
+			var event = result.logs[0].args
+			const idA = event.id
+			
+			result = await reputation.registerNode (nodeBstr, { from: accounts[0] })
+			event = result.logs[0].args
+			const idB = event.id
+
+			result = await reputation.registerNode (nodeCstr, { from: accounts[0] })
+			event = result.logs[0].args
+			const idC = event.id
+
+			var transactionsA = []
+			var transactionsB = []
+			var transactionsC = []
+
+			for (var i = 0; i < 5; i++) {
+
+				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+				var rewardC = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+
+				transactionsA.push ([idA, rewardA * BASE])
+				transactionsB.push ([idB, rewardB * BASE])
+				transactionsC.push ([idC, rewardC * BASE])
+
+			}
+
+			// batch 1
+			var batch = []
+			var transaction
+
+			for (var i = 0; i < 2; i++) {
+
+				transaction = transactionsA.splice (getRandomInt (0, transactionsA.length - 1), 1)[0]
+				batch.push (transaction)
+				contractScoreA = computeScore (contractScoreA, BASE, WEIGHT, transaction)
+
+			}
+
+			transaction = transactionsC.splice (getRandomInt (0, transactionsC.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreC = computeScore (contractScoreC, BASE, WEIGHT, transaction)
+
+			var result = await reputation.updateNodeReputation (batch, { from: accounts[0] })
+			event = result.logs[0].args
+			
+			for (let i = 0; i < event.rsp.length; i++) {
+
+				var value = (event.rsp[i].value / BASE).toFixed (3)
+				 
+				if (event.rsp[i].id == idA) {
+
+					assert.equal ((contractScoreA / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idC) {
+
+					assert.equal ((contractScoreC / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				}
+			
+			}
+
+			// batch 2
+			batch = []
+
+			transaction = transactionsA.splice (getRandomInt (0, transactionsA.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreA = computeScore (contractScoreA, BASE, WEIGHT, transaction)
+
+			for (var i = 0; i < 2; i++) {
+
+				transaction = transactionsB.splice (getRandomInt (0, transactionsB.length - 1), 1)[0]
+				batch.push (transaction)
+				contractScoreB = computeScore (contractScoreB, BASE, WEIGHT, transaction)
+
+			}
+
+			transaction = transactionsC.splice (getRandomInt (0, transactionsC.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreC = computeScore (contractScoreC, BASE, WEIGHT, transaction)
+
+			var result = await reputation.updateNodeReputation (batch, { from: accounts[0] })
+			event = result.logs[0].args
+			
+			for (let i = 0; i < event.rsp.length; i++) {
+
+				var value = (event.rsp[i].value / BASE).toFixed (3)
+				 
+				if (event.rsp[i].id == idA) {
+
+					assert.equal ((contractScoreA / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idB) {
+
+					assert.equal ((contractScoreB / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idC) {
+
+					assert.equal ((contractScoreC / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				}
+			
+			}
+
+			// batch 3
+			batch = []
+
+			transaction = transactionsB.splice (getRandomInt (0, transactionsB.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreB = computeScore (contractScoreB, BASE, WEIGHT, transaction)
+
+			transaction = transactionsC.splice (getRandomInt (0, transactionsC.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreC = computeScore (contractScoreC, BASE, WEIGHT, transaction)
+
+			transaction = transactionsA.splice (getRandomInt (0, transactionsA.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreA = computeScore (contractScoreA, BASE, WEIGHT, transaction)
+
+			var result = await reputation.updateNodeReputation (batch, { from: accounts[0] })
+			event = result.logs[0].args
+			
+			for (let i = 0; i < event.rsp.length; i++) {
+
+				var value = (event.rsp[i].value / BASE).toFixed (3)
+				 
+				if (event.rsp[i].id == idA) {
+
+					assert.equal ((contractScoreA / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idB) {
+
+					assert.equal ((contractScoreB / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idC) {
+
+					assert.equal ((contractScoreC / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				}
+			
+			}
+
+			// batch 4
+			batch = []
+
+			transaction = transactionsC.splice (getRandomInt (0, transactionsC.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreC = computeScore (contractScoreC, BASE, WEIGHT, transaction)
+
+			transaction = transactionsA.splice (getRandomInt (0, transactionsA.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreA = computeScore (contractScoreA, BASE, WEIGHT, transaction)
+
+			for (var i = 0; i < 2; i++) {
+
+				transaction = transactionsB.splice (getRandomInt (0, transactionsB.length - 1), 1)[0]
+				batch.push (transaction)
+				contractScoreB = computeScore (contractScoreB, BASE, WEIGHT, transaction)
+
+			}
+
+			transaction = transactionsC.splice (getRandomInt (0, transactionsC.length - 1), 1)[0]
+			batch.push (transaction)
+			contractScoreC = computeScore (contractScoreC, BASE, WEIGHT, transaction)
+
+			var result = await reputation.updateNodeReputation (batch, { from: accounts[0] })
+			event = result.logs[0].args
+			
+			for (let i = 0; i < event.rsp.length; i++) {
+
+				var value = (event.rsp[i].value / BASE).toFixed (3)
+				 
+				if (event.rsp[i].id == idA) {
+
+					assert.equal ((contractScoreA / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idB) {
+
+					assert.equal ((contractScoreB / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				} else if (event.rsp[i].id == idC) {
+
+					assert.equal ((contractScoreC / BASE).toFixed (3), value, "Reputation score is not correct!")
+
+				}
+			
 			}
 
 		})

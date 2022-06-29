@@ -10,6 +10,20 @@ contract Reputation {
 
 	}
 
+	struct Incentive {
+
+		uint id;
+		int value;
+
+	}
+
+	struct Response {
+
+		uint id;
+		int value;
+
+	}
+
 	int constant public BASE = 1000;
 	int constant public WEIGHT = 300;
 
@@ -19,7 +33,9 @@ contract Reputation {
 
 	event NodeRegistered (uint id, string name, int value, bool valid);
 	event NodeUnregistered (uint id, string name);
-	event ReputationUpdate (uint id, int value, bool valid);
+	// event ReputationUpdate (uint id, int value, bool valid);
+	event ReputationUpdate (Response[] rsp);
+
 
 	function registerNode (string memory _name) public {
 
@@ -63,17 +79,51 @@ contract Reputation {
 
 	}
 
-	function updateNodeReputation (uint _id, int _incentive) public {
+	function updateNodeReputation (Incentive[] memory _incentives) public {
 
-		require (reputationSystem[_id].valid, "Node is not registered!");
+		require (_incentives.length > 0, "Incentives are empty!");
 
-		reputationSystem[_id].value = reputationSystem[_id].value * (BASE - WEIGHT) + WEIGHT * _incentive;
-		int residual = reputationSystem[_id].value % BASE;
-		reputationSystem[_id].value -= residual;
-		reputationSystem[_id].value /= BASE;
+		uint[] memory reportedIds = new uint[] (_incentives.length);
+		uint index = 0;
 
+		for (uint i = 0; i < _incentives.length; i++) {
 
-		emit ReputationUpdate (_id, reputationSystem[_id].value, reputationSystem[_id].valid);
+			reputationSystem[_incentives[i].id].value = 
+				reputationSystem[_incentives[i].id].value * (BASE - WEIGHT) + WEIGHT * _incentives[i].value;
+			int residual = reputationSystem[_incentives[i].id].value % BASE;
+			reputationSystem[_incentives[i].id].value -= residual;
+			reputationSystem[_incentives[i].id].value /= BASE;
+
+			bool found = false;
+
+			for (uint j = 0; j < index; j++) {
+
+				if (reportedIds[j] == _incentives[i].id) { 
+
+					found = true;
+					break;
+
+				}
+
+			}
+
+			if (found) continue;
+
+			reportedIds[index] = _incentives[i].id;
+			index++;
+
+		}
+
+		Response[] memory response = new Response[] (index);
+
+		for (uint i = 0; i < index; i++) {
+
+			response[i] = Response (reportedIds[i], reputationSystem[reportedIds[i]].value);
+			
+		} 
+
+		// emit ReputationUpdate (_id, reputationSystem[_id].value, reputationSystem[_id].valid);
+		emit ReputationUpdate (response);
 
 	}
 

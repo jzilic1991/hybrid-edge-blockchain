@@ -17,35 +17,44 @@ chain = ChainMsgHandler (Testnets.ROPSTEN)
 
 
 # public functions
-def start_update_reputation_thread ():
+def start_update_reputation_thread (transactions):
     
-    t2 = Thread(target = wrapper_update_reputation, args = (cached_transaction_pool,))
+    t2 = Thread(target = wrapper_update_reputation, args = (transactions,))
     t2.start ()
 
-    cached_transaction_pool = tuple ()
+    # cached_transaction_pool = tuple ()
 
 
 def register_nodes ():
     
     names = ("Node A", "Node B")
 
+    while t1.is_alive ():
+        continue  
+
     t3 = Thread(target = wrapper_node_registration, args = (names[0],))
     t4 = Thread(target = wrapper_node_registration, args = (names[1],))
     
     t3.start ()
+
+    while t3.is_alive ():
+        continue
+
     t4.start ()
 
-    while t3.is_alive () or t4.is_alive ():
-        continue    
+    while t4.is_alive ():
+        continue
 
 
 def update_rep_scores ():
     
+    transactions = tuple ()
+
     for node in cluster_nodes:
         for i in range (2):
-            cached_transaction_pool += ({ 'id': node['id'], 'reward': int(round(random.uniform (-1, 1), 3) * 1000) })
+            transactions += ({ 'id': node['id'], 'reward': int(round(random.uniform (-1, 1), 3) * 1000) }, )
 
-    start_update_reputation_thread ()
+    start_update_reputation_thread (transactions)
     
 
 
@@ -55,10 +64,11 @@ def update_rep_scores ():
 def reputation_update_completed (future):
 
     update_rep_finished = True
-    print ('Reputation is update for following nodes: ' + str (future.result ()))
+    print (str (future.result ()))
 
-    if len (cached_transaction_pool):
-        start_update_reputation_thread ()
+    update_rep_scores ()
+    # if len (cached_transaction_pool):
+    #     start_update_reputation_thread ()
 
 
 def deploy_sc_task_completed (future):
@@ -120,6 +130,9 @@ t1.start ()
 
 # web server instantiation
 app = Flask(__name__)
+
+register_nodes ()
+update_rep_scores ()
 
 
 
