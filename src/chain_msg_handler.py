@@ -49,7 +49,7 @@ class ChainMsgHandler:
 
 		# print ('Incentive: ' + str (incentive / cls._base))
 		reputation_update_event = cls._smart_contract.events.ReputationUpdate ()
-		tx = cls._smart_contract.functions.updateNodeReputation(transactions[0]['id'], transactions[0]['reward']).buildTransaction({
+		tx = cls._smart_contract.functions.updateNodeReputation(transactions).buildTransaction({
 		        'from': cls._account.address,
 		        'gasPrice': cls._w3.eth.gas_price,
 		        'nonce': cls._w3.eth.getTransactionCount (cls._account.address)
@@ -61,9 +61,13 @@ class ChainMsgHandler:
 		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
 		result = reputation_update_event.processReceipt(tx_receipt)
 		end = time.time ()
+		event = result[0]['args']
+		response = list ()
+		for i in range (len (event.rsp)):
+			response.append ({ 'id': event.rsp[i][0], 'score': event.rsp[i][1] / cls._base })
+
 		# print ('Elapsed time is ' + str (round (end - start, 3)) + ' s')
-		return ("Node id: " + str (transactions[0]["id"]) + " has reputation score " + 
-	        str (result[0]['args']['value'] / cls._base))
+		return (response)
 
 
 	async def deploy_smart_contract (cls):

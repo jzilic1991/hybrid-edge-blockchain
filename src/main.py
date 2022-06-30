@@ -12,17 +12,16 @@ from util import Testnets
 # public variables
 cluster_nodes = list ()
 update_rep_finished = True
-cached_transaction_pool = tuple ()
+cached_transaction_pool = list ()
 chain = ChainMsgHandler (Testnets.ROPSTEN)
 
 
 # public functions
-def start_update_reputation_thread (transactions):
+def start_update_reputation_thread ():
     
-    t2 = Thread(target = wrapper_update_reputation, args = (transactions,))
+    print ('Submitted transaction pool: ' + str (cached_transaction_pool))
+    t2 = Thread(target = wrapper_update_reputation)
     t2.start ()
-
-    # cached_transaction_pool = tuple ()
 
 
 def register_nodes ():
@@ -48,13 +47,11 @@ def register_nodes ():
 
 def update_rep_scores ():
     
-    transactions = tuple ()
-
     for node in cluster_nodes:
         for i in range (2):
-            transactions += ({ 'id': node['id'], 'reward': int(round(random.uniform (-1, 1), 3) * 1000) }, )
+            cached_transaction_pool.append ([node['id'], int(round(random.uniform (-1, 1), 3) * 1000)])
 
-    start_update_reputation_thread (transactions)
+    start_update_reputation_thread ()
     
 
 
@@ -63,12 +60,11 @@ def update_rep_scores ():
 # callback functions
 def reputation_update_completed (future):
 
+    print ("Reputation score update: " + str (future.result ()))
+    
+    cached_transaction_pool.clear ()
     update_rep_finished = True
-    print (str (future.result ()))
-
     update_rep_scores ()
-    # if len (cached_transaction_pool):
-    #     start_update_reputation_thread ()
 
 
 def deploy_sc_task_completed (future):
@@ -91,9 +87,9 @@ async def deploy_smart_contract ():
     task.add_done_callback (deploy_sc_task_completed)
 
 
-async def update_reputation (transactions):
+async def update_reputation ():
     
-    task = asyncio.create_task (chain.update_reputation_score (transactions))
+    task = asyncio.create_task (chain.update_reputation_score (cached_transaction_pool))
     task.add_done_callback (reputation_update_completed)
 
 
@@ -111,10 +107,10 @@ def wrapper_deploy_sc ():
     asyncio.run (deploy_smart_contract ())
 
 
-def wrapper_update_reputation (transactions):
+def wrapper_update_reputation ():
 
     update_rep_finished = False
-    asyncio.run (update_reputation (transactions))
+    asyncio.run (update_reputation ())
 
 
 def wrapper_node_registration (name):
