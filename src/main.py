@@ -1,19 +1,23 @@
 # built-in libs
 import random
 import asyncio
-from flask import Flask, request, jsonify
 from threading import Thread
+
+# third-party libs
+from flask import Flask, request, jsonify
 
 # user-defined libs
 from chain_msg_handler import ChainMsgHandler
 from util import Testnets
 
 
+
+
 # public variables
 cluster_nodes = list ()
 update_rep_finished = True
 cached_transaction_pool = list ()
-chain = ChainMsgHandler (Testnets.ROPSTEN)
+chain = ChainMsgHandler (Testnets.GOERLI)
 
 
 # public functions
@@ -133,7 +137,7 @@ update_rep_scores ()
 
 
 
-# web server API functions
+# web server HTTP API functions
 @app.route('/update')
 def update_reputation_score ():
 
@@ -179,7 +183,7 @@ def get_reputation_score ():
 
 
 
-# main entrypoint and web server start-up
+# main entrypoint
 if __name__ == "__main__":
 
     app.run(host = '0.0.0.0', port = 5000, debug = True, use_reloader = False)

@@ -3,11 +3,14 @@ import os
 import json
 import time
 
+# third-party libs
 from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
 
 # user-defined libs
 from util import Testnets, PrivateKeys
+
+
 
 
 class ChainMsgHandler:
@@ -103,37 +106,51 @@ class ChainMsgHandler:
 		# load environment variables
 		load_dotenv()
 
-		# determine a test network for deploying the smart contract
-		if testnet == Testnets.KOVAN:
-			cls._testnet = 'https://kovan.infura.io/v3/' + os.environ['INFURA_API_KEY']
-			
-		elif testnet == Testnets.ROPSTEN:
-			cls._testnet = 'https://ropsten.infura.io/v3/' + os.environ['INFURA_API_KEY']
-
-		elif testnet == Testnets.RINKEBY:
-			cls._testnet = 'https://rinkeby.infura.io/v3/' + os.environ['INFURA_API_KEY']
-
-		elif testnet == Testnets.TRUFFLE:
-			cls._testnet = 'http://localhost:9545'
-
-		elif testnet == Testnets.GANACHE:
-			cls._testnet = 'http://localhost:8545'
-
-		else:
-			raise ValueError ('Wrong testnet argument! Arg: ' + str (testnet))
+		# determine test network where to deploy smart contract
+		cls._testnet = cls.__determine_testnet(testnet)
 
 		# establish web3 connection to the test network
 		cls._w3 = Web3 (HTTPProvider (cls._testnet))
 		print ("Web3 is connected: " + str(cls._w3.isConnected ()))
 
-		# determine a user account based on a private key
-		if testnet == Testnets.KOVAN or testnet == Testnets.ROPSTEN or testnet == Testnets.RINKEBY:
-			cls._key = os.environ['PRIVATE_KEY']
+		# determine private key and user account
+		cls._key = cls.__determine_private_key(testnet)
+		cls._account = cls._w3.eth.account.privateKeyToAccount (cls._key)
+
+
+	def __determine_testnet (cls, testnet):
+
+		# determine a test network for deploying the smart contract
+		if testnet == Testnets.KOVAN:
+			return 'https://kovan.infura.io/v3/' + os.environ['INFURA_API_KEY']
+			
+		elif testnet == Testnets.ROPSTEN:
+			return 'https://ropsten.infura.io/v3/' + os.environ['INFURA_API_KEY']
+
+		elif testnet == Testnets.RINKEBY:
+			return 'https://rinkeby.infura.io/v3/' + os.environ['INFURA_API_KEY']
+
+		elif testnet == Testnets.GOERLI:
+			return 'https://goerli.infura.io/v3/' + os.environ['INFURA_API_KEY']
 
 		elif testnet == Testnets.TRUFFLE:
-			cls._key = PrivateKeys.TRUFFLE_PRIVATE_KEY
+			return 'http://localhost:9545'
 
 		elif testnet == Testnets.GANACHE:
-			cls._key = ''
+			return 'http://localhost:8545'
 
-		cls._account = cls._w3.eth.account.privateKeyToAccount (cls._key)
+		else:
+			raise ValueError ('Wrong testnet argument! Arg: ' + str (testnet))
+
+
+	def __determine_private_key (cls, testnet):
+		
+		# determine a user account based on a private key
+		if testnet == Testnets.KOVAN or testnet == Testnets.ROPSTEN or testnet == Testnets.RINKEBY:
+			return os.environ['PRIVATE_KEY']
+
+		elif testnet == Testnets.TRUFFLE:
+			return PrivateKeys.TRUFFLE_PRIVATE_KEY
+
+		elif testnet == Testnets.GANACHE:
+			return ''
