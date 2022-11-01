@@ -150,7 +150,7 @@ class ChainMsgHandler:
 			return os.environ['PRIVATE_KEY']
 
 		elif testnet == Testnets.TRUFFLE:
-			return PrivateKeys.TRUFFLE_PRIVATE_KEY
+			return PrivateKeys.TRUFFLE
 
 		elif testnet == Testnets.GANACHE:
-			return ''
+			return PrivateKeys.GANACHE

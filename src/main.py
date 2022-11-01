@@ -17,7 +17,7 @@ from util import Testnets
 cluster_nodes = list ()
 update_rep_finished = True
 cached_transaction_pool = list ()
-chain = ChainMsgHandler (Testnets.GOERLI)
+chain = ChainMsgHandler (Testnets.GANACHE)
 
 
 # public functions
