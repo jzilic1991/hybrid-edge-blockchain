@@ -1,0 +1,388 @@
+{
+	"ANTIVIRUS": {
+		"qos": {
+			"rt": 0.5,
+			"ec": 1.2,
+			"pr": 0.02
+		},
+		"tasks": {
+			"GUI": {
+				"out": ["LOAD_LIBRARY", "SCAN_FILE"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 0.02
+				}
+			},
+			"LOAD_LIBRARY": {
+				"out": ["COMPARE"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 0.02
+				}
+			},
+			"SCAN_FILE": {
+				"out": ["COMPARE"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 0.02
+				}
+			},
+			"COMPARE": {
+				"out": ["OUTPUT"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 0.02
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 0.02
+				}
+			}
+		}
+	},
+	"FACERECOGNIZER": {
+		"qos": {
+			"rt": 0.8,
+			"ec": 1.0,
+			"pr": 0.12
+		},
+		"tasks": {
+			"GUI": {
+				"out": ["FIND_MATCH"],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 0.12
+				}
+			},
+			"FIND_MATCH": {
+				"out": ["INIT", "DETECT_FACE"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 0.12
+				}
+			},
+			"INIT": {
+				"out": ["DETECT_FACE"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 0.12
+				}
+			},
+			"DETECT_FACE": {
+				"out": ["OUTPUT"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 0.12
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 0.12
+				}
+			}
+		}
+	},
+	"CHESS": {
+		"qos": {
+			"rt": 0.3,
+			"ec": 1.5,
+			"pr": 0.06
+		},
+		"tasks": {
+			"GUI": {
+				"out": ["UPDATE_CHESS"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 0.06
+				}
+			},
+			"UPDATE_CHESS": {
+				"out": ["COMPUTE_MOVE"],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 0.06
+				}
+			},
+			"COMPUTE_MOVE": {
+				"out": ["OUTPUT"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 0.06
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 0.06
+				}
+			}
+		}
+	},
+	"FACEBOOK": {
+		"qos": {
+			"rt": 0.2,
+			"ec": 0.8,
+			"pr": 0.24
+		},
+		"tasks": {
+			"FACEBOOK_GUI": {
+				"out": ["GET_TOKEN", "POST_REQUEST"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"GET_TOKEN": {
+				"out": ["POST_REQUEST"],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"POST_REQUEST": {
+				"out": ["PROCESS_RESPONSE"],
+				"memory": 2,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"PROCESS_RESPONSE": {
+				"out": ["FILE_UPLOAD"],
+				"memory": 2,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"FILE_UPLOAD": {
+				"out": ["APPLY_FILTER"],
+				"memory": 2,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"APPLY_FILTER": {
+				"out": ["FACEBOOK_POST"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"FACEBOOK_POST": {
+				"out": ["OUTPUT"],
+				"memory": 2,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 0.24
+				}
+			}
+		}
+	},
+	"GPS_NAVIGATOR": {
+		"qos": {
+			"rt": 1.2,
+			"ec": 0.9,
+			"pr": 0.35
+		},
+		"tasks": {
+			"CONF_PANEL": {
+				"out": ["CONTROL"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"GPS": {
+				"out": ["CONTROL"],
+				"memory": 2,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"CONTROL": {
+				"out": ["MAPS", "PATH_CALC", "TRAFFIC"],
+				"memory": 5,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"MAPS": {
+				"out": ["PATH_CALC"],
+				"memory": 5,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"TRAFFIC": {
+				"out": ["PATH_CALC"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"PATH_CALC": {
+				"out": ["VOICE_SYNTH", "GUI", "SPEED_TRAP"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"VOICE_SYNTH": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"GUI": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			},
+			"SPEED_TRAP": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 0.35
+				}
+			}
+		}
+	}
+}
