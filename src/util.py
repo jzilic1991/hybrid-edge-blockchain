@@ -1,4 +1,5 @@
 import random
+import numpy
 
 
 class Testnets:
@@ -28,6 +29,24 @@ class MobApps:
 
     ANTIVIRUS, GPS_NAVIGATOR, CHESS, FACERECOGNIZER, FACEBOOK = \
     	('ANTIVIRUS', 'GPS_NAVIGATOR', 'CHESS', 'FACERECOGNIZER', 'FACEBOOK')
+
+
+class NodeTypes:
+    
+    MOBILE, E_DATABASE, E_COMP, E_REG, CLOUD = ('Mobile Device', \
+            'Edge Database Server', 'Edge Computational Server', \
+            'Edge Regular Server', 'Cloud Data Center')
+
+
+class OdeTypes:
+    
+    SMT, MDP, QRL = ('SMT', 'MDP', 'QRL')
+
+
+class OffActs:
+    
+    NUM_OFFLOAD_ACTS = 5
+    MD, ED, EC, ER, CD = range(NUM_OFFLOAD_ACTS)
 
 
 class Util(object):
@@ -84,3 +103,47 @@ class Util(object):
     def generate_ci_output_data(cls):
 
         return random.randint(4, 8)
+
+
+    @classmethod
+    def get_lat (cls, f_peer, s_peer):
+        
+        if f_peer.get_node_type() == NodeTypes.CLOUD and \
+            s_peer.get_node_type() == NodeTypes.E_DATABASE:
+            return round((15 + numpy.random.normal(200, 33.5)), 2)
+
+        if f_peer.get_node_type() == NodeTypes.CLOUD and \
+            s_peer.get_node_type() == NodeTypes.E_COMP:
+            return round((15 + numpy.random.normal(200, 33.5)), 2)
+
+        if f_peer.get_node_type() == NodeTypes.CLOUD and \
+            s_peer.get_node_type() == NodeTypes.E_REG:
+            return round((15 + numpy.random.normal(200, 33.5)), 2)
+
+        if f_peer.get_node_type() == NodeTypes.CLOUD and \
+            s_peer.get_node_type() == NodeTypes.MOBILE:
+            return round((54 + numpy.random.normal(200, 33.5)), 2)
+
+        if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
+            s_peer.get_node_type() == NodeTypes.E_COMP:
+            return 10
+
+        if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
+            s_peer.get_node_type() == NodeTypes.E_REG:
+            return 10
+
+        if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
+            s_peer.get_node_type() == NodeTypes.MOBILE:
+            return 15
+
+        if f_peer.get_node_type() == NodeTypes.E_COMP and \
+            s_peer.get_node_type() == NodeTypes.E_REG:
+            return 10 
+
+        if f_peer.get_node_type() == NodeTypes.E_COMP and \
+            s_peer.get_node_type() == NodeTypes.MOBILE:
+            return 15
+
+        if f_peer.get_node_type() == NodeTypes.E_REG and \
+            s_peer.get_node_type() == NodeTypes.MOBILE:
+            return 15

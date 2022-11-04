@@ -1,0 +1,44 @@
+{
+	"topology": {
+		"ED1-EC1": {
+			"peers": ["ED1", "EC1"],
+			"bw": 123000
+		},
+		"ED1-ER1": {
+			"peers": ["ED1", "ER1"],
+			"bw": 123000
+		},
+		"ED1-MD1": {
+			"peers": ["ED1", "MD1"],
+			"bw": 2500
+		},
+		"EC1-ER1": {
+			"peers": ["EC1", "ER1"],
+			"bw": 12500
+		},
+		"EC1-MD1": {
+			"peers": ["EC1", "MD1"],
+			"bw": 687.5
+		},
+		"ER1-MD1": {
+			"peers": ["ER1", "MD1"],
+			"bw": 687.5
+		},
+		"CD1-ED1": {
+			"peers": ["CD1", "ED1"],
+			"bw": 123000
+		},
+		"CD1-EC1": {
+			"peers": ["CD1", "EC1"],
+			"bw": 12500
+		},
+		"CD1-ER1": {
+			"peers": ["CD1", "ER1"],
+			"bw": 12500
+		},
+		"CD1-MD1": {
+			"peers": ["CD1", "MD1"],
+			"bw": 2500
+		}
+	}
+}

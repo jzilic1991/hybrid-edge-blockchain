@@ -1,0 +1,39 @@
+{
+	"off-sites": {
+		"ED1": {
+			"type": "Edge Database Server",
+			"mips": 5000,
+			"mem": 8,
+			"stor": 300,
+			"url": "http://128.131.169.143:30256/database/"
+		},
+		"EC1": {
+			"type": "Edge Computational Server",
+			"mips": 8000,
+			"mem": 8,
+			"stor": 150,
+			"url": "http://128.131.169.143:30256/comp/"
+		},
+		"ER1": {
+			"type": "Edge Regular Server",
+			"mips": 5000,
+			"mem": 8,
+			"stor": 150,
+			"url": "http://128.131.169.143:30256/regular/"
+		},
+		"CD1": {
+			"type": "Cloud Data Center",
+			"mips": 12000,
+			"mem": 128,
+			"stor": 1000,
+			"url": "http://128.131.169.143:30256/cloud/"
+		},
+		"MD1": {
+			"type": "Mobile Device",
+			"mips": 1000,
+			"mem": 8,
+			"stor": 16,
+			"url": ""
+		}
+	}
+}
