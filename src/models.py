@@ -1,0 +1,226 @@
+from util import MeasureUnits, ResponseTime, EnergyConsum, \
+	NodeTypes, PowerConsum
+
+
+class Model (object):
+
+	@classmethod
+	def bw_consum (cls, task, cand_n, curr_n, topology):
+
+		if cand_n.get_n_id() != curr_n.get_n_id():
+			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+            	(topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']\
+            		* MeasureUnits.KILOBYTE_PER_SECOND)
+		
+		return 0.0
+
+
+	@classmethod
+	def task_rsp_time (cls, task, cand_n, curr_n, topology):
+        
+		if cand_n.get_n_id () == curr_n.get_n_id ():
+			comp_time = cls.__comp_time(task, cand_n)
+			return ResponseTime (comp_time, 0, 0, comp_time)
+
+		uplink_time = cls.__uplink_time (task, cand_n, curr_n, topology)
+		comp_time = cls.__comp_time(task, cand_n)
+    
+		if not task.get_out_edges():
+			downlink_time = cls.__downlink_time (task, \
+				cand_n, curr_n, topology)
+        
+		else:
+			downlink_time = 0
+                
+		return ResponseTime (comp_time, downlink_time, uplink_time, \
+            uplink_time + comp_time + downlink_time)
+
+
+	def __uplink_time (task, cand_n, curr_n, topology):
+        
+		bw = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']
+		lat = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['lat']
+        
+		return ((task.get_data_in() * MeasureUnits.KILOBYTE) / \
+			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
+			(lat / MeasureUnits.THOUSAND_MS)
+
+
+	def __downlink_time (task, cand_n, curr_n, topology):
+
+		if cand_n.get_n_id () == curr_n.get_n_id ():
+			return 0.0
+
+		bw = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']
+		lat = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['lat']
+        
+		return ((task.get_data_out() * MeasureUnits.KILOBYTE) / \
+			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
+        	(lat / MeasureUnits.THOUSAND_MS)
+
+
+	def __comp_time (task, curr_n):
+        
+		return task.get_mi () / curr_n.get_mips ()
+
+
+	@classmethod
+	def task_e_consum (cls, task_rsp_time, cand_n, curr_n):
+        
+		uplink_time_power = 0.0
+		execution_time_power = 0.0
+		downlink_time_power = 0.0
+		task_energy_consumption = 0.0
+
+		execution_time = task_rsp_time.get_execution()
+		downlink_time = task_rsp_time.get_downlink()
+		uplink_time = task_rsp_time.get_uplink()
+    
+		if cand_n.get_node_type() == NodeTypes.MOBILE and\
+			curr_n.get_node_type() == NodeTypes.MOBILE:
+			execution_time_power = cls.__comp_e_consum(execution_time)
+			task_energy_consumption = uplink_time_power + \
+				execution_time_power + downlink_time_power
+
+		# use case: mobile device -> Edge/Cloud servers
+		elif cand_n.get_node_type() != NodeTypes.MOBILE and\
+			curr_n.get_node_type() == NodeTypes.MOBILE:
+			uplink_time_power = cls.__uplink_e_consum(uplink_time)
+			execution_time_power = cls.__idle_e_consum(execution_time)
+			downlink_time_power = cls.__downlink_e_consum(downlink_time)
+			task_energy_consumption = cls.__offload_e_consum_uplink \
+				(uplink_time, execution_time, downlink_time)
+
+		# use case: Cloud/Edge -> Cloud/Edge (successive tasks executed on the same node)
+		elif cand_n.get_node_type() != NodeTypes.MOBILE and\
+			curr_n.get_node_type() != NodeTypes.MOBILE and\
+			cand_n.get_nd_id () == curr_n.get_nd_id ():
+			execution_time_power = cls.__idle_e_consum(execution_time)
+			downlink_time_power = cls.__downlink_e_consum(downlink_time)
+			task_energy_consumption = cls.__e_consum_remote_exe(execution_time, \
+				downlink_time)
+
+		# use case: Cloud/Edge -> Cloud/Edge (successive tasks executed on the different nodes)	
+		elif cand_n.get_node_type() != NodeTypes.MOBILE and\
+			curr_n.get_node_type() != NodeTypes.MOBILE and\
+			cand_n.get_nd_id () != curr_n.get_nd_id ():
+			execution_time_power = cls.__idle_e_consum(uplink_time + execution_time)
+			downlink_time_power = cls.__downlink_e_consum(downlink_time)
+			task_energy_consumption = cls.__e_consum_remote_exe\
+				(uplink_time + execution_time, downlink_time)
+
+		# use case: Cloud/Edge -> mobile device
+		elif cand_n.get_node_type() == NodeTypes.MOBILE and\
+			curr_n.get_node_type () != NodeTypes.MOBILE:
+			execution_time_power = cls.__comp_e_consum(execution_time)
+			downlink_time_power = cls.__downlink_e_consum(uplink_time)
+			task_energy_consumption = cls.__offload_e_consum_downlink(uplink_time, \
+				execution_time)
+
+		return EnergyConsum (execution_time_power, downlink_time_power, \
+			uplink_time_power, task_energy_consumption)
+
+
+	@classmethod
+	def fail_cost (cls, cand_n, curr_n):
+        
+		time_cost = OFFLOADING_FAILURE_DETECTION_TIME
+		cost_rsp_time = ResponseTime (0.0, 0.0, 0.0, 0.0)
+		cost_energy_consum = EnergyConsum (0.0, 0.0, 0.0, 0.0)
+		cost_rewards = 0
+
+		if cand_n.get_node_type () != NodeTypes.MOBILE and \
+			curr_n.get_node_type () != NodeTypes.MOBILE:
+			cost_rsp_time = ResponseTime (time_cost, 0.0, 0.0, time_cost)
+			cost_energy_consum = cls.task_e_consum \
+				(cost_rsp_time, cand_n, curr_n)
+			task_time_reward = cls.__task_rsp_time_rwd \
+				(cost_rsp_time.get_task_overall())
+			task_energy_reward = cls.__task_e_consum_rwd \
+				(cost_energy_consum.get_task_overall())
+			cost_rewards = cls.__overall_task_rwd \
+				(task_time_reward, task_energy_reward)
+
+		elif cand_n.get_node_type () == NodeTypes.MOBILE and \
+			curr_n.get_node_type () != NodeTypes.MOBILE:
+			cost_rsp_time = ResponseTime (0.0, time_cost, 0.0, time_cost)
+			cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
+			task_time_reward = cls.__task_rsp_time_rwd \
+				(cost_rsp_time.get_task_overall())
+			task_energy_reward = cls.__task_e_consum_rwd \
+				(energy_consum.get_task_overall())
+			cost_rewards = cls.__overall_task_rwd \
+				(task_time_reward, task_energy_reward)
+
+		elif cand_n.get_node_type () != NodeTypes.MOBILE and \
+			curr_n.get_node_type () == NodeTypes.MOBILE:
+			cost_rsp_time = ResponseTime (0.0, 0.0, time_cost, time_cost)
+			cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
+			task_time_reward = cls.__task_rsp_time_rwd \
+				(cost_rsp_time.get_task_overall())
+			task_energy_reward = cls.__task_e_consum_rwd \
+				(cost_energy_consum.get_task_overall())
+			cost_rewards = cls.__overall_task_rwd \
+				(task_time_reward, task_energy_reward)
+
+		return (cost_rsp_time, cost_energy_consum, cost_rewards)
+
+
+	def __offload_e_consum_downlink (downlink_time, execution_time):
+        
+		return cls.__downlink_e_consum (downlink_time) + \
+			cls.__execution_e_consum(execution_time)
+
+    
+	def __offload_e_consum_uplink (uplink_time, idle_time, downlink_time):
+        
+		return cls.__uplink_e_consum (uplink_time) + cls.__idle_e_consum (idle_time) \
+			+ cls.__downlink_e_consum(downlink_time)
+    
+    
+	def __e_consum_remote_exe (remote_execution_time, downlink_time):
+        
+		return cls.__idle_e_consum(remote_execution_time) + \
+			cls.__downlink_e_consum (downlink_time)
+
+    
+	def __uplink_e_consum (uplink_time):
+        
+		return uplink_time * PowerConsum.UPLINK
+
+
+	def __downlink_e_consum (downlink_time):
+        
+		return downlink_time * PowerConsum.DOWNLINK
+
+
+	def __comp_e_consum(execution_time):
+        
+		return execution_time * PowerConsum.LOCAL
+
+    
+	def __idle_e_consum (idle_time):
+        
+		return idle_time * PowerConsum.IDLE
+
+    
+	def __task_rsp_time_rwd (task_completion_time):
+        
+		if task_completion_time == 0.0:
+			return 0.0
+
+		return 1 / (1 + math.exp(task_completion_time))
+
+
+	def __task_e_consum_rwd (task_energy_consumption):
+        
+		if task_energy_consumption == 0.0:
+			return 0.0
+
+		return 1 / (1 + math.exp(task_energy_consumption))
+
+    
+	def __overall_task_rwd(time_reward, energy_reward):
+        
+		return (cls._w_f_time_completion * time_reward) + \
+			(cls._w_f_energy_consumption * energy_reward)

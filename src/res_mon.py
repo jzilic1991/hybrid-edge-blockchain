@@ -9,61 +9,50 @@ class ResourceMonitor:
     def __init__ (self):
 
         self._off_sites = self.__init_off_sites ()
-        self._topology = self.__get_topology (json.load \
+        self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
+
+
+    def get_topology (cls):
+
+        return cls._topology
 
 
     def get_edge_regs (cls):
         
-        nodes = list ()
-
-        for off_site in cls._off_sites:
-            if off_site.get_node_type () == NodeTypes.E_REG:
-                nodes.append (off_site)
-        
-        return nodes
+        return cls.__get_off_site (NodeTypes.E_REG)
 
 
     def get_edge_dats (cls):
         
-        nodes = list ()
-
-        for off_site in cls._off_sites:
-            if off_site.get_node_type () == NodeTypes.E_DAT:
-                nodes.append (off_site)
-        
-        return nodes
+        return cls.__get_off_site (NodeTypes.E_DAT)
 
 
     def get_edge_comps (cls):
         
-        nodes = list ()
-
-        for off_site in cls._off_sites:
-            if off_site.get_node_type () == NodeTypes.E_COMP:
-                nodes.append (off_site)
-        
-        return nodes
+        return cls.__get_off_site (NodeTypes.E_COMP)
 
 
     def get_cloud_dc (cls):
         
-        nodes = list ()
+        return cls.__get_off_site (NodeTypes.CLOUD)
 
-        for off_site in cls._off_sites:
-            if off_site.get_node_type () == NodeTypes.CLOUD:
-                nodes.append (off_site)
+
+    def get_md(cls):
         
-        return nodes
+        return cls.__get_off_site (NodeTypes.MOBILE)[0]
 
 
     def get_bw (cls, f_peer, s_peer):
 
-        for _, l_val in cls._topology['topology'].items ():
-            if f_peer in l_val['peers'] and s_peer in l_val['peers']:
-                return l_val['bw']
+        return cls._topology[f_peer.get_n_id () + \
+            '-' + s_peer.get_n_id ()]['bw']
 
-        return 0.0
+
+    def get_lat (cls, f_peer, s_peer):
+
+        return cls._topology[f_peer.get_n_id () + \
+            '-' + s_peer.get_n_id ()]['lat']
 
 
     def get_off_sites (cls):
@@ -71,7 +60,7 @@ class ResourceMonitor:
         return cls._off_sites
 
 
-    def __get_topology (cls, data):
+    def __create_topology (cls, data):
         
         topology = dict ()
         i = 0
@@ -106,4 +95,12 @@ class ResourceMonitor:
         return off_sites
 
 
-res_mon = ResourceMonitor ()
+    def __get_off_site (cls, node_type):
+
+        nodes = list ()
+
+        for off_site in cls._off_sites:
+            if off_site.get_node_type () == node_type:
+                nodes.append (off_site)
+        
+        return nodes

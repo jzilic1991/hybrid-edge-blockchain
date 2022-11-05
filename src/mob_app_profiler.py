@@ -5,8 +5,6 @@ from mobile_app import MobileApplication
 from util import MobApps
 
 
-
-
 class MobileAppProfiler:
 
     def __init__ (self):
@@ -18,7 +16,7 @@ class MobileAppProfiler:
     def dep_rand_mob_app (cls):
         
         choice = np.random.choice(len(cls._mob_apps), 1, \
-            p = [app.get_prob() for app in cls._mob_apps])[0]
+            p = [MobApps.PROBS[app.get_name ()] for app in cls._mob_apps])[0]
 
         return cls._mob_apps[choice]
 
@@ -35,6 +33,3 @@ class MobileAppProfiler:
             mob_apps.append (MobileApplication (app_name, data[app_name]))
 
         return mob_apps
-
-
-a = MobileAppProfiler ()

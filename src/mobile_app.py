@@ -2,7 +2,6 @@ import sys
 
 from task import Task
 from util import ExeErrCode
-# from logger import Logger
 
 
 class MobileApplication:
@@ -15,10 +14,10 @@ class MobileApplication:
         self._running = False
 
         self.__init_task_dependencies ()
-        self.print_entire_config ()
+        # self.print_entire_config ()
         
-        for task in self._app_struct:
-             task.print_system()
+        # for task in self._app_struct:
+        #     task.print_system()
 
 
     def run(cls):

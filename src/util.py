@@ -2,6 +2,28 @@ import random
 import numpy
 
 
+class MeasureUnits:
+    
+    KILOBYTE = 1000            # bytes
+    KILOBYTE_PER_SECOND = 1000 # 1Mbps -> 0.125 Mb/s
+    THOUSAND_MS = 1000         # 1000ms -> 1s used for network latency unit conversion
+    GIGABYTES = 1000000
+
+
+class PowerConsum:
+
+    # constans for power consumption (Watts)
+    UPLINK = 1.3
+    DOWNLINK = 1.0
+    LOCAL = 0.9
+    IDLE = 0.3
+
+
+class Settings:
+
+    OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
+
+
 class Testnets:
 
 	KOVAN, ROPSTEN, RINKEBY, GOERLI, TRUFFLE, GANACHE = \
@@ -30,6 +52,9 @@ class MobApps:
     ANTIVIRUS, GPS_NAVIGATOR, CHESS, FACERECOGNIZER, FACEBOOK = \
     	('ANTIVIRUS', 'GPS_NAVIGATOR', 'CHESS', 'FACERECOGNIZER', 'FACEBOOK')
 
+    PROBS = {ANTIVIRUS: 0.05, GPS_NAVIGATOR: 0.3, CHESS: 0.1, FACERECOGNIZER: 0.1, \
+        FACEBOOK: 0.45}
+
 
 class NodeTypes:
     
@@ -49,7 +74,40 @@ class OffActs:
     MD, ED, EC, ER, CD = range(NUM_OFFLOAD_ACTS)
 
 
-class Util(object):
+class Objective:
+    
+    def __init__ (self, execution, downlink, uplink, task_overall):
+        self._execution = execution
+        self._downlink = downlink
+        self._uplink = uplink
+        self._task_overall = task_overall
+
+    def get_execution (cls):
+        return cls._execution
+
+
+    def get_downlink (cls):
+        return cls._downlink
+
+
+    def get_uplink (cls):
+        return cls._uplink
+
+
+    def get_overall (cls):
+        return cls._task_overall
+
+
+class ResponseTime (Objective):
+    pass
+
+
+class EnergyConsum (Objective):
+    pass
+
+
+
+class Util (object):
 
     @classmethod
     def generate_di_cpu_cycles(cls):
