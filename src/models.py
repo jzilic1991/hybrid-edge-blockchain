@@ -8,9 +8,10 @@ class Model (object):
 	def bw_consum (cls, task, cand_n, curr_n, topology):
 
 		if cand_n.get_n_id() != curr_n.get_n_id():
+			name = cls.__key_for_topology_access (cand_n.get_n_id (), \
+				curr_n.get_n_id ())
 			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
-            	(topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']\
-            		* MeasureUnits.KILOBYTE_PER_SECOND)
+            	(topology[name]['bw'] * MeasureUnits.KILOBYTE_PER_SECOND)
 		
 		return 0.0
 
@@ -22,11 +23,11 @@ class Model (object):
 			comp_time = cls.__comp_time(task, cand_n)
 			return ResponseTime (comp_time, 0, 0, comp_time)
 
-		uplink_time = cls.__uplink_time (task, cand_n, curr_n, topology)
+		uplink_time = cls.__uplink_time (cls, task, cand_n, curr_n, topology)
 		comp_time = cls.__comp_time(task, cand_n)
     
 		if not task.get_out_edges():
-			downlink_time = cls.__downlink_time (task, \
+			downlink_time = cls.__downlink_time (cls, task, \
 				cand_n, curr_n, topology)
         
 		else:
@@ -36,23 +37,29 @@ class Model (object):
             uplink_time + comp_time + downlink_time)
 
 
-	def __uplink_time (task, cand_n, curr_n, topology):
+	def __uplink_time (cls,task, cand_n, curr_n, topology):
+
+		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
+			curr_n.get_n_id (), topology)
         
-		bw = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']
-		lat = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['lat']
+		bw = topology[name]['bw']
+		lat = topology[name]['lat']
         
 		return ((task.get_data_in() * MeasureUnits.KILOBYTE) / \
 			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
 			(lat / MeasureUnits.THOUSAND_MS)
 
 
-	def __downlink_time (task, cand_n, curr_n, topology):
+	def __downlink_time (cls, task, cand_n, curr_n, topology):
 
 		if cand_n.get_n_id () == curr_n.get_n_id ():
 			return 0.0
 
-		bw = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['bw']
-		lat = topology[cand_n.get_n_id () + '-' + curr_n.get_n_id ()]['lat']
+		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
+			curr_n.get_n_id (), topology)
+
+		bw = topology[name]['bw']
+		lat = topology[name]['lat']
         
 		return ((task.get_data_out() * MeasureUnits.KILOBYTE) / \
 			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
@@ -89,33 +96,33 @@ class Model (object):
 			execution_time_power = cls.__idle_e_consum(execution_time)
 			downlink_time_power = cls.__downlink_e_consum(downlink_time)
 			task_energy_consumption = cls.__offload_e_consum_uplink \
-				(uplink_time, execution_time, downlink_time)
+				(cls, uplink_time, execution_time, downlink_time)
 
 		# use case: Cloud/Edge -> Cloud/Edge (successive tasks executed on the same node)
 		elif cand_n.get_node_type() != NodeTypes.MOBILE and\
 			curr_n.get_node_type() != NodeTypes.MOBILE and\
-			cand_n.get_nd_id () == curr_n.get_nd_id ():
+			cand_n.get_n_id () == curr_n.get_n_id ():
 			execution_time_power = cls.__idle_e_consum(execution_time)
 			downlink_time_power = cls.__downlink_e_consum(downlink_time)
-			task_energy_consumption = cls.__e_consum_remote_exe(execution_time, \
+			task_energy_consumption = cls.__e_consum_remote_exe(cls, execution_time, \
 				downlink_time)
 
 		# use case: Cloud/Edge -> Cloud/Edge (successive tasks executed on the different nodes)	
 		elif cand_n.get_node_type() != NodeTypes.MOBILE and\
 			curr_n.get_node_type() != NodeTypes.MOBILE and\
-			cand_n.get_nd_id () != curr_n.get_nd_id ():
+			cand_n.get_n_id () != curr_n.get_n_id ():
 			execution_time_power = cls.__idle_e_consum(uplink_time + execution_time)
 			downlink_time_power = cls.__downlink_e_consum(downlink_time)
 			task_energy_consumption = cls.__e_consum_remote_exe\
-				(uplink_time + execution_time, downlink_time)
+				(cls, uplink_time + execution_time, downlink_time)
 
 		# use case: Cloud/Edge -> mobile device
 		elif cand_n.get_node_type() == NodeTypes.MOBILE and\
 			curr_n.get_node_type () != NodeTypes.MOBILE:
 			execution_time_power = cls.__comp_e_consum(execution_time)
 			downlink_time_power = cls.__downlink_e_consum(uplink_time)
-			task_energy_consumption = cls.__offload_e_consum_downlink(uplink_time, \
-				execution_time)
+			task_energy_consumption = cls.__offload_e_consum_downlink(cls, \
+				uplink_time, execution_time)
 
 		return EnergyConsum (execution_time_power, downlink_time_power, \
 			uplink_time_power, task_energy_consumption)
@@ -166,19 +173,19 @@ class Model (object):
 		return (cost_rsp_time, cost_energy_consum, cost_rewards)
 
 
-	def __offload_e_consum_downlink (downlink_time, execution_time):
+	def __offload_e_consum_downlink (cls, downlink_time, execution_time):
         
 		return cls.__downlink_e_consum (downlink_time) + \
-			cls.__execution_e_consum(execution_time)
+			cls.__comp_e_consum(execution_time)
 
     
-	def __offload_e_consum_uplink (uplink_time, idle_time, downlink_time):
+	def __offload_e_consum_uplink (cls, uplink_time, idle_time, downlink_time):
         
 		return cls.__uplink_e_consum (uplink_time) + cls.__idle_e_consum (idle_time) \
 			+ cls.__downlink_e_consum(downlink_time)
     
     
-	def __e_consum_remote_exe (remote_execution_time, downlink_time):
+	def __e_consum_remote_exe (cls, remote_execution_time, downlink_time):
         
 		return cls.__idle_e_consum(remote_execution_time) + \
 			cls.__downlink_e_consum (downlink_time)
@@ -220,7 +227,22 @@ class Model (object):
 		return 1 / (1 + math.exp(task_energy_consumption))
 
     
-	def __overall_task_rwd(time_reward, energy_reward):
+	def __overall_task_rwd (time_reward, energy_reward):
         
 		return (cls._w_f_time_completion * time_reward) + \
 			(cls._w_f_energy_consumption * energy_reward)
+
+
+	def __key_for_topology_access (f_name, s_name, topology):
+
+		f_alt_name = f_name + '-' + s_name
+		s_alt_name = s_name + '-' + f_name
+		name = ""
+
+		if f_alt_name in topology:
+			name = f_alt_name
+
+		else:
+			name = s_alt_name
+
+		return name

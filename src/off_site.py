@@ -1,6 +1,6 @@
 import sys
 
-from util import Util, NodeTypes, ExeErrCode
+from util import Util, NodeTypes, ExeErrCode, MeasureUnits
 from task import Task
 
 
@@ -60,3 +60,43 @@ class OffloadingSite:
         if cls._stor > (cls._stor_consum + ((task.get_data_in() + task.get_data_out()) / GIGABYTES)) and \
             cls._mem > (cls._mem_consum + task.get_memory()):
             return ExeErrCode.EXE_OK
+
+
+    def execute (cls, task):
+            
+        if not isinstance (task, Task):
+                
+            raise ValueError("Task for execution on offloading site should be Task class instance!")
+
+        if not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE:
+                
+            return ExeErrCode.EXE_NOK
+        
+        if not task.execute():
+                
+            raise ValueError("Task execution operation is not executed properly! Please check the code of execute() method in Task class!")
+
+        t_stor_consum = task.get_data_in() + task.get_data_out()
+        t_mem_consum = task.get_memory()
+
+        cls._stor_consum = cls._stor_consum + \
+            (t_stor_consum / MeasureUnits.GIGABYTES)
+        cls._mem_consum = cls._mem_consum + t_mem_consum
+
+        return ExeErrCode.EXE_OK
+
+
+    def terminate (cls, task):
+        
+        if not isinstance(task, Task):
+            return ExeErrCode.EXE_NOK
+    
+        cls._mem_consum = cls._mem_consum - task.get_memory()
+        cls._stor_consum = cls._stor_consum - \
+            ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
+
+        if cls._mem_consum < 0 or cls._stor_consum < 0:
+            raise ValueError("Memory consumption: " + str(cls._mem_consum) + \
+                    "Gb, data storage consumption: " + str(cls._stor_consum) + \
+                    "Gb, both should be positive! Node: " + cls._name + ", task: " + \
+                    task.get_name())

@@ -47,7 +47,7 @@ class MobileApplication:
                 if not task.is_executed():
                     return False
 
-            cls.print_task_exe_status()
+            # cls.print_task_exe_status()
             cls.__init_task_dependencies()
             cls._running = False
 
@@ -74,15 +74,14 @@ class MobileApplication:
 
     def print_task_exe_status(cls):
         
+        print_text = ""
+
         for task in cls._app_struct:
             if task.is_executed():
-                offloadability = task.is_offloadable()
-                print_text = task.get_name() + "(" + str(offloadability) \
-                    + ")" + " is EXECUTED on " + task.get_offloading_site() 
-    
-                if offloadability:
-                    print_text = print_text + " with offloading policy " \
-                        + str(task.get_offloading_policy())
+                print_text = print_text + task.get_name() + "(" + \
+                    str(task.is_offloadable()) + ")" + " is EXECUTED\n"
+
+        print (print_text)
 
     
     def print_entire_config(cls):

@@ -44,27 +44,35 @@ class Task:
 
 
     def execute(cls):
+
         if cls._execute:
+            print ('Bajo')
             return ExeErrCode.EXE_NOK
         
         elif cls._in_edges:
+            print ('Di si')
             return ExeErrCode.EXE_NOK
         
         else:
+
             for task in cls._out_edges:
+
                 if not task.remove_in_edge(cls):
                     return ExeErrCode.EXE_NOK
 
             cls._out_edges = []
             cls._execute = True
+
             return ExeErrCode.EXE_OK
 
 
-    def is_executed(cls):
+    def is_executed (cls):
+        
         return cls._execute
 
 
-    def is_offloadable(cls):
+    def is_offloadable (cls):
+        
         return cls._off
 
 

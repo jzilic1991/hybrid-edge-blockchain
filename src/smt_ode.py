@@ -3,6 +3,7 @@ import random
 from ode import OffloadingDecisionEngine
 from models import Model
 from task import Task
+from util import NodeTypes
 
 
 class SmtOde(OffloadingDecisionEngine):
@@ -27,18 +28,20 @@ class SmtOde(OffloadingDecisionEngine):
 
                 metrics = cls.__compute_metrics (task, cls._curr_n, \
                     off_sites, topology)
-                cand_n = cls.__offloading_decision (task, metrics)
-                
-                t_rsp_time = t_rsp_time + metrics[cand_n]['rsp']
-                t_e_consum = t_e_consum + metrics[cand_n]['e_consum']
-                
+                cand_n, values = cls.__offloading_decision (task, metrics)
+
+                t_rsp_time = t_rsp_time + values['rsp']
+                t_e_consum = t_e_consum + values['e_consum']
+
                 if cand_n.execute (task):
 
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
+                    cand_n.terminate (task)
+                    print (cls._curr_n.get_n_id () +'---->' + cand_n.get_n_id () + \
+                        ' executed task ' + task.get_name ())
+                    print ('RT:' + str(t_rsp_time) + ', EC: ' + str(t_e_consum))
                     break
-
-            cand_n.terminate (task)
 
         max_rsp_time = 0
         for time in t_rsp_time_arr:
@@ -56,10 +59,24 @@ class SmtOde(OffloadingDecisionEngine):
 
     def __offloading_decision(cls, task, metrics):
         
-        ele = random.choice (metrics)
-        off_site, _ = ele.item ()
+        if task.is_offloadable ():
+            
+            ele = random.choice (metrics)
+            key = list (ele.keys ())[0]
+            values = list (ele.values ())[0]
 
-        return off_site 
+            return (key, values)
+
+        else:
+
+            for ele in metrics:
+
+                key = list (ele.keys ())[0]
+                values = list (ele.values ())[0]
+                
+                if key.get_node_type() == NodeTypes.MOBILE:
+                    
+                    return (key, values)
     
 
     def __compute_metrics (cls, task, curr_n, off_sites, topology):
