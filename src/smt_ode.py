@@ -33,95 +33,114 @@ class SmtOde(OffloadingDecisionEngine):
                     off_sites, topology)
                 cand_n, values = cls.__offloading_decision (task, metrics)
 
-                t_rsp_time = t_rsp_time + values['rsp']
-                t_e_consum = t_e_consum + values['e_consum']
+                t_rsp_time = round (t_rsp_time + values['rt'], 3)
+                t_e_consum = round (t_e_consum + values['ec'], 3)
 
                 if cand_n.execute (task):
 
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
+                    print ("Task " + task.get_name () + \
+                        " (" + str(task.is_offloadable ()) + ") " + \
+                        "is offloaded on " + cand_n.get_n_id ())
+                    print ("RT: " + str(t_rsp_time) + ", EC: " + str(t_e_consum))
                     cand_n.terminate (task)
                     break
 
-        max_rsp_time = 0
-        for time in t_rsp_time_arr:
-            if max_rsp_time < time:
-                max_rsp_time = time
-
-        acc_e_consum = 0
-        for e_consum in t_e_consum_arr:
-            acc_e_consum = acc_e_consum + e_consum
+        (max_rsp_time, acc_e_consum) = cls.__get_rsp_and_e_consum (t_rsp_time_arr, \
+            t_e_consum_arr)
 
         cls._curr_n = cand_n
 
         return (round (max_rsp_time, 3), round (acc_e_consum, 3))
 
 
+    def __get_rsp_and_e_consum (cls, rsp_arr, e_consum_arr):
+
+        max_rsp_time = 0
+        for time in rsp_arr:
+            if max_rsp_time < time:
+                max_rsp_time = time
+
+        acc_e_consum = 0
+        for e_consum in e_consum_arr:
+            acc_e_consum = acc_e_consum + e_consum
+
+        return (max_rsp_time, acc_e_consum)
+
+
     def __offloading_decision(cls, task, metrics):
         
         if task.is_offloadable ():
 
-            s = cls.__cr_smt_solver (metrics)
+            (s, b_sites) = cls.__cr_smt_solver (task, metrics)
             
             if str(s.check ()) == 'sat':
                 
-                 = s.model ()
-                key = list (ele.keys ())[0]
-                values = list (ele.values ())[0]
+                sites_to_off = list ()
 
+                print (s.model ())
+                
+                for b in b_sites:
+                    
+                    if is_true (s.model ()[b[0]]):
+
+                        sites_to_off.append (b[1])
+                
+                return (sites_to_off[0], metrics[sites_to_off[0]])
+
+            raise ValueError ("SMT solver did not find solution! s = " + str(s))
+
+        for key, values in metrics.items ():
+                
+            if key.get_node_type() == NodeTypes.MOBILE:
+                    
                 return (key, values)
 
-            else:
-
-                raise ValueError ("SMT solver did not find solution!")
-
-        else:
-
-            for ele in metrics:
-
-                key = list (ele.keys ())[0]
-                values = list (ele.values ())[0]
-                
-                if key.get_node_type() == NodeTypes.MOBILE:
-                    
-                    return (key, values)
+        raise ValueError ("No mobile devices found!")
 
 
-    def __cr_smt_solver (cls, metrics)
+    def __cr_smt_solver (cls, task, metrics):
+
+        # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum"}}
+        sites = [key for key, _ in metrics.items ()]
+        b_sites = list ()
+
+        for site in sites:
+
+            # append tuple (Bool, OffloadingSite) to list
+            b_sites.append ((Bool (site.get_n_id ()), site))
         
-        sites = [key in metrics.keys ()]
         s = Solver ()
 
-        s.add (Or ([Bool (site.get_name ()) for site in sites]))
-        s.add ([Implies (Bool (site.get_name ()) == True, \
-                And (metrics[site]['rt'] <= task.get_rt (), \
-                    metrics[site]['ec'] <= tasl.get_ec ())) \
-                    for site in sites])
-        s.add ([Implies (Bool (site.get_name ()) == True, \
-                And (site.get_reputation () >= cls._REP, \
-                    1.0 >= site.get_reputation () >= 0.0)) \
-                    for site in sites])
-        s.add ([Implies (Bool (site.get_name ()) == True, \
-                And (Settings.BATTERY_LF >= (cls._BL - metrics[site]['ec']) \
-                    / cls._BL >= 0.0)) for site in sites])
-        s.add ([Implies (Bool (site.get_name ()) == True, \
-                And (site.get_mem_consum () < 1, \
-                    site.get_stor_consum () < 1)) \
-                    for site in sites])
+        s.add (Or ([b[0] for b in b_sites]))
+        s.add ([Implies (b[0] == True, \
+                And (metrics[b[1]]['rt'] <= task.get_rt (), \
+                    metrics[b[1]]['ec'] <= task.get_ec ())) \
+                    for b in b_sites])
+        s.add ([Implies (b[0] == True, \
+                And (b[1].get_reputation () >= cls._REP, \
+                    1.0 >= b[1].get_reputation () >= 0.0)) \
+                    for b in b_sites])
+        s.add ([Implies (b[0] == True, \
+                And (Settings.BATTERY_LF >= (cls._BL - metrics[b[1]]['ec']) \
+                    / cls._BL >= 0.0)) for b in b_sites])
+        s.add ([Implies (b[0] == True, \
+                And (b[1].get_mem_consum () < 1, \
+                    b[1].get_stor_consum () < 1)) \
+                    for b in b_sites])
 
-        access_vars = [Bool (site.get_name ()) for site in sites]
-
-        return (s, access_vars)
+        return (s, b_sites)
 
 
     def __compute_metrics (cls, task, curr_n, off_sites, topology):
         
-        metrics = list ()
+        metrics = dict ()
 
         for cand_n in off_sites:
             (rsp_time, e_consum) = cls.__compute_objectives (task, cand_n, curr_n,\
                 topology)
-            metrics.append({cand_n: {'rsp': rsp_time, 'e_consum': e_consum}})
+            metrics[cand_n] = {'rt': rsp_time, 'ec': e_consum}
 
         return metrics
 

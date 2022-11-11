@@ -30,3 +30,6 @@ print (s.check ())
 
 if str (s.check ()) == 'sat':
 	print (s.model ()[sites[1]])
+	print (type (s.model ()[sites[1]]))
+	print (is_true (s.model ()[sites[1]]))
+	print (is_false (s.model ()[sites[1]]))

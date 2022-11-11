@@ -16,7 +16,7 @@ def print_setup (off_sites, topology, app):
 # class instances
 r_mon = ResourceMonitor ()
 m_app_prof = MobileAppProfiler ()
-s_ode = SmtOde ('SMT_ODE', r_mon.get_md ())
+s_ode = SmtOde ('SMT_ODE', r_mon.get_md (), r_mon.get_md ())
 
 # infrastructure and application resource information
 off_sites = r_mon.get_off_sites ()
@@ -38,5 +38,6 @@ while True:
 		
 	i = i + 1
 	print ('Time epoch ' + str(i) + '.')
-	print (s_ode.offload (tasks, off_sites, topology))
+	(max_rt, acc_ec) = s_ode.offload (tasks, off_sites, topology)
+	print ("Max RT: " + str(max_rt) + ", Acc EC: " + str(acc_ec))
 	print ()
