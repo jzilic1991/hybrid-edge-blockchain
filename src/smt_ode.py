@@ -1,16 +1,19 @@
+from z3 import *
 import random
 
 from ode import OffloadingDecisionEngine
 from models import Model
 from task import Task
-from util import NodeTypes
+from util import NodeTypes, Settings
 
 
 class SmtOde(OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n):
+    def __init__(self, name, curr_n, md):
 
-        super().__init__(name, curr_n)
+        super().__init__(name, curr_n, md)
+        self._REP = random.uniform (0, 1)
+        self._BL = Settings.BATTERY_LF
 
 
     def offload(cls, tasks, off_sites, topology):
@@ -38,9 +41,6 @@ class SmtOde(OffloadingDecisionEngine):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     cand_n.terminate (task)
-                    print (cls._curr_n.get_n_id () +'---->' + cand_n.get_n_id () + \
-                        ' executed task ' + task.get_name ())
-                    print ('RT:' + str(t_rsp_time) + ', EC: ' + str(t_e_consum))
                     break
 
         max_rsp_time = 0
@@ -54,18 +54,26 @@ class SmtOde(OffloadingDecisionEngine):
 
         cls._curr_n = cand_n
 
-        return (max_rsp_time, acc_e_consum)
+        return (round (max_rsp_time, 3), round (acc_e_consum, 3))
 
 
     def __offloading_decision(cls, task, metrics):
         
         if task.is_offloadable ():
-            
-            ele = random.choice (metrics)
-            key = list (ele.keys ())[0]
-            values = list (ele.values ())[0]
 
-            return (key, values)
+            s = cls.__cr_smt_solver (metrics)
+            
+            if str(s.check ()) == 'sat':
+                
+                 = s.model ()
+                key = list (ele.keys ())[0]
+                values = list (ele.values ())[0]
+
+                return (key, values)
+
+            else:
+
+                raise ValueError ("SMT solver did not find solution!")
 
         else:
 
@@ -77,7 +85,34 @@ class SmtOde(OffloadingDecisionEngine):
                 if key.get_node_type() == NodeTypes.MOBILE:
                     
                     return (key, values)
-    
+
+
+    def __cr_smt_solver (cls, metrics)
+        
+        sites = [key in metrics.keys ()]
+        s = Solver ()
+
+        s.add (Or ([Bool (site.get_name ()) for site in sites]))
+        s.add ([Implies (Bool (site.get_name ()) == True, \
+                And (metrics[site]['rt'] <= task.get_rt (), \
+                    metrics[site]['ec'] <= tasl.get_ec ())) \
+                    for site in sites])
+        s.add ([Implies (Bool (site.get_name ()) == True, \
+                And (site.get_reputation () >= cls._REP, \
+                    1.0 >= site.get_reputation () >= 0.0)) \
+                    for site in sites])
+        s.add ([Implies (Bool (site.get_name ()) == True, \
+                And (Settings.BATTERY_LF >= (cls._BL - metrics[site]['ec']) \
+                    / cls._BL >= 0.0)) for site in sites])
+        s.add ([Implies (Bool (site.get_name ()) == True, \
+                And (site.get_mem_consum () < 1, \
+                    site.get_stor_consum () < 1)) \
+                    for site in sites])
+
+        access_vars = [Bool (site.get_name ()) for site in sites]
+
+        return (s, access_vars)
+
 
     def __compute_metrics (cls, task, curr_n, off_sites, topology):
         

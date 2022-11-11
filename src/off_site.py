@@ -1,4 +1,5 @@
 import sys
+import random
 
 from util import Util, NodeTypes, ExeErrCode, MeasureUnits
 from task import Task
@@ -17,6 +18,7 @@ class OffloadingSite:
         self._node_type = data['type']
         self._url = data['url']
         self._time_epoch_cnt = 0
+        self._reput = random.uniform (0, 1)
         
         # self.print_system_config()
 
@@ -34,6 +36,21 @@ class OffloadingSite:
     def get_node_type (cls):
         
         return cls._node_type
+
+
+    def get_reputation (cls):
+
+        return cls._reput
+
+
+    def get_stor_consum (cls):
+
+        return cls._stor_consum
+
+
+    def get_mem_consum (cls):
+
+        return cls._mem_consum
 
 
     def get_n_id (cls):
@@ -76,12 +93,9 @@ class OffloadingSite:
                 
             raise ValueError("Task execution operation is not executed properly! Please check the code of execute() method in Task class!")
 
-        t_stor_consum = task.get_data_in() + task.get_data_out()
-        t_mem_consum = task.get_memory()
-
         cls._stor_consum = cls._stor_consum + \
-            (t_stor_consum / MeasureUnits.GIGABYTES)
-        cls._mem_consum = cls._mem_consum + t_mem_consum
+            ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
+        cls._mem_consum = cls._mem_consum + task.get_memory()
 
         return ExeErrCode.EXE_OK
 

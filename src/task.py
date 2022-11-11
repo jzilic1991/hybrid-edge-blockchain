@@ -46,11 +46,9 @@ class Task:
     def execute(cls):
 
         if cls._execute:
-            print ('Bajo')
             return ExeErrCode.EXE_NOK
         
         elif cls._in_edges:
-            print ('Di si')
             return ExeErrCode.EXE_NOK
         
         else:
@@ -77,6 +75,7 @@ class Task:
 
 
     def print_dependencies(cls):
+        
         print ("################### " + cls._name + " DEPENDENCIES ###################", file = sys.stdout)
     
         print ("***INPUT DEPENDENCIES***", file = sys.stdout)
@@ -93,6 +92,7 @@ class Task:
 
     
     def print_system(cls):
+        
         print ("######### " + cls._name + " SYSTEM CONFIGURATION #########")
         print ("CPU: " + str(cls._mi) + " M cycles")
         print ("Memory: " + str(cls._memory) + " Gb")
@@ -103,6 +103,7 @@ class Task:
         
 
     def remove_in_edge(cls, executed_task):
+        
         if executed_task in cls._in_edges:
             cls._in_edges.remove(executed_task)
             return True
@@ -111,23 +112,43 @@ class Task:
 
 
     def reset(cls):
+        
         cls._execute = False
 
 
     def get_data_in(cls):
+        
         return cls._data_in
 
 
     def get_data_out(cls):
+        
         return cls._data_out 
 
 
     def get_mi(cls):
+        
         return cls._mi
 
 
     def get_memory(cls):
+        
         return cls._memory
+
+
+    def get_rt (cls):
+
+        return cls._qos['rt']
+
+
+    def get_ec (cls):
+
+        return cls._qos['ec']
+
+
+    def get_pr (cls):
+
+        return cls._qos['pr']
 
 
     def __determine_resources (cls, task_type):

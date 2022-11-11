@@ -22,6 +22,7 @@ class PowerConsum:
 class Settings:
 
     OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
+    BATTERY_LF = 100 # percentage
 
 
 class Testnets:
