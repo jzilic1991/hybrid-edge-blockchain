@@ -103,20 +103,21 @@ class SmtOde(OffloadingDecisionEngine):
     def __cr_smt_solver (cls, task, metrics):
 
         # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum"}}
+        rsp = Real ('rsp')
         sites = [key for key, _ in metrics.items ()]
         b_sites = list ()
+        s = Optimize ()
 
         for site in sites:
 
             # append tuple (Bool, OffloadingSite) to list
             b_sites.append ((Bool (site.get_n_id ()), site))
-        
-        s = Solver ()
 
         s.add (Or ([b[0] for b in b_sites]))
         s.add ([Implies (b[0] == True, \
                 And (metrics[b[1]]['rt'] <= task.get_rt (), \
-                    metrics[b[1]]['ec'] <= task.get_ec ())) \
+                    metrics[b[1]]['ec'] <= task.get_ec (),
+                    metrics[b[1]]['rt'] == rsp)) \
                     for b in b_sites])
         s.add ([Implies (b[0] == True, \
                 And (b[1].get_reputation () >= cls._REP, \
@@ -129,6 +130,8 @@ class SmtOde(OffloadingDecisionEngine):
                 And (b[1].get_mem_consum () < 1, \
                     b[1].get_stor_consum () < 1)) \
                     for b in b_sites])
+
+        s.minimize (rsp)
 
         return (s, b_sites)
 
