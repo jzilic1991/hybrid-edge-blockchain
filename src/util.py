@@ -8,15 +8,22 @@ class MeasureUnits:
     KILOBYTE_PER_SECOND = 1000 # 1Mbps -> 0.125 Mb/s
     THOUSAND_MS = 1000         # 1000ms -> 1s used for network latency unit conversion
     GIGABYTES = 1000000
+    HOUR_IN_SEC = 3600
 
 
 class PowerConsum:
 
-    # constans for power consumption (Watts)
+    # constants for power consumption (Watts)
     UPLINK = 1.3
     DOWNLINK = 1.0
     LOCAL = 0.9
     IDLE = 0.3
+
+
+class Prices:
+
+    STOR_PER_GB = 0.023 # american dollars (Google Cloud Storage for Central Europe [Warsaw])
+    CPU_PER_HOUR = 0.776 # american dollars (Google Cloud general-purpose VMs)
 
 
 class Settings:
@@ -106,10 +113,12 @@ class Objective:
 
 
 class ResponseTime (Objective):
+    
     pass
 
 
 class EnergyConsum (Objective):
+    
     pass
 
 
@@ -175,40 +184,95 @@ class Util (object):
         
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_DATABASE:
+            
             return round((15 + numpy.random.normal(200, 33.5)), 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_COMP:
+            
             return round((15 + numpy.random.normal(200, 33.5)), 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_REG:
+            
             return round((15 + numpy.random.normal(200, 33.5)), 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
+            
             return round((54 + numpy.random.normal(200, 33.5)), 2)
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.E_COMP:
+            
             return 10
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.E_REG:
+            
             return 10
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
+            
             return 15
 
         if f_peer.get_node_type() == NodeTypes.E_COMP and \
             s_peer.get_node_type() == NodeTypes.E_REG:
+            
             return 10 
 
         if f_peer.get_node_type() == NodeTypes.E_COMP and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
+            
             return 15
 
         if f_peer.get_node_type() == NodeTypes.E_REG and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
+            
             return 15
+
+
+    @classmethod
+    def get_edge_sites (off_sites):
+
+        e_sites = list ()
+
+        for site in off_sites:
+
+            n_t = site.get_node_type ()
+
+            if n_t == NodeTypes.E_DATABASE or n_t == NodeTypes.E_REG or\
+                n_t == NodeTypes.E_COMP:
+
+                e_sites.append (site)
+
+        return e_sites
+
+
+
+    @classmethod
+    def get_cloud_sites (off_sites):
+
+        c_sites = list ()
+
+        for site in off_sites:
+
+            if site.get_node_type () == NodeTypes.CLOUD:
+
+                c_sites.append (site)
+
+        return c_sites
+
+
+
+    @classmethod
+    def get_mob_site (off_sites):
+
+        for site in off_sites:
+
+            if site.get_node_type () == NodeTypes.MOBILE:
+
+                return site
+
+        return None

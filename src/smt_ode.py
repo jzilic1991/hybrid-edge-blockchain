@@ -154,5 +154,7 @@ class SmtOde(OffloadingDecisionEngine):
         
         t_rsp_time = Model.task_rsp_time (task, cand_n, curr_n, topology)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
+        t_price = Model.price (task, cand_n, curr_n, topology)
 
-        return (t_rsp_time.get_overall (), t_e_consum.get_overall ())
+        return (t_rsp_time.get_overall (), t_e_consum.get_overall (), \
+            t_price)

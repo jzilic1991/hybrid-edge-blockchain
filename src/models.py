@@ -39,54 +39,17 @@ class Model (object):
             uplink_time + comp_time + downlink_time)
 
 
-	def __uplink_time (cls, task, cand_n, curr_n, topology):
-
-		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
-			curr_n.get_n_id (), topology)
-        
-		bw = topology[name]['bw']
-		lat = topology[name]['lat']
-
-		if topology[name]['type'] == NetLinkTypes.WIRELESS:
-
-			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
-				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
-				(lat / MeasureUnits.THOUSAND_MS)
-        
-		return ((task.get_data_in() * MeasureUnits.KILOBYTE) / \
-			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
-			(lat / MeasureUnits.THOUSAND_MS)
-
-
-	def __downlink_time (cls, task, cand_n, curr_n, topology):
-
-		if cand_n.get_n_id () == curr_n.get_n_id ():
-			
-			return 0.0
-
-		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
-			curr_n.get_n_id (), topology)
-
-		bw = topology[name]['bw']
-		lat = topology[name]['lat']
-
-		if topology[name]['type'] == NetLinkTypes.WIRELESS:
-
-			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
-				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
-				(lat / MeasureUnits.THOUSAND_MS)
-        
-		return ((task.get_data_out() * MeasureUnits.KILOBYTE) / \
-			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
-        	(lat / MeasureUnits.THOUSAND_MS)
-
-
-	def __comp_time (task, curr_n):
-        
-		return (task.get_mi () / (curr_n.get_mips () * curr_n.get_cores ())) + curr_n.get_cpu_consum ()
-
-
 	@classmethod
+	def price (cls, task, off_sites, curr_n, topology):
+
+		eta = 0.01
+		t_f = cls.__t_f (off_sites, topology)
+
+		return (t_f / eta) - math.sqrt ((eta * __cloud_pr (task, curr_n) + t_f) / eta ** 2 * \
+			__edge_min_rt (task, off_sites, curr_n, topology))
+
+
+		@classmethod
 	def task_e_consum (cls, task_rsp_time, cand_n, curr_n):
         
 		uplink_time_power = 0.0
@@ -186,6 +149,125 @@ class Model (object):
 				(task_time_reward, task_energy_reward)
 
 		return (cost_rsp_time, cost_energy_consum, cost_rewards)
+
+
+	def __uplink_time (cls, task, cand_n, curr_n, topology):
+
+		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
+			curr_n.get_n_id (), topology)
+        
+		bw = topology[name]['bw']
+		lat = topology[name]['lat']
+
+		if topology[name]['type'] == NetLinkTypes.WIRELESS:
+
+			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
+				(lat / MeasureUnits.THOUSAND_MS)
+        
+		return ((task.get_data_in() * MeasureUnits.KILOBYTE) / \
+			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
+			(lat / MeasureUnits.THOUSAND_MS)
+
+
+	def __downlink_time (cls, task, cand_n, curr_n, topology):
+
+		if cand_n.get_n_id () == curr_n.get_n_id ():
+			
+			return 0.0
+
+		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
+			curr_n.get_n_id (), topology)
+
+		bw = topology[name]['bw']
+		lat = topology[name]['lat']
+
+		if topology[name]['type'] == NetLinkTypes.WIRELESS:
+
+			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
+				(lat / MeasureUnits.THOUSAND_MS)
+        
+		return ((task.get_data_out() * MeasureUnits.KILOBYTE) / \
+			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
+        	(lat / MeasureUnits.THOUSAND_MS)
+
+
+	def __comp_time (task, curr_n):
+        
+		return (task.get_mi () / (curr_n.get_mips () * curr_n.get_cores ())) + curr_n.get_cpu_consum ()
+
+
+	def __cloud_pr (cls, task, curr_n):
+
+		return cls.__cloud_pr_cpu (task, curr_n) + cls.__cloud_pr_stor (task)
+
+
+	def __cloud_pr_cpu (cls, task, curr_n):
+
+		return ((task.get_mi () / curr_n.get_mips ()) / MeasureUnits.HOUR_IN_SEC) \
+			 * Prices.CPU_PER_HOUR
+
+
+	def __cloud_pr_stor (cls, task):
+
+		return ((task.get_in () + task.get_out ()) / MeasureUnits.GIGABYTE) \
+			 * Prices.STOR_PER_GB
+
+
+	def __cloud_t_f (cls, c_sites, m_site, topology):
+
+		t_f = 0.0
+
+		for site in c_sites:
+
+			name = cls.__key_for_topology_access (site.get_n_id (), \
+				m_site.get_n_id ())
+			t_f = t_f + (topology[name]['lat'] / len (site)) + (1 / site.get_cores ())
+
+		return t_f
+
+
+	def __edge_t_f (cls, e_sites, m_site, topology):
+
+		t_f = 0.0
+
+		for site in e_sites:
+
+			name = cls.__key_for_topology_access (site.get_n_id (), \
+				m_site.get_n_id ())
+			t_f = t_f + (topology[name]['lat'] / len (site))
+
+		return t_f
+
+
+	def __edge_min_rt (cls, task, off_sites, curr_n, topology):
+
+		e_sites = Util.get_edge_sites (off_sites)
+		min_rt = 0.0
+
+		for cand_n in e_sites:
+			
+			t_rsp_time = cls.task_rsp_time (task, cand_n, curr_n, topology)
+			if min_rt == 0.0:
+
+				min_rt = t_rsp_time
+
+			elif min_rt > t_rsp_time:
+
+				min_rt = t_rsp_time
+
+		return min_rt
+
+
+	def __t_f (cls, off_sites, topology):
+
+		c_sites = Util.get_cloud_sites (off_sites)
+		e_sites = Util.get_edge_sites (off_sites)
+		m_site = Util.get_mob_site (off_sites)
+
+		return cls.__cloud_t_f (c_sites, m_site, topology) - \
+			cls.__edge_t_f (e_sites, m_site, topology)
 
 
 	def __offload_e_consum_downlink (cls, downlink_time, execution_time):
