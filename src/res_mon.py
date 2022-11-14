@@ -79,7 +79,8 @@ class ResourceMonitor:
                         break
 
             topology[f_peer.get_n_id () + '-' + s_peer.get_n_id ()] = \
-                {'bw': val['bw'], 'lat': Util.get_lat (f_peer, s_peer)}
+                {'bw': val['bw'], 'lat': Util.get_lat (f_peer, s_peer), \
+                 'type': val['type']}
 
         return topology
 

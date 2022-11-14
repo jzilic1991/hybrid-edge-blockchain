@@ -2,43 +2,53 @@
 	"topology": {
 		"ED1-EC1": {
 			"peers": ["ED1", "EC1"],
-			"bw": 123000
+			"bw": 123000,
+			"type": "WIRED"
 		},
 		"ED1-ER1": {
 			"peers": ["ED1", "ER1"],
-			"bw": 123000
+			"bw": 123000,
+			"type": "WIRED"
 		},
 		"ED1-MD1": {
 			"peers": ["ED1", "MD1"],
-			"bw": 2500
+			"bw": 2500,
+			"type": "WIRELESS"
 		},
 		"EC1-ER1": {
 			"peers": ["EC1", "ER1"],
-			"bw": 12500
+			"bw": 12500,
+			"type": "WIRED"
 		},
 		"EC1-MD1": {
 			"peers": ["EC1", "MD1"],
-			"bw": 687.5
+			"bw": 687.5,
+			"type": "WIRELESS"
 		},
 		"ER1-MD1": {
 			"peers": ["ER1", "MD1"],
-			"bw": 687.5
+			"bw": 687.5,
+			"type": "WIRELESS"
 		},
 		"CD1-ED1": {
 			"peers": ["CD1", "ED1"],
-			"bw": 123000
+			"bw": 123000,
+			"type": "WIRED"
 		},
 		"CD1-EC1": {
 			"peers": ["CD1", "EC1"],
-			"bw": 12500
+			"bw": 12500,
+			"type": "WIRED"
 		},
 		"CD1-ER1": {
 			"peers": ["CD1", "ER1"],
-			"bw": 12500
+			"bw": 12500,
+			"type": "WIRED"
 		},
 		"CD1-MD1": {
 			"peers": ["CD1", "MD1"],
-			"bw": 2500
+			"bw": 2500,
+			"type": "WIRELESS"
 		}
 	}
 }

@@ -1,5 +1,7 @@
+import math
+
 from util import MeasureUnits, ResponseTime, EnergyConsum, \
-	NodeTypes, PowerConsum
+	NodeTypes, PowerConsum, NetLinkTypes, Settings
 
 
 class Model (object):
@@ -37,13 +39,19 @@ class Model (object):
             uplink_time + comp_time + downlink_time)
 
 
-	def __uplink_time (cls,task, cand_n, curr_n, topology):
+	def __uplink_time (cls, task, cand_n, curr_n, topology):
 
 		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 			curr_n.get_n_id (), topology)
         
 		bw = topology[name]['bw']
 		lat = topology[name]['lat']
+
+		if topology[name]['type'] == NetLinkTypes.WIRELESS:
+
+			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
+				(lat / MeasureUnits.THOUSAND_MS)
         
 		return ((task.get_data_in() * MeasureUnits.KILOBYTE) / \
 			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
@@ -53,6 +61,7 @@ class Model (object):
 	def __downlink_time (cls, task, cand_n, curr_n, topology):
 
 		if cand_n.get_n_id () == curr_n.get_n_id ():
+			
 			return 0.0
 
 		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
@@ -60,6 +69,12 @@ class Model (object):
 
 		bw = topology[name]['bw']
 		lat = topology[name]['lat']
+
+		if topology[name]['type'] == NetLinkTypes.WIRELESS:
+
+			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
+				(lat / MeasureUnits.THOUSAND_MS)
         
 		return ((task.get_data_out() * MeasureUnits.KILOBYTE) / \
 			(bw * MeasureUnits.KILOBYTE_PER_SECOND)) + \
@@ -68,7 +83,7 @@ class Model (object):
 
 	def __comp_time (task, curr_n):
         
-		return task.get_mi () / curr_n.get_mips ()
+		return (task.get_mi () / (curr_n.get_mips () * curr_n.get_cores ())) + curr_n.get_cpu_consum ()
 
 
 	@classmethod

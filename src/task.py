@@ -151,6 +151,11 @@ class Task:
         return cls._qos['pr']
 
 
+    def get_type (cls):
+
+        return cls._type
+
+
     def __determine_resources (cls, task_type):
         
         if task_type == TaskTypes.MODERATE:

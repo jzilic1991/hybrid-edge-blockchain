@@ -41,7 +41,7 @@ class SmtOde(OffloadingDecisionEngine):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     print ("Task " + task.get_name () + \
-                        " (" + str(task.is_offloadable ()) + ") " + \
+                        " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
                         "is offloaded on " + cand_n.get_n_id ())
                     print ("RT: " + str(t_rsp_time) + ", EC: " + str(t_e_consum))
                     cand_n.terminate (task)
@@ -49,8 +49,10 @@ class SmtOde(OffloadingDecisionEngine):
 
         (max_rsp_time, acc_e_consum) = cls.__get_rsp_and_e_consum (t_rsp_time_arr, \
             t_e_consum_arr)
-
+        cls._BL = cls._BL - acc_e_consum
         cls._curr_n = cand_n
+
+        print ('BATTERY LIFETIME: ' + str (cls._BL))
 
         return (round (max_rsp_time, 3), round (acc_e_consum, 3))
 

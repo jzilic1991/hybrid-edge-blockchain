@@ -23,6 +23,7 @@ class Settings:
 
     OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
     BATTERY_LF = 100 # percentage
+    SNR = 5 #dB
 
 
 class Testnets:
@@ -69,6 +70,11 @@ class OdeTypes:
     SMT, MDP, QRL = ('SMT', 'MDP', 'QRL')
 
 
+class NetLinkTypes:
+
+    WIRED, WIRELESS = ('WIRED', 'WIRELESS')
+
+
 class OffActs:
     
     NUM_OFFLOAD_ACTS = 5
@@ -113,13 +119,13 @@ class Util (object):
     @classmethod
     def generate_di_cpu_cycles(cls):
 
-        return random.randint(100, 200)
+        return random.randint(100, 150)
 
 
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.randint(550, 650)
+        return random.randint(750, 850)
 
 
     @classmethod
@@ -131,7 +137,7 @@ class Util (object):
     @classmethod
     def generate_di_input_data(cls):
 
-        return random.randint(4 * 25, 4 * 30)
+        return random.randint(4 * 35, 4 * 50)
 
 
     @classmethod
@@ -143,7 +149,7 @@ class Util (object):
     @classmethod
     def generate_ci_input_data(cls):
 
-        return random.randint(4, 8)
+        return random.randint(2, 4)
 
 
     @classmethod

@@ -11,8 +11,10 @@ class OffloadingSite:
 
         self._name_id = name_id
         self._mips = data['mips']
+        self._cores = data['cores']
         self._mem = data['mem']
         self._stor = data['stor']
+        self._cpu_consum = 0
         self._stor_consum = 0
         self._mem_consum = 0
         self._node_type = data['type']
@@ -43,6 +45,11 @@ class OffloadingSite:
         return cls._reput
 
 
+    def get_cpu_consum (cls):
+
+        return cls._cpu_consum
+
+
     def get_stor_consum (cls):
 
         return cls._stor_consum
@@ -61,6 +68,11 @@ class OffloadingSite:
     def get_mips (cls):
         
         return cls._mips
+
+
+    def get_cores (cls):
+
+        return cls._cores
     
 
     def time_epoch_count (cls):
@@ -93,6 +105,7 @@ class OffloadingSite:
                 
             raise ValueError("Task execution operation is not executed properly! Please check the code of execute() method in Task class!")
 
+        cls._cpu_consum = cls._cpu_consum + (task.get_mi () / (cls._cores * cls._mips))
         cls._stor_consum = cls._stor_consum + \
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
         cls._mem_consum = cls._mem_consum + task.get_memory()
@@ -103,8 +116,10 @@ class OffloadingSite:
     def terminate (cls, task):
         
         if not isinstance(task, Task):
+            
             return ExeErrCode.EXE_NOK
     
+        cls._cpu_consum = cls._cpu_consum - (task.get_mi () / (cls._cores * cls._mips))
         cls._mem_consum = cls._mem_consum - task.get_memory()
         cls._stor_consum = cls._stor_consum - \
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
