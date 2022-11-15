@@ -30,7 +30,11 @@ class Settings:
 
     OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
     BATTERY_LF = 100 # percentage
-    SNR = 5 #dB
+    SNR = 5 # dB
+    ETA = 0.5
+    W_RT = 0.5
+    W_EC = 0.4
+    W_PR = 0.1
 
 
 class Testnets:
@@ -91,24 +95,30 @@ class OffActs:
 class Objective:
     
     def __init__ (self, execution, downlink, uplink, task_overall):
-        self._execution = execution
-        self._downlink = downlink
-        self._uplink = uplink
-        self._task_overall = task_overall
+        
+        self._execution = round (execution, 3)
+        self._downlink = round (downlink, 3)
+        self._uplink = round (uplink, 3)
+        self._task_overall = round (task_overall, 3)
 
+    
     def get_execution (cls):
+        
         return cls._execution
 
 
     def get_downlink (cls):
+        
         return cls._downlink
 
 
     def get_uplink (cls):
+        
         return cls._uplink
 
 
     def get_overall (cls):
+        
         return cls._task_overall
 
 
@@ -128,7 +138,7 @@ class Util (object):
     @classmethod
     def generate_di_cpu_cycles(cls):
 
-        return random.randint(100, 150)
+        return random.randint(100, 200)
 
 
     @classmethod
@@ -164,7 +174,7 @@ class Util (object):
     @classmethod
     def generate_di_output_data(cls):
 
-        return random.randint(4 * 15, 4 * 20)
+        return random.randint(4 * 25, 4 * 30)
 
 
     @classmethod
@@ -234,7 +244,7 @@ class Util (object):
 
 
     @classmethod
-    def get_edge_sites (off_sites):
+    def get_edge_sites (cls, off_sites):
 
         e_sites = list ()
 
@@ -252,7 +262,7 @@ class Util (object):
 
 
     @classmethod
-    def get_cloud_sites (off_sites):
+    def get_cloud_sites (cls, off_sites):
 
         c_sites = list ()
 
@@ -267,7 +277,7 @@ class Util (object):
 
 
     @classmethod
-    def get_mob_site (off_sites):
+    def get_mob_site (cls, off_sites):
 
         for site in off_sites:
 

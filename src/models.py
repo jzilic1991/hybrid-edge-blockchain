@@ -1,7 +1,7 @@
 import math
 
 from util import MeasureUnits, ResponseTime, EnergyConsum, \
-	NodeTypes, PowerConsum, NetLinkTypes, Settings
+	NodeTypes, PowerConsum, NetLinkTypes, Settings, Util, Prices
 
 
 class Model (object):
@@ -11,7 +11,7 @@ class Model (object):
 
 		if cand_n.get_n_id() != curr_n.get_n_id():
 			name = cls.__key_for_topology_access (cand_n.get_n_id (), \
-				curr_n.get_n_id ())
+				curr_n.get_n_id (), topology)
 			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
             	(topology[name]['bw'] * MeasureUnits.KILOBYTE_PER_SECOND)
 		
@@ -40,16 +40,31 @@ class Model (object):
 
 
 	@classmethod
-	def price (cls, task, off_sites, curr_n, topology):
+	def price (cls, task, off_sites, cand_n, curr_n, topology):
 
-		eta = 0.01
-		t_f = cls.__t_f (off_sites, topology)
+		n_d = cand_n.get_node_type ()
 
-		return (t_f / eta) - math.sqrt ((eta * __cloud_pr (task, curr_n) + t_f) / eta ** 2 * \
-			__edge_min_rt (task, off_sites, curr_n, topology))
+		if n_d == NodeTypes.MOBILE:
+
+			return 0.0
+
+		elif n_d == NodeTypes.E_REG or n_d == NodeTypes.E_DATABASE or \
+			n_d == NodeTypes.E_COMP:
+
+			t_f = cls.__t_f (cls, off_sites, topology)
+
+			return (t_f / Settings.ETA) - math.sqrt ((Settings.ETA * \
+				cls.__cloud_pr (cls, task, cand_n) + t_f) / Settings.ETA ** 2 * \
+				cls.__edge_min_rt (cls, task, off_sites, curr_n, topology)) 
+
+		elif n_d == NodeTypes.CLOUD:
+
+			return cls.__cloud_pr (cls, task, cand_n)
+
+		raise ValueError ("Resource pricing does not recognize node type! " + str (n_d))
 
 
-		@classmethod
+	@classmethod
 	def task_e_consum (cls, task_rsp_time, cand_n, curr_n):
         
 		uplink_time_power = 0.0
@@ -198,20 +213,20 @@ class Model (object):
 		return (task.get_mi () / (curr_n.get_mips () * curr_n.get_cores ())) + curr_n.get_cpu_consum ()
 
 
-	def __cloud_pr (cls, task, curr_n):
+	def __cloud_pr (cls, task, cand_n):
 
-		return cls.__cloud_pr_cpu (task, curr_n) + cls.__cloud_pr_stor (task)
+		return cls.__cloud_pr_cpu (cls, task, cand_n) + cls.__cloud_pr_stor (cls, task)
 
 
 	def __cloud_pr_cpu (cls, task, curr_n):
 
-		return ((task.get_mi () / curr_n.get_mips ()) / MeasureUnits.HOUR_IN_SEC) \
+		return ((task.get_mi () / (curr_n.get_mips () * curr_n.get_cores ())) / MeasureUnits.HOUR_IN_SEC) \
 			 * Prices.CPU_PER_HOUR
 
 
 	def __cloud_pr_stor (cls, task):
 
-		return ((task.get_in () + task.get_out ()) / MeasureUnits.GIGABYTE) \
+		return (((task.get_data_in () + task.get_data_out ()) * MeasureUnits.KILOBYTE) / MeasureUnits.GIGABYTES) \
 			 * Prices.STOR_PER_GB
 
 
@@ -222,8 +237,8 @@ class Model (object):
 		for site in c_sites:
 
 			name = cls.__key_for_topology_access (site.get_n_id (), \
-				m_site.get_n_id ())
-			t_f = t_f + (topology[name]['lat'] / len (site)) + (1 / site.get_cores ())
+				m_site.get_n_id (), topology)
+			t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (c_sites)) + (1 / site.get_cores ())
 
 		return t_f
 
@@ -235,8 +250,8 @@ class Model (object):
 		for site in e_sites:
 
 			name = cls.__key_for_topology_access (site.get_n_id (), \
-				m_site.get_n_id ())
-			t_f = t_f + (topology[name]['lat'] / len (site))
+				m_site.get_n_id (), topology)
+			t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (e_sites))
 
 		return t_f
 
@@ -248,7 +263,7 @@ class Model (object):
 
 		for cand_n in e_sites:
 			
-			t_rsp_time = cls.task_rsp_time (task, cand_n, curr_n, topology)
+			t_rsp_time = cls.task_rsp_time (task, cand_n, curr_n, topology).get_overall ()
 			if min_rt == 0.0:
 
 				min_rt = t_rsp_time
@@ -257,6 +272,7 @@ class Model (object):
 
 				min_rt = t_rsp_time
 
+		# print ("Edge min RT = " + str (min_rt))
 		return min_rt
 
 
@@ -266,8 +282,8 @@ class Model (object):
 		e_sites = Util.get_edge_sites (off_sites)
 		m_site = Util.get_mob_site (off_sites)
 
-		return cls.__cloud_t_f (c_sites, m_site, topology) - \
-			cls.__edge_t_f (e_sites, m_site, topology)
+		return cls.__cloud_t_f (cls, c_sites, m_site, topology) - \
+			cls.__edge_t_f (cls, e_sites, m_site, topology)
 
 
 	def __offload_e_consum_downlink (cls, downlink_time, execution_time):

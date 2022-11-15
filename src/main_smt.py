@@ -38,6 +38,7 @@ while True:
 		
 	i = i + 1
 	print ('Time epoch ' + str(i) + '.')
-	(max_rt, acc_ec) = s_ode.offload (tasks, off_sites, topology)
-	print ("Max RT: " + str(max_rt) + ", Acc EC: " + str(acc_ec))
+	(max_rt, acc_ec, acc_pr) = s_ode.offload (tasks, off_sites, topology)
+	print ("Max RT: " + str (max_rt) + ", Acc EC: " + str (acc_ec) + \
+		", Acc PR: " + str (acc_pr))
 	print ()
