@@ -76,7 +76,7 @@ class ChainMsgHandler:
 	async def deploy_smart_contract (cls):
 		
 		# load smart contract data structure
-		truffle_file = json.load (open ('./build/contracts/Reputation.json'))
+		truffle_file = json.load (open ('.././build/contracts/Reputation.json'))
 		abi = truffle_file['abi']
 		bytecode = truffle_file['bytecode']
 		cls._smart_contract = cls._w3.eth.contract (bytecode = bytecode, abi = abi)

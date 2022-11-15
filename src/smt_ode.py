@@ -7,7 +7,7 @@ from task import Task
 from util import NodeTypes, Settings
 
 
-class SmtOde(OffloadingDecisionEngine):
+class SmtOde (OffloadingDecisionEngine):
 
     def __init__(self, name, curr_n, md):
 
@@ -88,7 +88,7 @@ class SmtOde(OffloadingDecisionEngine):
         
         if task.is_offloadable ():
 
-            (s, b_sites) = cls.__cr_smt_solver (task, metrics)
+            (s, b_sites) = cls.__smt_solving (task, metrics)
             
             if str(s.check ()) == 'sat':
                 
@@ -115,7 +115,7 @@ class SmtOde(OffloadingDecisionEngine):
         raise ValueError ("No mobile devices found!")
 
 
-    def __cr_smt_solver (cls, task, metrics):
+    def __smt_solving (cls, task, metrics):
 
         # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum"}}
         score = Real ('score')

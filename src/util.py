@@ -47,7 +47,7 @@ class PrivateKeys:
 
 	TRUFFLE, GANACHE = \
 		('1fa675ea7b5ef3c0b798dba0e0723302cf7e6d93f8556b9ebc924c633f81cdd0', \
-			'0ac7f1a3f38e2dce973153179af82314b04657342383b8353f267ec4218727a6')
+			'0x23b25800fcfaecc3aa344d048433a8c0c2a34eed3f1aa86b754ae7d8c6293e1d')
 
 
 class ExeErrCode:

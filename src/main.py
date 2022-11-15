@@ -3,9 +3,6 @@ import random
 import asyncio
 from threading import Thread
 
-# third-party libs
-from flask import Flask, request, jsonify
-
 # user-defined libs
 from chain_msg_handler import ChainMsgHandler
 from util import Testnets
@@ -30,30 +27,27 @@ def start_update_reputation_thread ():
 
 def register_nodes ():
     
-    names = ("Node A", "Node B")
-
-    while t1.is_alive ():
-        continue  
+    names = ("MD1", "EC1", "ED1", "ER1", "CD1")
 
     t3 = Thread(target = wrapper_node_registration, args = (names[0],))
     t4 = Thread(target = wrapper_node_registration, args = (names[1],))
-    
-    t3.start ()
 
-    while t3.is_alive ():
-        continue
+    for name in names:
+        
+        t = Thread(target = wrapper_node_registration, args = (name,))
+        t.start ()
 
-    t4.start ()
+        while t.is_alive ():
 
-    while t4.is_alive ():
-        continue
+            continue
+
 
 
 def update_rep_scores ():
     
     for node in cluster_nodes:
         for i in range (2):
-            cached_transaction_pool.append ([node['id'], int(round(random.uniform (-1, 1), 3) * 1000)])
+            cached_transaction_pool.append ([node['id'], int(round(random.uniform (0, 1), 3) * 1000)])
 
     start_update_reputation_thread ()
     
@@ -128,62 +122,9 @@ def wrapper_node_registration (name):
 t1 = Thread(target = wrapper_deploy_sc)
 t1.start ()
 
-# web server instantiation
-app = Flask(__name__)
+while t1.is_alive ():
+    
+    continue  
 
 register_nodes ()
 update_rep_scores ()
-
-
-
-
-# web server HTTP API functions
-@app.route('/update')
-def update_reputation_score ():
-
-    nodeid = int (request.args.get('id', None))
-    reward = float (request.args.get('reward', None))
-
-    cached_transaction_pool += ({ 'id': nodeid, 'reward': reward })
-
-    if update_rep_finished:
-        start_update_reputation_thread ()
-        
-    return jsonify ()
-
-
-@app.route('/register')
-def register_node ():
-
-    name = str (request.args.get('name', None))
-
-    while t1.is_alive ():
-        continue
-
-    t3 = Thread(target = wrapper_node_registration, args = (name,))
-    t3.start ()
-
-    while t3.is_alive ():
-        continue
-
-    return jsonify ('Node registration status: ' + str (cluster_nodes[-1]))
-
-
-@app.route('/get_rep')
-def get_reputation_score ():
-
-    nodeid = int (request.args.get('id', None))
-
-    for ele in cluster_nodes:
-        if ele['id'] == nodeid:
-            return jsonify (chain.get_reputation_score (nodeid))
-
-    return jsonify (float ('nan'))
-
-
-
-
-# main entrypoint
-if __name__ == "__main__":
-
-    app.run(host = '0.0.0.0', port = 5000, debug = True, use_reloader = False)
