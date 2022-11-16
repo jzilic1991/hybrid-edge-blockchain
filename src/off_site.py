@@ -21,6 +21,7 @@ class OffloadingSite:
         self._url = data['url']
         self._time_epoch_cnt = 0
         self._reput = random.uniform (0, 1)
+        self._sc_id = 0
         
         # self.print_system_config()
 
@@ -33,6 +34,21 @@ class OffloadingSite:
         print ("Memory: " + str(cls._mem) + " Gb", file = sys.stdout)
         print ("Data Storage: " + str(cls._stor) + " Gb", file = sys.stdout)
         print ("Node type: " + str(cls._node_type), file = sys.stdout)
+
+
+    def set_sc_id (cls, sc_id):
+
+        cls._sc_id = sc_id
+
+
+    def set_reputation (cls, reput):
+
+        cls._reput = reput
+
+
+    def get_sc_id (cls):
+
+        return cls._sc_id
     
 
     def get_node_type (cls):

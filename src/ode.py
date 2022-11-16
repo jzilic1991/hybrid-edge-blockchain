@@ -17,6 +17,16 @@ class OffloadingDecisionEngine(ABC):
         return cls._name
 
 
+    def get_current_site (cls):
+
+        return cls._curr_n
+
+
+    def get_md (cls):
+
+        return cls._md
+
+
     @abstractmethod
     def offload(cls, tasks, off_sites, topology):
         

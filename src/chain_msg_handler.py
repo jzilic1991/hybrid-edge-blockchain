@@ -11,8 +11,6 @@ from web3 import Web3, HTTPProvider
 from util import Testnets, PrivateKeys
 
 
-
-
 class ChainMsgHandler:
 	
 
@@ -26,12 +24,12 @@ class ChainMsgHandler:
 		return cls._smart_contract.functions.BASE().call()
 
 
-	def get_reputation_score (cls, nodeid):
+	def get_reputation (cls, nodeid):
 
 		return cls._smart_contract.functions.getReputationScore(nodeid).call()[0] / cls._base
 
 
-	async def register_node (cls, name):
+	def register_node (cls, name):
 
 		registration_event = cls._smart_contract.events.NodeRegistered ()
 		tx = cls._smart_contract.functions.registerNode(name).buildTransaction({
@@ -48,7 +46,7 @@ class ChainMsgHandler:
 		return result[0]['args']
 
 
-	async def update_reputation_score (cls, transactions):
+	async def update_reputation (cls, transactions):
 
 		# print ('Incentive: ' + str (incentive / cls._base))
 		reputation_update_event = cls._smart_contract.events.ReputationUpdate ()
@@ -73,7 +71,7 @@ class ChainMsgHandler:
 		return (response)
 
 
-	async def deploy_smart_contract (cls):
+	def deploy_smart_contract (cls):
 		
 		# load smart contract data structure
 		truffle_file = json.load (open ('.././build/contracts/Reputation.json'))
@@ -94,9 +92,8 @@ class ChainMsgHandler:
 		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
 		contract_address = tx_receipt.contractAddress
 		cls._smart_contract = cls._w3.eth.contract (address = contract_address, abi = abi)
-		# print ("Smart contract is deployed: " + str(tx_receipt))
-
 		cls._base = cls._smart_contract.functions.BASE().call()
+		print ("Smart contract is deployed: " + str(cls._smart_contract.address))
 
 		return cls._smart_contract.address
 

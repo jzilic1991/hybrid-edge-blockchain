@@ -46,8 +46,8 @@ class Testnets:
 class PrivateKeys:
 
 	TRUFFLE, GANACHE = \
-		('1fa675ea7b5ef3c0b798dba0e0723302cf7e6d93f8556b9ebc924c633f81cdd0', \
-			'0x23b25800fcfaecc3aa344d048433a8c0c2a34eed3f1aa86b754ae7d8c6293e1d')
+		('1f41756c4f3d7abf3fc0c81c813e71d5e920d54acfe743bf99326935fabdf451', \
+			'0x389496993f10af5a7c4b0af6310b09877894f5b26556b4016aafd3b345fe8f18')
 
 
 class ExeErrCode:

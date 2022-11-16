@@ -2,129 +2,71 @@
 import random
 import asyncio
 from threading import Thread
+from queue import Queue
 
 # user-defined libs
 from chain_msg_handler import ChainMsgHandler
 from util import Testnets
-
-
-
-
-# public variables
-cluster_nodes = list ()
-update_rep_finished = True
-cached_transaction_pool = list ()
-chain = ChainMsgHandler (Testnets.GANACHE)
+from main_smt import EdgeOffloading
 
 
 # public functions
-def start_update_reputation_thread ():
+def update_rep_thread (chain, off_transaction):
     
-    print ('Submitted transaction pool: ' + str (cached_transaction_pool))
-    t2 = Thread(target = wrapper_update_reputation)
-    t2.start ()
+    print ('MAIN THREAD - Submitted transaction: ' + str (off_transaction))
+    t = Thread (target = wrapper_update_rep, args = (chain, off_transaction, ))
+    t.start ()
 
 
-def register_nodes ():
+def wrapper_update_rep (chain, off_transaction):
+
+    asyncio.run (update_reputation (chain, off_transaction))
+
+
+async def update_reputation (chain, off_transaction):
     
-    names = ("MD1", "EC1", "ED1", "ER1", "CD1")
-
-    t3 = Thread(target = wrapper_node_registration, args = (names[0],))
-    t4 = Thread(target = wrapper_node_registration, args = (names[1],))
-
-    for name in names:
-        
-        t = Thread(target = wrapper_node_registration, args = (name,))
-        t.start ()
-
-        while t.is_alive ():
-
-            continue
-
-
-
-def update_rep_scores ():
-    
-    for node in cluster_nodes:
-        for i in range (2):
-            cached_transaction_pool.append ([node['id'], int(round(random.uniform (0, 1), 3) * 1000)])
-
-    start_update_reputation_thread ()
-    
-
-
-
-
-# callback functions
-def reputation_update_completed (future):
-
-    print ("Reputation score update: " + str (future.result ()))
-    
-    cached_transaction_pool.clear ()
-    update_rep_finished = True
-    update_rep_scores ()
-
-
-def deploy_sc_task_completed (future):
-
-    print ('Smart contract is deployed on address: ' + str (future.result ()))
-
-
-def node_registration_completed (future):
-
-    cluster_nodes.append (future.result ())
-    print ('Node is registered: ' + str (future.result ()))
-
-
-
-
-# asynchornous functions
-async def deploy_smart_contract ():
-    
-    task = asyncio.create_task (chain.deploy_smart_contract ())
-    task.add_done_callback (deploy_sc_task_completed)
-
-
-async def update_reputation ():
-    
-    task = asyncio.create_task (chain.update_reputation_score (cached_transaction_pool))
+    task = asyncio.create_task (chain.update_reputation (off_transaction))
     task.add_done_callback (reputation_update_completed)
 
 
-async def node_registration (name):
-    
-    task = asyncio.create_task (chain.register_node (name))
-    task.add_done_callback (node_registration_completed)
+def reputation_update_completed (future):
+
+    print ("MAIN THREAD - Reputation score update: " + str (future.result ()))
 
 
+# public variables
+reg_nodes = list ()
+req_q, rsp_q = Queue (), Queue ()
+chain = ChainMsgHandler (Testnets.TRUFFLE)
+chain.deploy_smart_contract ()
+edge_off = EdgeOffloading (req_q, rsp_q)
+edge_off.start ()
 
+# node registration
+msg = req_q.get ()
+if msg[0] == 'reg':
 
-# wrapper functions for async functions
-def wrapper_deploy_sc ():
+    for name in msg[1]:
 
-    asyncio.run (deploy_smart_contract ())
+        result = chain.register_node (name)
+        # print ('Node is registered: ' + str (result))
+        reg_nodes.append (result)
 
+rsp_q.put (('reg_rsp', reg_nodes))
 
-def wrapper_update_reputation ():
+while True:
 
-    update_rep_finished = False
-    asyncio.run (update_reputation ())
+    msg = req_q.get ()
 
+    if msg[0] == 'update':
 
-def wrapper_node_registration (name):
-    
-    asyncio.run (node_registration (name))
+        update_rep_thread (chain, [[msg[1], msg[2]]])
 
+    elif msg[0] == 'get':
 
+        site_rep = []
+        for n_id in msg[1]: 
+            
+            site_rep.append((n_id, chain.get_reputation (n_id)))
 
-
-# thread smart contract deployment
-t1 = Thread(target = wrapper_deploy_sc)
-t1.start ()
-
-while t1.is_alive ():
-    
-    continue  
-
-register_nodes ()
-update_rep_scores ()
+        rsp_q.put (('get_rsp', site_rep))
