@@ -20,7 +20,7 @@ class OffloadingSite:
         self._node_type = data['type']
         self._url = data['url']
         self._time_epoch_cnt = 0
-        self._reput = random.uniform (0, 1)
+        self._reput = 0
         self._sc_id = 0
         
         # self.print_system_config()
@@ -43,6 +43,8 @@ class OffloadingSite:
 
     def set_reputation (cls, reput):
 
+        print ("CHILD THREAD - Get reputation " + str (reput) + \
+            " for site " + cls._name_id)
         cls._reput = reput
 
 

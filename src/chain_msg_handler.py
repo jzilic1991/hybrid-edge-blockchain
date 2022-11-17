@@ -11,7 +11,7 @@ from web3 import Web3, HTTPProvider
 from util import Testnets, PrivateKeys
 
 
-class ChainMsgHandler:
+class ChainHandler:
 	
 
 	def __init__ (self, testnet):
@@ -57,11 +57,11 @@ class ChainMsgHandler:
 		    })
 		
 		signed_tx = cls._w3.eth.account.signTransaction (tx, cls._key)
-		start = time.time ()
+		# start = time.time ()
 		tx_hash = cls._w3.eth.sendRawTransaction (signed_tx.rawTransaction)
 		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
 		result = reputation_update_event.processReceipt(tx_receipt)
-		end = time.time ()
+		# end = time.time ()
 		event = result[0]['args']
 		response = list ()
 		for i in range (len (event.rsp)):

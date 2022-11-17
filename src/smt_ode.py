@@ -5,6 +5,7 @@ from ode import OffloadingDecisionEngine
 from models import Model
 from task import Task
 from util import NodeTypes, Settings
+from stats import Stats
 
 
 class SmtOde (OffloadingDecisionEngine):
@@ -12,16 +13,21 @@ class SmtOde (OffloadingDecisionEngine):
     def __init__(self, name, curr_n, md):
 
         super().__init__(name, curr_n, md)
-        self._REP = random.uniform (0, 1)
+        self._REP = 0
         self._BL = Settings.BATTERY_LF
+        self._rsp_time_hist = list ()
+        self._e_consum_hist = list ()
+        self._res_pr_hist = list ()
+        self._stats = Stats ()
 
 
-    def offload(cls, tasks, off_sites, topology):
+    def offload (cls, tasks, off_sites, topology):
 
         cand_n = None
         t_rsp_time_arr = tuple ()
         t_e_consum_arr = tuple ()
         t_price_arr = tuple ()
+        off_transactions = list ()
     
         for task in tasks:
 
@@ -50,6 +56,8 @@ class SmtOde (OffloadingDecisionEngine):
                     print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                         ", PR: " + str (t_price))
                     cand_n.terminate (task)
+                    off_transactions.append ([cand_n.get_sc_id (), \
+                        int(round(random.uniform (0, 1), 3) * 1000)])
                     break
 
         (max_rsp_time, acc_e_consum, acc_price) = cls.__get_total_objs (t_rsp_time_arr, \
@@ -58,8 +66,27 @@ class SmtOde (OffloadingDecisionEngine):
         cls._curr_n = cand_n
 
         print ('BATTERY LIFETIME: ' + str (cls._BL))
+        cls._rsp_time_hist.append (max_rsp_time)
+        cls._e_consum_hist.append (acc_e_consum)
+        cls._res_pr_hist.append (acc_price)
 
-        return (max_rsp_time, acc_e_consum, acc_price)
+        return off_transactions
+
+
+    def summarize (cls):
+
+        cls._stats.add_rsp_time (sum (cls._rsp_time_hist))
+        cls._stats.add_e_consum (sum (cls._e_consum_hist))
+        cls._stats.add_res_pr (sum (cls._res_pr_hist))
+
+        cls._rsp_time_hist = list ()
+        cls._e_consum_hist = list ()
+        cls._res_pr_hist = list ()
+
+
+    def print_stats (cls):
+
+        cls._stats.print_all ()
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):
@@ -104,7 +131,8 @@ class SmtOde (OffloadingDecisionEngine):
                 
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
-            raise ValueError ("SMT solver did not find solution! s = " + str(s))
+            return random.choice (list (metrics.items ()))
+            # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
         for key, values in metrics.items ():
                 

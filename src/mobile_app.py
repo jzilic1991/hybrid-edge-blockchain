@@ -36,16 +36,22 @@ class MobileApplication:
         ready_tasks = ()
 
         if not cls._running:
-            return False
+            
+            return ready_tasks
 
         for task in cls._app_struct:
+            
             if not task.get_in_edges() and not task.is_executed():
+                
                 ready_tasks = ready_tasks + (task,)
 
         if not ready_tasks:
+            
             for task in cls._app_struct:
+                
                 if not task.is_executed():
-                    return False
+                    
+                    return ready_tasks
 
             # cls.print_task_exe_status()
             cls.__init_task_dependencies()

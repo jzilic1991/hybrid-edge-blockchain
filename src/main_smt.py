@@ -36,13 +36,27 @@ class EdgeOffloading (Thread):
 			if len(tasks) == 0:
 				
 				app = cls._m_app_prof.dep_rand_mob_app ()
-				exit ()
+				app.run ()
+				cls._s_ode.summarize ()
+				continue
 				
 			epoch_cnt = epoch_cnt + 1
-			# print ('Time epoch ' + str (epoch_cnt) + '.')
+			print ('Time epoch ' + str (epoch_cnt) + '.')
+
+			if epoch_cnt == 150:
+
+				cls._req_q.put (('close'))
+				if cls._rsp_q.get () == 'confirm': 
+
+					cls._s_ode.summarize ()
+					cls._s_ode.print_stats ()
+					print ('CHILD THREAD is done.')
+					break
+
 			off_sites = cls.__get_reputation (off_sites)
-			(max_rt, acc_ec, acc_pr) = cls._s_ode.offload (tasks, off_sites, topology)
-			cls.__update_reputation (cls._s_ode.get_current_site ())
+			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
+			cls._req_q.put (('update', off_transactions))
+			# cls.__update_reputation (cls._s_ode.get_current_site ())
 			# print ("Max RT: " + str (max_rt) + ", Acc EC: " + str (acc_ec) + \
 			# 	", Acc PR: " + str (acc_pr))
 			# print ()
@@ -82,16 +96,15 @@ class EdgeOffloading (Thread):
 
 				 	if site_rep[0] == site.get_sc_id ():
 
-				 		#site.set_reputation (site_rep[1])
-				 		print ("CHILD THREAD - Get reputation " + str (site_rep[1]) + " for site " + site.get_n_id ())
+				 		site.set_reputation (site_rep[1])
 				 		break
 
 		return off_sites
 
 
-	def __update_reputation (cls, curr_n):
+	# def __update_reputation (cls, curr_n):
 
-		cls._req_q.put (('update', curr_n.get_sc_id (), int(round(random.uniform (0, 1), 3) * 1000)))
+	# 	cls._req_q.put (('update', curr_n.get_sc_id (), int(round(random.uniform (0, 1), 3) * 1000)))
 
 
 	def __print_setup (cls, off_sites, topology, app):
