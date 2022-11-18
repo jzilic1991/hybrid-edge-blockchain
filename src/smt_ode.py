@@ -6,6 +6,7 @@ from models import Model
 from task import Task
 from util import NodeTypes, Settings
 from stats import Stats
+from logger import Logger
 
 
 class SmtOde (OffloadingDecisionEngine):
@@ -19,6 +20,7 @@ class SmtOde (OffloadingDecisionEngine):
         self._e_consum_hist = list ()
         self._res_pr_hist = list ()
         self._stats = Stats ()
+        self._log = Logger ('logs/sim_traces.txt', True, 'w')
 
 
     def offload (cls, tasks, off_sites, topology):
@@ -50,11 +52,11 @@ class SmtOde (OffloadingDecisionEngine):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
-                    print ("Task " + task.get_name () + \
+                    cls._log.w ("Task " + task.get_name () + \
                         " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
                         "is offloaded on " + cand_n.get_n_id ())
-                    print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
-                        ", PR: " + str (t_price))
+                    # print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
+                    #     ", PR: " + str (t_price))
                     cand_n.terminate (task)
                     off_transactions.append ([cand_n.get_sc_id (), \
                         int(round(random.uniform (0, 1), 3) * 1000)])
@@ -65,7 +67,7 @@ class SmtOde (OffloadingDecisionEngine):
         cls._BL = round (cls._BL - acc_e_consum, 3)
         cls._curr_n = cand_n
 
-        print ('BATTERY LIFETIME: ' + str (cls._BL))
+        cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         cls._res_pr_hist.append (acc_price)
@@ -78,15 +80,23 @@ class SmtOde (OffloadingDecisionEngine):
         cls._stats.add_rsp_time (sum (cls._rsp_time_hist))
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
+        cls._stats.add_bl (cls._BL)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
 
+        cls._BL = Settings.BATTERY_LF
 
-    def print_stats (cls):
 
-        cls._stats.print_all ()
+    def log_stats (cls):
+
+        cls._log.w (cls._stats.get_all ())
+
+
+    def get_logger (cls):
+
+        return cls._log
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):

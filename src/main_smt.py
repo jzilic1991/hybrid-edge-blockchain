@@ -1,14 +1,16 @@
 import random
+import datetime
 from threading import Thread
 
 from smt_ode import SmtOde
 from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
+from util import Settings
 
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q):
+	def __init__ (self, req_q, rsp_q, exe, samp):
 
 		Thread.__init__ (self)
 		self._r_mon = ResourceMonitor ()
@@ -16,6 +18,9 @@ class EdgeOffloading (Thread):
 		self._s_ode = SmtOde ('SMT_ODE', self._r_mon.get_md (), self._r_mon.get_md ())
 		self._req_q = req_q
 		self._rsp_q = rsp_q
+		self._exe = exe
+		self._samp = samp
+		self._log = self._s_ode.get_logger ()
 
 
 	def run (cls):
@@ -28,38 +33,70 @@ class EdgeOffloading (Thread):
 		# cls.__print_setup (off_sites, topology, app)
 		off_sites = cls.__register_nodes (off_sites)
 
-		epoch_cnt = 0
+		epoch_cnt = 0 # counts task offloadings
+		exe_cnt = 0   # counts application executions
+		samp_cnt = 0  # counts samples
+		prev_progress = 0
+		curr_progress = 0
+
+		cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+		cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
+
+		print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
+		print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
+
 		while True:
 
+			(curr_progress, prev_progress) = cls.__print_progress (exe_cnt, samp_cnt, \
+				curr_progress, prev_progress)
+						
 			tasks = app.get_ready_tasks ()
 
 			if len(tasks) == 0:
 				
 				app = cls._m_app_prof.dep_rand_mob_app ()
 				app.run ()
-				cls._s_ode.summarize ()
+				exe_cnt = exe_cnt + 1
+				cls._log.w ("APP EXECUTION No." + str (exe_cnt))
 				continue
 				
 			epoch_cnt = epoch_cnt + 1
-			print ('Time epoch ' + str (epoch_cnt) + '.')
+			cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
-			if epoch_cnt == 150:
+			if exe_cnt == cls._exe:
 
-				cls._req_q.put (('close'))
-				if cls._rsp_q.get () == 'confirm': 
+				cls._s_ode.summarize ()
+				samp_cnt = samp_cnt + 1
+				exe_cnt = 0
+									
+				if samp_cnt == cls._samp: 
+						
+					cls._s_ode.log_stats ()
+					cls._req_q.put (('close'))
+					if cls._rsp_q.get () == 'confirm': 
 
-					cls._s_ode.summarize ()
-					cls._s_ode.print_stats ()
-					print ('CHILD THREAD is done.')
-					break
+						break
+
+				cls._log.w ("SAMPLE No." + str (samp_cnt))
+				app = cls._m_app_prof.dep_rand_mob_app ()
+				app.run ()
+				continue
 
 			off_sites = cls.__get_reputation (off_sites)
 			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
 			cls._req_q.put (('update', off_transactions))
-			# cls.__update_reputation (cls._s_ode.get_current_site ())
-			# print ("Max RT: " + str (max_rt) + ", Acc EC: " + str (acc_ec) + \
-			# 	", Acc PR: " + str (acc_pr))
-			# print ()
+
+
+	def __print_progress (cls, exe_cnt, samp_cnt, curr_progress, prev_progress):
+
+		prev_progress = curr_progress
+		curr_progress = round((exe_cnt + (samp_cnt * cls._exe)) / (cls._samp * cls._exe) * 100)
+
+		if curr_progress != prev_progress and (curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0):
+				
+			print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()))
+
+		return (curr_progress, prev_progress)
 
 
 	def __register_nodes (cls, off_sites):
@@ -102,11 +139,6 @@ class EdgeOffloading (Thread):
 		return off_sites
 
 
-	# def __update_reputation (cls, curr_n):
-
-	# 	cls._req_q.put (('update', curr_n.get_sc_id (), int(round(random.uniform (0, 1), 3) * 1000)))
-
-
 	def __print_setup (cls, off_sites, topology, app):
 
 		print (topology)
@@ -115,34 +147,3 @@ class EdgeOffloading (Thread):
 		for off_site in off_sites:
 	
 			off_site.print_system_config ()
-
-
-# # class instances
-# r_mon = ResourceMonitor ()
-# m_app_prof = MobileAppProfiler ()
-# s_ode = SmtOde ('SMT_ODE', r_mon.get_md (), r_mon.get_md ())
-
-# # infrastructure and application resource information
-# off_sites = r_mon.get_off_sites ()
-# topology = r_mon.get_topology ()
-# app = m_app_prof.dep_rand_mob_app ()
-# app.run ()
-
-# print_setup (off_sites, topology, app)
-
-# i = 0
-
-# start offloading
-# while True:
-
-# 	tasks = app.get_ready_tasks ()
-
-# 	if len(tasks) == 0:
-# 		break
-		
-# 	i = i + 1
-# 	print ('Time epoch ' + str(i) + '.')
-# 	(max_rt, acc_ec, acc_pr) = s_ode.offload (tasks, off_sites, topology)
-# 	print ("Max RT: " + str (max_rt) + ", Acc EC: " + str (acc_ec) + \
-# 		", Acc PR: " + str (acc_pr))
-# 	print ()

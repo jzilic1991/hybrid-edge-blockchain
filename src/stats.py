@@ -8,34 +8,40 @@ class Stats:
          self._rsp_time_samp = list ()   # of scalars
          self._e_consum_samp = list ()   # of scalars
          self._price_samp = list ()      # of scalars
+         self._bl_samp = list ()         # of scalars
          self._off_dist_samp = list ()   # of dicts per offloading site key
          self._off_fail_samp = list ()   # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
 
 
-    def print_avg_rsp_time (cls): 
+    def get_avg_rsp_time (cls): 
         
-        print ("After " + str (len (cls._rsp_time_samp)) + " executions, average is " + \
+        return ("After " + str (len (cls._rsp_time_samp)) + " samples, average is " + \
             str (round (np.mean(cls._rsp_time_samp), 2)) + " s")
 
 
-    def print_avg_e_consum (cls):
+    def get_avg_e_consum (cls):
         
-        print ("After " + str (len (cls._e_consum_samp)) + " executions, average is " + \
+        return ("After " + str (len (cls._e_consum_samp)) + " samples, average is " + \
             str (round (np.mean(cls._e_consum_samp), 2)) + " J")
 
 
-    def print_avg_prices (cls):
+    def get_avg_prices (cls):
         
-        print ("After " + str (len (cls._price_samp)) + " executions, average is " + \
+        return ("After " + str (len (cls._price_samp)) + " samples, average is " + \
             str (round (np.mean(cls._price_samp), 2)) + " monetary units")
 
 
-    def print_all (cls):
+    def get_avg_bl (cls):
 
-        cls.print_avg_rsp_time ()
-        cls.print_avg_e_consum ()
-        cls.print_avg_prices ()
+        return ("After " + str (len (cls._bl_samp)) + " samples, average is " + \
+            str (round (np.mean(cls._bl_samp), 2)) + " % of energy remains")
+
+
+    def get_all (cls):
+
+        return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
+            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n'
 
 
     def print_off_dist (cls):
@@ -68,6 +74,11 @@ class Stats:
         cls._price_samp.append (price_samp)
 
 
+    def add_bl (cls, bl_samp):
+
+        cls._bl_samp.append (bl_samp)
+
+
     def add_off_dist (cls, off_dist_samp):
         
         cls._off_dist_samp.append (off_dist_samp)
@@ -88,6 +99,7 @@ class Stats:
         cls._rsp_time_samp = list ()   # of scalars
         cls._e_consum_samp = list ()   # of scalars
         cls._price_samp = list ()      # of scalars
+        cls._bl_samp = list ()        # of scalars
         cls._off_dist_samp = list ()   # of dicts per offloading site key
         cls._off_fail_samp = list ()   # of scalars
         cls._mal_beh_samp = list ()    # of dicts per offloading site key

@@ -35,6 +35,7 @@ class Settings:
     W_RT = 0.5
     W_EC = 0.4
     W_PR = 0.1
+    PROGRESS_REPORT_INTERVAL = 1
 
 
 class Testnets:

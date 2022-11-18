@@ -13,7 +13,6 @@ from main_smt import EdgeOffloading
 # public functions
 def update_rep_thread (chain, submit_trx):
     
-    print ('MAIN THREAD - Submitted transactions: ' + str (submit_trx))
     t = Thread (target = wrapper_update_rep, args = (chain, submit_trx, ))
     t.start ()
 
@@ -31,7 +30,6 @@ async def update_reputation (chain, submit_trx):
 
 def reputation_update_completed (future):
 
-    print ("MAIN THREAD - Reputation score update: " + str (future.result ()))
     submit_cached_trx ()
 
 
@@ -60,7 +58,7 @@ req_q, rsp_q = Queue (), Queue ()
 chain = ChainHandler (Testnets.TRUFFLE)
 chain.deploy_smart_contract ()
 
-edge_off = EdgeOffloading (req_q, rsp_q)
+edge_off = EdgeOffloading (req_q, rsp_q, 10, 2)
 edge_off.start ()
 
 # node registration
@@ -81,15 +79,11 @@ while True:
 
     if msg[0] == 'update':
 
-        print ("MAIN THREAD - Received offloading transaction: " + str (msg[1]))
-
         if update_thread:
 
             for trx in msg[1]:
                 
                 cached_trx.append (trx)
-
-            print ("Cached offloading transactions: " + str (cached_trx))
         
         else:
 
@@ -108,5 +102,4 @@ while True:
     elif msg == 'close':
 
         rsp_q.put ('confirm')
-        print ('MAIN THREAD is done.')
         break

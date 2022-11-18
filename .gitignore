@@ -5,3 +5,4 @@ key_file.pub
 package-lock.json
 .env
 src/__pycache__
+src/logs

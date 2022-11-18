@@ -43,8 +43,6 @@ class OffloadingSite:
 
     def set_reputation (cls, reput):
 
-        print ("CHILD THREAD - Get reputation " + str (reput) + \
-            " for site " + cls._name_id)
         cls._reput = reput
 
 
