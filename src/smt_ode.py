@@ -19,6 +19,7 @@ class SmtOde (OffloadingDecisionEngine):
         self._rsp_time_hist = list ()
         self._e_consum_hist = list ()
         self._res_pr_hist = list ()
+        self._off_dist_hist = dict ()
         self._stats = Stats ()
         self._log = Logger ('logs/sim_traces.txt', True, 'w')
 
@@ -30,6 +31,8 @@ class SmtOde (OffloadingDecisionEngine):
         t_e_consum_arr = tuple ()
         t_price_arr = tuple ()
         off_transactions = list ()
+
+        cls.__check_off_sites (off_sites)
     
         for task in tasks:
 
@@ -46,6 +49,8 @@ class SmtOde (OffloadingDecisionEngine):
                 t_rsp_time = t_rsp_time + values['rt']
                 t_e_consum = t_e_consum + values['ec']
                 t_price = t_price + values['pr']
+                cls._off_dist_hist[cand_n.get_n_id ()] = \
+                    cls._off_dist_hist[cand_n.get_n_id ()] + 1
 
                 if cand_n.execute (task):
 
@@ -81,11 +86,12 @@ class SmtOde (OffloadingDecisionEngine):
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
         cls._stats.add_bl (cls._BL)
+        cls._stats.add_off_dist (cls._off_dist_hist)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
-
+        cls._off_dist_hist = dict ()
         cls._BL = Settings.BATTERY_LF
 
 
@@ -97,6 +103,15 @@ class SmtOde (OffloadingDecisionEngine):
     def get_logger (cls):
 
         return cls._log
+
+
+    def __check_off_sites (cls, off_sites):
+
+        for site in off_sites:
+
+            if not site.get_n_id () in cls._off_dist_hist.keys ():
+
+                cls._off_dist_hist[site.get_n_id ()] = 0
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):
