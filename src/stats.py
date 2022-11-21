@@ -12,6 +12,8 @@ class Stats:
          self._off_dist_samp = dict ()   # of dicts per offloading site key
          self._off_fail_samp = dict ()   # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
+         self._obj_viol_samp = {'rt': [], 'ec': [], 'pr': []}   # of dicts per objective
+         self._qos_viol_samp = list ()   # of scalars
 
 
     def get_avg_rsp_time (cls): 
@@ -38,6 +40,21 @@ class Stats:
             str (round (np.mean(cls._bl_samp), 2)) + " % of energy remains")
 
 
+    def get_avg_qos_viol (cls):
+
+        return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
+            str (round (np.mean(cls._qos_viol_samp), 2)) + " QoS violations")
+
+
+    def get_avg_obj_viol (cls):
+
+        result = {'rt': round (sum (cls._obj_viol_samp['rt']) / len (cls._obj_viol_samp['rt']), 2),\
+            'ec': round (sum (cls._obj_viol_samp['ec']) / len (cls._obj_viol_samp['ec']), 2),
+            'pr': round (sum (cls._obj_viol_samp['pr']) / len (cls._obj_viol_samp['pr']), 2)}
+
+        return ("Offloading objective violation (absolute): " + str (result))
+
+
     def get_avg_off_dist (cls):
 
         result = dict ()
@@ -58,19 +75,16 @@ class Stats:
     def get_avg_off_fail (cls):
 
         off_fail = dict ()
-
         for key, val in cls._off_fail_samp.items ():
             
             off_fail[key] = sum (val) / len (val)
 
         off_dist = dict ()
-
         for key, val in cls._off_dist_samp.items ():
             
             off_dist[key] = sum (val) / len (val)
 
         result = dict ()
-
         for key in cls._off_fail_samp.keys ():
             
             if off_dist[key] != 0:
@@ -88,7 +102,8 @@ class Stats:
 
         return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
             cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + cls.get_avg_off_dist () + '\n' + \
-            cls.get_avg_off_fail ()
+            cls.get_avg_off_fail () + '\n' + cls.get_avg_obj_viol () + '\n' + cls.get_avg_qos_viol () +\
+            '\n'
 
 
     def print_off_dist (cls):
@@ -124,6 +139,18 @@ class Stats:
     def add_bl (cls, bl_samp):
 
         cls._bl_samp.append (bl_samp)
+
+
+    def add_qos_viol (cls, qos_viol):
+
+        cls._qos_viol_samp.append (qos_viol)
+
+
+    def add_obj_viol (cls, obj_viol):
+
+        cls._obj_viol_samp['rt'].append (obj_viol['rt'])
+        cls._obj_viol_samp['ec'].append (obj_viol['ec'])
+        cls._obj_viol_samp['pr'].append (obj_viol['pr'])
 
 
     def add_off_dist (cls, off_dist_samp):

@@ -22,6 +22,8 @@ class SmtOde (OffloadingDecisionEngine):
         self._res_pr_hist = list ()
         self._off_dist_hist = dict ()
         self._off_fail_hist = dict ()
+        self._qos_viol_hist = 0
+        self._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         self._stats = Stats ()
         self._log = Logger ('logs/sim_traces.txt', True, 'w')
 
@@ -63,8 +65,9 @@ class SmtOde (OffloadingDecisionEngine):
                     cls._log.w ("Task " + task.get_name () + \
                         " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
                         "is offloaded successfully on " + cand_n.get_n_id ())
-                    # print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
-                    #     ", PR: " + str (t_price))
+                    cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
+                        ", PR: " + str (t_price))
+                    cls.__determine_qos_violations (task, metrics[cand_n])
                     cand_n.terminate (task)
                     off_transactions.append ([cand_n.get_sc_id (), cls.__dynamic_t_incentive (task, \
                         metrics[cand_n])])
@@ -76,6 +79,7 @@ class SmtOde (OffloadingDecisionEngine):
                     cls._log.w ("Failure cost is RT:" + str (metrics[cand_n]['rt']) + "s, EC: " + \
                         str (metrics[cand_n]['ec']) + " J, PR: " + str (metrics[cand_n]['pr']) + \
                         " monetary units")
+                    cls._qos_viol_hist = cls._qos_viol_hist + 1
                     del metrics[cand_n]
                     off_transactions.append ([cand_n.get_sc_id (), 0])
                     cls._off_fail_hist[cand_n.get_n_id ()] = \
@@ -102,12 +106,16 @@ class SmtOde (OffloadingDecisionEngine):
         cls._stats.add_bl (cls._BL)
         cls._stats.add_off_dist (cls._off_dist_hist)
         cls._stats.add_off_fail (cls._off_fail_hist)
+        cls._stats.add_qos_viol (cls._qos_viol_hist)
+        cls._stats.add_obj_viol (cls._obj_viol_hist)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
         cls._off_dist_hist = dict ()
         cls._off_fail_hist = dict ()
+        cls._qos_viol_hist = 0
+        cls._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         cls._BL = Settings.BATTERY_LF
 
 
@@ -119,6 +127,30 @@ class SmtOde (OffloadingDecisionEngine):
     def get_logger (cls):
 
         return cls._log
+
+
+    def __determine_qos_violations (cls, task, metric):
+
+        qos_viol_flag = False
+
+        if task.get_rt () <= metric['rt']:
+
+            cls._obj_viol_hist['rt'] = cls._obj_viol_hist['rt'] + 1
+            qos_viol_flag = True
+
+        if task.get_ec () <= metric['ec']:
+
+            cls._obj_viol_hist['ec'] = cls._obj_viol_hist['ec'] + 1
+            qos_viol_flag = True
+
+        if task.get_pr () <= metric['pr']:
+
+            cls._obj_viol_hist['pr'] = cls._obj_viol_hist['pr'] + 1
+            qos_viol_flag = True
+
+        if qos_viol_flag:
+
+            cls._qos_viol_hist = cls._qos_viol_hist + 1
 
 
     def __dynamic_t_incentive (cls, task, metric):
