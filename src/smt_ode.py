@@ -1,5 +1,6 @@
 from z3 import *
 import random
+import math
 
 from ode import OffloadingDecisionEngine
 from models import Model
@@ -20,6 +21,7 @@ class SmtOde (OffloadingDecisionEngine):
         self._e_consum_hist = list ()
         self._res_pr_hist = list ()
         self._off_dist_hist = dict ()
+        self._off_fail_hist = dict ()
         self._stats = Stats ()
         self._log = Logger ('logs/sim_traces.txt', True, 'w')
 
@@ -40,10 +42,11 @@ class SmtOde (OffloadingDecisionEngine):
             t_e_consum = 0.0
             t_price = 0.0
 
+            metrics = cls.__compute_metrics (task, off_sites, \
+                    cls._curr_n, topology)
+
             while True:
 
-                metrics = cls.__compute_metrics (task, off_sites, \
-                    cls._curr_n, topology)
                 cand_n, values = cls.__offloading_decision (task, metrics)
 
                 t_rsp_time = t_rsp_time + values['rt']
@@ -59,13 +62,24 @@ class SmtOde (OffloadingDecisionEngine):
                     t_price_arr += (t_price,)
                     cls._log.w ("Task " + task.get_name () + \
                         " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
-                        "is offloaded on " + cand_n.get_n_id ())
+                        "is offloaded successfully on " + cand_n.get_n_id ())
                     # print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
                     cand_n.terminate (task)
                     off_transactions.append ([cand_n.get_sc_id (), \
                         int(round(random.uniform (0, 1), 3) * 1000)])
                     break
+
+                else:
+
+                    cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    cls._log.w ("Failure cost is RT:" + str (metrics[cand_n]['rt']) + "s, EC: " + \
+                        str (metrics[cand_n]['ec']) + " J, PR: " + str (metrics[cand_n]['pr']) + \
+                        " monetary units")
+                    del metrics[cand_n]
+                    off_transactions.append ([cand_n.get_sc_id (), 0])
+                    cls._off_fail_hist[cand_n.get_n_id ()] = \
+                        cls._off_fail_hist[cand_n.get_n_id ()] + 1
 
         (max_rsp_time, acc_e_consum, acc_price) = cls.__get_total_objs (t_rsp_time_arr, \
             t_e_consum_arr, t_price_arr)
@@ -87,11 +101,13 @@ class SmtOde (OffloadingDecisionEngine):
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
         cls._stats.add_bl (cls._BL)
         cls._stats.add_off_dist (cls._off_dist_hist)
+        cls._stats.add_off_fail (cls._off_fail_hist)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
         cls._off_dist_hist = dict ()
+        cls._off_fail_hist = dict ()
         cls._BL = Settings.BATTERY_LF
 
 
@@ -112,6 +128,7 @@ class SmtOde (OffloadingDecisionEngine):
             if not site.get_n_id () in cls._off_dist_hist.keys ():
 
                 cls._off_dist_hist[site.get_n_id ()] = 0
+                cls._off_fail_hist[site.get_n_id ()] = 0
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):

@@ -10,7 +10,7 @@ class Stats:
          self._price_samp = list ()      # of scalars
          self._bl_samp = list ()         # of scalars
          self._off_dist_samp = dict ()   # of dicts per offloading site key
-         self._off_fail_samp = list ()   # of scalars
+         self._off_fail_samp = dict ()   # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
 
 
@@ -55,10 +55,40 @@ class Stats:
         return ("Offloading distribution (percentage): " + str (rel_result))
 
 
+    def get_avg_off_fail (cls):
+
+        off_fail = dict ()
+
+        for key, val in cls._off_fail_samp.items ():
+            
+            off_fail[key] = sum (val) / len (val)
+
+        off_dist = dict ()
+
+        for key, val in cls._off_dist_samp.items ():
+            
+            off_dist[key] = sum (val) / len (val)
+
+        result = dict ()
+
+        for key in cls._off_fail_samp.keys ():
+            
+            if off_dist[key] != 0:
+
+                result[key] = (off_fail[key] / off_dist[key]) * 100
+
+            else:
+
+                result[key] = 0
+
+        return ("Offloading failure distribution (percentage): " + str (result))
+
+
     def get_all (cls):
 
         return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
-            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + cls.get_avg_off_dist ()
+            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + cls.get_avg_off_dist () + '\n' + \
+            cls.get_avg_off_fail ()
 
 
     def print_off_dist (cls):
@@ -109,9 +139,17 @@ class Stats:
                 cls._off_dist_samp[key] = [val]
 
 
-    def add_off_fail_fr (cls, off_fail_fr):
+    def add_off_fail (cls, off_fail_samp):
         
-        cls._off_fail_samp.append (off_fail_fr)
+        for key, val in off_fail_samp.items ():
+
+            if key in cls._off_fail_samp.keys ():
+
+                cls._off_fail_samp[key].append (val)
+
+            else:
+
+                cls._off_fail_samp[key] = [val]
 
 
     def add_mal_beh (cls, mal_beh_samp):
@@ -125,6 +163,6 @@ class Stats:
         cls._e_consum_samp = list ()   # of scalars
         cls._price_samp = list ()      # of scalars
         cls._bl_samp = list ()        # of scalars
-        cls._off_dist_samp = list ()   # of dicts per offloading site key
-        cls._off_fail_samp = list ()   # of scalars
+        cls._off_dist_samp = dict ()   # of dicts per offloading site key
+        cls._off_fail_samp = dict ()   # of scalars
         cls._mal_beh_samp = list ()    # of dicts per offloading site key

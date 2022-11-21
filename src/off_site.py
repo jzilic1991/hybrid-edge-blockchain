@@ -22,6 +22,7 @@ class OffloadingSite:
         self._time_epoch_cnt = 0
         self._reput = 0
         self._sc_id = 0
+        self._mal_behav = False
         
         # self.print_system_config()
 
@@ -46,6 +47,11 @@ class OffloadingSite:
         cls._reput = reput
 
 
+    def set_mal_behav (cls, behav):
+
+        cls._mal_behav = behav
+
+
     def get_sc_id (cls):
 
         return cls._sc_id
@@ -59,6 +65,11 @@ class OffloadingSite:
     def get_reputation (cls):
 
         return cls._reput
+
+
+    def get_behav (cls):
+
+        return cls._mal_behav
 
 
     def get_cpu_consum (cls):
@@ -113,7 +124,8 @@ class OffloadingSite:
                 
             raise ValueError("Task for execution on offloading site should be Task class instance!")
 
-        if not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE:
+        if (not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE) or \
+            cls._mal_behav:
                 
             return ExeErrCode.EXE_NOK
         

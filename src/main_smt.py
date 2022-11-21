@@ -83,6 +83,7 @@ class EdgeOffloading (Thread):
 				continue
 
 			off_sites = cls.__get_reputation (off_sites)
+			off_sites = cls.__update_behav (off_sites)
 			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
 			cls._req_q.put (('update', off_transactions))
 
@@ -147,3 +148,18 @@ class EdgeOffloading (Thread):
 		for off_site in off_sites:
 	
 			off_site.print_system_config ()
+
+
+	def __update_behav (cls, off_sites):
+
+		for site in off_sites:
+
+			if site.get_n_id () == "EC1":
+				
+				site.set_mal_behav (True)
+
+			else:
+
+				site.set_mal_behav (False)
+
+		return off_sites
