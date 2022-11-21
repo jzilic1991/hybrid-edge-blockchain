@@ -443,6 +443,17 @@ contract ('Reputation', () => {
 			
 			}
 
+			// reset reputation
+			var ids = [idA, idB, idC]
+			result = await reputation.resetReputations (ids, { from: accounts[0] })
+			event = result.logs[0].args
+
+			for (let i = 0; i < event.rsp.length; i++) {
+
+				assert.equal ((event.rsp[i].value / BASE).toFixed (3), 0.0, "Reputation score should be 0 after reset!")
+							
+			}
+
 		})
 
 	})

@@ -35,6 +35,7 @@ contract Reputation {
 	event NodeUnregistered (uint id, string name);
 	// event ReputationUpdate (uint id, int value, bool valid);
 	event ReputationUpdate (Response[] rsp);
+	event ResetReputation (Response[] rsp);
 
 
 	function registerNode (string memory _name) public {
@@ -135,23 +136,21 @@ contract Reputation {
 
 	}
 
-	// function getAllReputations () public view returns (string[] memory, int[] memory) {
+	function resetReputations (uint[] memory _id) public {
 
-	// 	string[] memory nodes;
-	// 	int[] memory scores;
+		require (_id.length > 0, "Offloading site IDs are empty!");
 
-	// 	for (uint i = 0; i < keys.length; i++) {
+		Response[] memory response = new Response[] (_id.length);
 
-	// 		nodes = new string[] (i + 1);
-	// 		nodes[i] = keys[i];
+		for (uint i = 0; i < _id.length; i++) {
 
-	// 		scores = new int[] (i + 1);
-	// 		scores[i] = reputationSystem[keys[i]].value;
+			reputationSystem[_id[i]].value = 0;
+			response[i] = Response (_id[i], reputationSystem[_id[i]].value);
 
-	// 	}
+		}
 
-	// 	return (nodes, scores);
+		emit ResetReputation (response);
 
-	// } 
+	} 
 
 }
