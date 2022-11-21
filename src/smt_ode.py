@@ -66,8 +66,8 @@ class SmtOde (OffloadingDecisionEngine):
                     # print ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
                     cand_n.terminate (task)
-                    off_transactions.append ([cand_n.get_sc_id (), \
-                        int(round(random.uniform (0, 1), 3) * 1000)])
+                    off_transactions.append ([cand_n.get_sc_id (), cls.__dynamic_t_incentive (task, \
+                        metrics[cand_n])])
                     break
 
                 else:
@@ -119,6 +119,19 @@ class SmtOde (OffloadingDecisionEngine):
     def get_logger (cls):
 
         return cls._log
+
+
+    def __dynamic_t_incentive (cls, task, metric):
+
+        incentive = int (round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000)
+        # int(round(random.uniform (0, 1), 3) * 1000)
+        # cls._log.w ("Task incentive is " + str (incentive))
+
+        if incentive >= 0 and incentive <= 1000:
+
+            return incentive
+
+        return 0
 
 
     def __check_off_sites (cls, off_sites):

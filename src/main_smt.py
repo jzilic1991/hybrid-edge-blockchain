@@ -77,9 +77,10 @@ class EdgeOffloading (Thread):
 
 						break
 
-				cls._log.w ("SAMPLE No." + str (samp_cnt))
+				cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 				app = cls._m_app_prof.dep_rand_mob_app ()
 				app.run ()
+				off_sites = cls.__reset_reputation (off_sites)
 				continue
 
 			off_sites = cls.__get_reputation (off_sites)
@@ -135,6 +136,7 @@ class EdgeOffloading (Thread):
 				 	if site_rep[0] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep[1])
+				 		cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 				 		break
 
 		return off_sites
@@ -161,5 +163,14 @@ class EdgeOffloading (Thread):
 			else:
 
 				site.set_mal_behav (False)
+
+		return off_sites
+
+
+	def __reset_reputation (cls, off_sites):
+
+		for site in off_sites:
+
+			site.set_reputation (0)
 
 		return off_sites
