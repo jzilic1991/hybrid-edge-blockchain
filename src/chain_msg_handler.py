@@ -71,6 +71,31 @@ class ChainHandler:
 		return (response)
 
 
+	def reset_reputation (cls, ids):
+
+		# print ('Incentive: ' + str (incentive / cls._base))
+		reset_event = cls._smart_contract.events.ResetReputation ()
+		tx = cls._smart_contract.functions.resetReputations(ids).buildTransaction({
+		        'from': cls._account.address,
+		        'gasPrice': cls._w3.eth.gas_price,
+		        'nonce': cls._w3.eth.getTransactionCount (cls._account.address)
+		    })
+		
+		signed_tx = cls._w3.eth.account.signTransaction (tx, cls._key)
+		# start = time.time ()
+		tx_hash = cls._w3.eth.sendRawTransaction (signed_tx.rawTransaction)
+		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
+		result = reset_event.processReceipt(tx_receipt)
+		# end = time.time ()
+		event = result[0]['args']
+		response = list ()
+		for i in range (len (event.rsp)):
+			response.append ({ 'id': event.rsp[i][0], 'score': event.rsp[i][1] / cls._base })
+
+		# print ('Elapsed time is ' + str (round (end - start, 3)) + ' s')
+		return (response)
+
+
 	def deploy_smart_contract (cls):
 		
 		# load smart contract data structure

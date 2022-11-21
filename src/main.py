@@ -99,6 +99,15 @@ while True:
 
         rsp_q.put (('get_rsp', site_rep))
 
+    elif msg[0] == 'reset':
+
+        while True:
+
+            if not update_thread:
+
+                rsp_q.put (('reset_rsp', chain.reset_reputation (msg[1])))
+                break
+
     elif msg == 'close':
 
         rsp_q.put ('confirm')

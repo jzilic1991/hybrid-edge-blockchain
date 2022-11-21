@@ -133,11 +133,10 @@ class EdgeOffloading (Thread):
 
 				for site in off_sites:
 
-				 	if site_rep[0] == site.get_sc_id ():
+					if site_rep[0] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep[1])
 				 		cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
-				 		break
 
 		return off_sites
 
@@ -169,8 +168,19 @@ class EdgeOffloading (Thread):
 
 	def __reset_reputation (cls, off_sites):
 
-		for site in off_sites:
+		sc_ids = [site.get_sc_id () for site in off_sites]
+		cls._req_q.put (('reset', sc_ids))
+		reset_msg = cls._rsp_q.get ()
 
-			site.set_reputation (0)
+		if reset_msg[0] == 'reset_rsp':
+
+			for site_rep in reset_msg[1]:
+
+				for site in off_sites:
+
+				 	if site_rep['id'] == site.get_sc_id ():
+
+				 		site.set_reputation (site_rep['score'])
+				 		cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
 
 		return off_sites
