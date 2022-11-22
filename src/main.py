@@ -133,6 +133,12 @@ edge_off.start ()
 experiment_run ()
 
 edge_off = EdgeOffloading (req_q, rsp_q, 10, 2)
+edge_off.deploy_rep_smt_ode ()
+edge_off.start ()
+
+experiment_run ()
+
+edge_off = EdgeOffloading (req_q, rsp_q, 10, 2)
 edge_off.deploy_smt_ode ()
 edge_off.start ()
 

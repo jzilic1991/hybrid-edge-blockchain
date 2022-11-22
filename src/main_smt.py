@@ -24,14 +24,19 @@ class EdgeOffloading (Thread):
 		self._log = None
 
 
+	def deploy_rep_smt_ode (cls):
+
+		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), True)
+
+
 	def deploy_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('SMT_ODE', cls._r_mon.get_md (), cls._r_mon.get_md ())
+		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), False)
 
 
 	def deploy_sq_ode (cls):
 
-		cls._s_ode = SqOde ('SQ_ODE', cls._r_mon.get_md (), cls._r_mon.get_md ())
+		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md ())
 
 
 	def run (cls):

@@ -9,9 +9,10 @@ from util import NodeTypes, Settings
 
 class SmtOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md):
+    def __init__(self, name, curr_n, md, activate):
 
         super().__init__(name, curr_n, md)
+        self._activate = activate
 
 
     def dynamic_t_incentive (cls, task, metric):
@@ -19,7 +20,7 @@ class SmtOde (OffloadingDecisionEngine):
         incentive = int (round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000)
         # int(round(random.uniform (0, 1), 3) * 1000)
         # cls._log.w ("Task incentive is " + str (incentive))
-        
+
         if incentive >= 0 and incentive <= 1000:
 
             return incentive
@@ -76,11 +77,7 @@ class SmtOde (OffloadingDecisionEngine):
                     metrics[b[1]]['ec'] <= task.get_ec (), \
                     metrics[b[1]]['pr'] <= task.get_pr (),
                     metrics[b[1]]['score'] == score)) \
-                    for b in b_sites])
-        s.add ([Implies (b[0] == True, \
-                And (b[1].get_reputation () >= cls._REP, \
-                    1.0 >= b[1].get_reputation () >= 0.0)) \
-                    for b in b_sites])
+                    for b in b_sites])        
         s.add ([Implies (b[0] == True, \
                 And (Settings.BATTERY_LF >= (cls._BL - metrics[b[1]]['ec']) \
                     / cls._BL >= 0.0)) for b in b_sites])
@@ -88,6 +85,13 @@ class SmtOde (OffloadingDecisionEngine):
                 And (b[1].get_mem_consum () < 1, \
                     b[1].get_stor_consum () < 1)) \
                     for b in b_sites])
+
+        if cls._activate:
+            
+            s.add ([Implies (b[0] == True, \
+                    And (b[1].get_reputation () >= cls._REP, \
+                        1.0 >= b[1].get_reputation () >= 0.0)) \
+                        for b in b_sites])
 
         s.minimize (score)
 
