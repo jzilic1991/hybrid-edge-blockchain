@@ -24,7 +24,7 @@ class OffloadingDecisionEngine(ABC):
         self._qos_viol_hist = 0
         self._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         self._stats = Stats ()
-        self._log = Logger ('logs/sim_traces.txt', True, 'w')
+        self._log = Logger ('logs/sim_traces_' + self._name + '.txt', True, 'w')
 
         super().__init__()
 

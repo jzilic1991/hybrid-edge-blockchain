@@ -12,6 +12,7 @@ class Model (object):
 		if cand_n.get_n_id() != curr_n.get_n_id():
 			name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 				curr_n.get_n_id (), topology)
+			
 			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
             	(topology[name]['bw'] * MeasureUnits.KILOBYTE_PER_SECOND)
 		
@@ -164,6 +165,18 @@ class Model (object):
 				(task_time_reward, task_energy_reward)
 
 		return (cost_rsp_time, cost_energy_consum, cost_rewards)
+
+
+	@classmethod
+	def queue_waiting_time (cls, task, top_k_sites):
+
+		wait_times = dict ()
+
+		for off_site in top_k_sites:
+
+			wait_times[off_site] = round (cls.__comp_time (task, off_site), 3)
+
+		return wait_times
 
 
 	def __uplink_time (cls, task, cand_n, curr_n, topology):

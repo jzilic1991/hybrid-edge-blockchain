@@ -3,6 +3,7 @@ import datetime
 from threading import Thread
 
 from smt_ode import SmtOde
+from sq_ode import SqOde
 from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
 from util import Settings
@@ -15,16 +16,27 @@ class EdgeOffloading (Thread):
 		Thread.__init__ (self)
 		self._r_mon = ResourceMonitor ()
 		self._m_app_prof = MobileAppProfiler ()
-		self._s_ode = SmtOde ('SMT_ODE', self._r_mon.get_md (), self._r_mon.get_md ())
+		self._s_ode = None
 		self._req_q = req_q
 		self._rsp_q = rsp_q
 		self._exe = exe
 		self._samp = samp
-		self._log = self._s_ode.get_logger ()
+		self._log = None
+
+
+	def deploy_smt_ode (cls):
+
+		cls._s_ode = SmtOde ('SMT_ODE', cls._r_mon.get_md (), cls._r_mon.get_md ())
+
+
+	def deploy_sq_ode (cls):
+
+		cls._s_ode = SqOde ('SQ_ODE', cls._r_mon.get_md (), cls._r_mon.get_md ())
 
 
 	def run (cls):
 
+		cls._log = cls._s_ode.get_logger ()
 		off_sites = cls._r_mon.get_off_sites ()
 		topology = cls._r_mon.get_topology ()
 		app = cls._m_app_prof.dep_rand_mob_app ()
@@ -72,7 +84,8 @@ class EdgeOffloading (Thread):
 				if samp_cnt == cls._samp: 
 						
 					cls._s_ode.log_stats ()
-					cls._req_q.put (('close'))
+					# cls.__reset_reputation (off_sites)
+					cls._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
 					if cls._rsp_q.get () == 'confirm': 
 
 						break

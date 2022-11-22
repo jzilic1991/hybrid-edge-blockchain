@@ -61,7 +61,7 @@ class Stats:
 
         for key, val in cls._off_dist_samp.items ():
             
-            result[key] = sum (val) / len (val)
+            result[key] = round (sum (val) / len (val), 2)
 
         rel_result = dict ()
         all_offloads = sum (result.values ())
@@ -77,12 +77,12 @@ class Stats:
         off_fail = dict ()
         for key, val in cls._off_fail_samp.items ():
             
-            off_fail[key] = sum (val) / len (val)
+            off_fail[key] = round (sum (val) / len (val), 3)
 
         off_dist = dict ()
         for key, val in cls._off_dist_samp.items ():
             
-            off_dist[key] = sum (val) / len (val)
+            off_dist[key] = round (sum (val) / len (val), 3)
 
         result = dict ()
         for key in cls._off_fail_samp.keys ():

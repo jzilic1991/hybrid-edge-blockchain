@@ -24,15 +24,32 @@ class ChainHandler:
 		return cls._smart_contract.functions.BASE().call()
 
 
-	def get_reputation (cls, nodeid):
+	def get_reputation (cls, nodeId):
 
-		return cls._smart_contract.functions.getReputationScore(nodeid).call()[0] / cls._base
+		return cls._smart_contract.functions.getReputationScore(nodeId).call()[0] / cls._base
 
 
-	def register_node (cls, name):
+	def register_node (cls, nodeId):
 
 		registration_event = cls._smart_contract.events.NodeRegistered ()
-		tx = cls._smart_contract.functions.registerNode(name).buildTransaction({
+		tx = cls._smart_contract.functions.registerNode(nodeId).buildTransaction({
+		        'from': cls._account.address,
+		        'gasPrice': cls._w3.eth.gas_price,
+		        'nonce': cls._w3.eth.getTransactionCount (cls._account.address)
+		    })
+
+		signed_tx = cls._w3.eth.account.signTransaction (tx, cls._key)
+		tx_hash = cls._w3.eth.sendRawTransaction (signed_tx.rawTransaction)
+		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
+		result = registration_event.processReceipt(tx_receipt)
+		
+		return result[0]['args']
+
+
+	def unregister_node (cls, nodeId):
+
+		registration_event = cls._smart_contract.events.NodeUnregistered ()
+		tx = cls._smart_contract.functions.unregisterNode(nodeId).buildTransaction({
 		        'from': cls._account.address,
 		        'gasPrice': cls._w3.eth.gas_price,
 		        'nonce': cls._w3.eth.getTransactionCount (cls._account.address)

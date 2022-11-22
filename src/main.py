@@ -49,6 +49,74 @@ def submit_cached_trx ():
     update_thread = False
 
 
+def experiment_run ():
+
+    global chain, req_q, rsp_q, cached_trx, update_thread
+
+    # node registration
+    msg = req_q.get ()
+    if msg[0] == 'reg':
+
+        for name in msg[1]:
+
+            result = chain.register_node (name)
+            # print ('Node is registered: ' + str (result))
+            reg_nodes.append (result)
+
+    rsp_q.put (('reg_rsp', reg_nodes))
+
+    while True:
+
+        msg = req_q.get ()
+
+        if msg[0] == 'update':
+
+            if update_thread:
+
+                for trx in msg[1]:
+                    
+                    cached_trx.append (trx)
+            
+            else:
+
+                cached_trx += [trx for trx in msg[1]]
+                submit_cached_trx ()
+
+        elif msg[0] == 'get':
+
+            site_rep = []
+            for n_id in msg[1]: 
+                
+                site_rep.append((n_id, chain.get_reputation (n_id)))
+
+            rsp_q.put (('get_rsp', site_rep))
+
+        elif msg[0] == 'reset':
+
+            while True:
+
+                if not update_thread:
+
+                    rsp_q.put (('reset_rsp', chain.reset_reputation (msg[1])))
+                    break
+
+        elif msg[0] == 'close':
+
+            for nodeId in msg[1]:
+
+                while True:
+
+                    if not update_thread:
+
+                        result = chain.unregister_node (nodeId)
+                        break
+                    
+                    # print ('Node is unregistered: ' + str (result))
+            
+            rsp_q.put ('confirm')
+            break
+
+
 # public variables
 reg_nodes = list ()
 cached_trx = list ()
@@ -59,56 +127,13 @@ chain = ChainHandler (Testnets.TRUFFLE)
 chain.deploy_smart_contract ()
 
 edge_off = EdgeOffloading (req_q, rsp_q, 10, 2)
+edge_off.deploy_sq_ode ()
 edge_off.start ()
 
-# node registration
-msg = req_q.get ()
-if msg[0] == 'reg':
+experiment_run ()
 
-    for name in msg[1]:
+edge_off = EdgeOffloading (req_q, rsp_q, 10, 2)
+edge_off.deploy_smt_ode ()
+edge_off.start ()
 
-        result = chain.register_node (name)
-        # print ('Node is registered: ' + str (result))
-        reg_nodes.append (result)
-
-rsp_q.put (('reg_rsp', reg_nodes))
-
-while True:
-
-    msg = req_q.get ()
-
-    if msg[0] == 'update':
-
-        if update_thread:
-
-            for trx in msg[1]:
-                
-                cached_trx.append (trx)
-        
-        else:
-
-            cached_trx += [trx for trx in msg[1]]
-            submit_cached_trx ()
-
-    elif msg[0] == 'get':
-
-        site_rep = []
-        for n_id in msg[1]: 
-            
-            site_rep.append((n_id, chain.get_reputation (n_id)))
-
-        rsp_q.put (('get_rsp', site_rep))
-
-    elif msg[0] == 'reset':
-
-        while True:
-
-            if not update_thread:
-
-                rsp_q.put (('reset_rsp', chain.reset_reputation (msg[1])))
-                break
-
-    elif msg == 'close':
-
-        rsp_q.put ('confirm')
-        break
+experiment_run ()

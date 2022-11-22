@@ -19,7 +19,7 @@ class SmtOde (OffloadingDecisionEngine):
         incentive = int (round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000)
         # int(round(random.uniform (0, 1), 3) * 1000)
         # cls._log.w ("Task incentive is " + str (incentive))
-
+        
         if incentive >= 0 and incentive <= 1000:
 
             return incentive
