@@ -25,8 +25,9 @@ class MobileAppProfiler:
     def __create_mob_apps (cls, data):
         
         mob_apps = list ()
-        app_names = (MobApps.ANTIVIRUS, MobApps.GPS_NAVIGATOR, \
-                MobApps.CHESS, MobApps.FACERECOGNIZER, MobApps.FACEBOOK)
+        #app_names = (MobApps.ANTIVIRUS, MobApps.GPS_NAVIGATOR, \
+        #        MobApps.CHESS, MobApps.FACERECOGNIZER, MobApps.FACEBOOK)
+        app_names = (MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR)
 
         # iterate through applications
         for app_name in app_names:

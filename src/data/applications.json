@@ -1,13 +1,13 @@
 {
-	"ANTIVIRUS": {
+	"INTRASAFED": {
 		"qos": {
 			"rt": 0.5,
 			"ec": 1.2,
 			"pr": 3
 		},
 		"tasks": {
-			"GUI": {
-				"out": ["LOAD_LIBRARY", "SCAN_FILE"],
+			"LOAD_MODEL": {
+				"out": ["ANALYZE"],
 				"memory": 1,
 				"offload": false,
 				"type": "MODERATE",
@@ -17,30 +17,94 @@
 					"pr": 3
 				}
 			},
-			"LOAD_LIBRARY": {
-				"out": ["COMPARE"],
+			"UPLOAD": {
+				"out": ["ANALYZE"],
 				"memory": 1,
-				"offload": true,
-				"type": "DI",
+				"offload": false,
+				"type": "MODERATE",
 				"qos": {
 					"rt": 0.5,
 					"ec": 1.2,
 					"pr": 3
 				}
 			},
-			"SCAN_FILE": {
-				"out": ["COMPARE"],
+			"ANALYZE": {
+				"out": ["AGGREGATE"],
+				"memory": 4,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"AGGREGATE": {
+				"out": ["SEND_ALERT"],
 				"memory": 2,
 				"offload": true,
-				"type": "DI",
+				"type": "CI",
 				"qos": {
 					"rt": 0.5,
 					"ec": 1.2,
 					"pr": 3
 				}
 			},
-			"COMPARE": {
-				"out": ["OUTPUT"],
+			"SEND_ALERT": {
+				"out": [],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			}
+		}
+	},
+	"MOBIAR": {
+		"qos": {
+			"rt": 0.5,
+			"ec": 1.2,
+			"pr": 3
+		},
+		"tasks": {
+			"UPLOAD": {
+				"out": ["EXTRACT"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"EXTRACT": {
+				"out": ["PROCESS"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"PROCESS": {
+				"out": ["DATA"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"DATA": {
+				"out": ["DOWNLOAD"],
 				"memory": 1,
 				"offload": true,
 				"type": "DI",
@@ -50,7 +114,104 @@
 					"pr": 3
 				}
 			},
-			"OUTPUT": {
+			"DOWNLOAD": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			}
+		}
+	},
+	"NAVIAR": {
+		"qos": {
+			"rt": 0.5,
+			"ec": 1.2,
+			"pr": 3
+		},
+		"tasks": {
+			"MAP": {
+				"out": ["COORDINATION_PROCESSING", "RUNTIME_LOCATION"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"GUI": {
+				"out": ["COORDINATION_PROCESSING"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"COORDINATION_PROCESSING": {
+				"out": ["SHORTEST_PATH"],
+				"memory": 4,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"SHORTEST_PATH": {
+				"out": ["MOTION_COMMAND"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"MOTION_COMMAND": {
+				"out": ["VIRTUAL_GUIDANCE"],
+				"memory": 1,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"VIRTUAL_GUIDANCE": {
+				"out": ["RUNTIME_LOCATION"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"RUNTIME_LOCATION": {
+				"out": ["DISPLAY"],
+				"memory": 1,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"DISPLAY": {
 				"out": [],
 				"memory": 1,
 				"offload": false,

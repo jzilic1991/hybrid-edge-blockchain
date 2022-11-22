@@ -142,7 +142,7 @@ class MobileApplication:
                     #(cpu, in_data, out_data) = \
                     #    cls.__determine_resources(t_data['type'])
                 
-                    t_val = Task (out, t_data)
+                    t_val = Task (out, data[out])
                     # t_val = data[app_name]['tasks'][t_name]
                     lookup.append (t_val)
 

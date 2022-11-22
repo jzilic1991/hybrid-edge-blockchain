@@ -57,7 +57,7 @@ class EdgeOffloading (Thread):
 				app = cls._m_app_prof.dep_rand_mob_app ()
 				app.run ()
 				exe_cnt = exe_cnt + 1
-				cls._log.w ("APP EXECUTION No." + str (exe_cnt))
+				cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
 				
 			epoch_cnt = epoch_cnt + 1
