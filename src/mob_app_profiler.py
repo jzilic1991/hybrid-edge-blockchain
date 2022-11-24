@@ -20,6 +20,14 @@ class MobileAppProfiler:
 
         return cls._mob_apps[choice]
 
+
+    def dep_app (cls, app_name):
+
+        for mob_app in cls._mob_apps:
+
+            if mob_app.get_name () == app_name:
+
+                return mob_app
     
 
     def __create_mob_apps (cls, data):
@@ -31,6 +39,7 @@ class MobileAppProfiler:
 
         # iterate through applications
         for app_name in app_names:
+            
             mob_apps.append (MobileApplication (app_name, data[app_name]))
 
         return mob_apps

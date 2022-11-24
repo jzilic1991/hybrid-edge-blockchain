@@ -125,46 +125,47 @@ class Model (object):
 	@classmethod
 	def fail_cost (cls, cand_n, curr_n):
         
-		time_cost = OFFLOADING_FAILURE_DETECTION_TIME
+		time_cost = Settings.OFFLOADING_FAILURE_DETECTION_TIME
 		cost_rsp_time = ResponseTime (0.0, 0.0, 0.0, 0.0)
 		cost_energy_consum = EnergyConsum (0.0, 0.0, 0.0, 0.0)
-		cost_rewards = 0
+		# cost_rewards = 0
 
 		if cand_n.get_node_type () != NodeTypes.MOBILE and \
 			curr_n.get_node_type () != NodeTypes.MOBILE:
 			cost_rsp_time = ResponseTime (time_cost, 0.0, 0.0, time_cost)
 			cost_energy_consum = cls.task_e_consum \
 				(cost_rsp_time, cand_n, curr_n)
-			task_time_reward = cls.__task_rsp_time_rwd \
-				(cost_rsp_time.get_task_overall())
-			task_energy_reward = cls.__task_e_consum_rwd \
-				(cost_energy_consum.get_task_overall())
-			cost_rewards = cls.__overall_task_rwd \
-				(task_time_reward, task_energy_reward)
+			# task_time_reward = cls.__task_rsp_time_rwd \
+			# 	(cost_rsp_time.get_task_overall())
+			# task_energy_reward = cls.__task_e_consum_rwd \
+			# 	(cost_energy_consum.get_task_overall())
+			# cost_rewards = cls.__overall_task_rwd \
+			# 	(task_time_reward, task_energy_reward)
 
 		elif cand_n.get_node_type () == NodeTypes.MOBILE and \
 			curr_n.get_node_type () != NodeTypes.MOBILE:
 			cost_rsp_time = ResponseTime (0.0, time_cost, 0.0, time_cost)
 			cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
-			task_time_reward = cls.__task_rsp_time_rwd \
-				(cost_rsp_time.get_task_overall())
-			task_energy_reward = cls.__task_e_consum_rwd \
-				(energy_consum.get_task_overall())
-			cost_rewards = cls.__overall_task_rwd \
-				(task_time_reward, task_energy_reward)
+			# task_time_reward = cls.__task_rsp_time_rwd \
+			# 	(cost_rsp_time.get_task_overall())
+			# task_energy_reward = cls.__task_e_consum_rwd \
+			# 	(energy_consum.get_task_overall())
+			# cost_rewards = cls.__overall_task_rwd \
+			# 	(task_time_reward, task_energy_reward)
 
 		elif cand_n.get_node_type () != NodeTypes.MOBILE and \
 			curr_n.get_node_type () == NodeTypes.MOBILE:
 			cost_rsp_time = ResponseTime (0.0, 0.0, time_cost, time_cost)
 			cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
-			task_time_reward = cls.__task_rsp_time_rwd \
-				(cost_rsp_time.get_task_overall())
-			task_energy_reward = cls.__task_e_consum_rwd \
-				(cost_energy_consum.get_task_overall())
-			cost_rewards = cls.__overall_task_rwd \
-				(task_time_reward, task_energy_reward)
+			# task_time_reward = cls.__task_rsp_time_rwd \
+			# 	(cost_rsp_time.get_task_overall())
+			# task_energy_reward = cls.__task_e_consum_rwd \
+			# 	(cost_energy_consum.get_task_overall())
+			# cost_rewards = cls.__overall_task_rwd \
+			# 	(task_time_reward, task_energy_reward)
 
-		return (cost_rsp_time, cost_energy_consum, cost_rewards)
+		# return (cost_rsp_time, cost_energy_consum, cost_rewards)
+		return (cost_rsp_time.get_overall (), cost_energy_consum.get_overall ())
 
 
 	@classmethod
@@ -212,7 +213,7 @@ class Model (object):
 
 		if topology[name]['type'] == NetLinkTypes.WIRELESS:
 
-			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
+			return (task.get_data_out() * MeasureUnits.KILOBYTE) / \
 				((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
 				(lat / MeasureUnits.THOUSAND_MS)
         

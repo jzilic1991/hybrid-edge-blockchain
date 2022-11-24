@@ -89,7 +89,7 @@ class Stats:
             
             if off_dist[key] != 0:
 
-                result[key] = (off_fail[key] / off_dist[key]) * 100
+                result[key] = round ((off_fail[key] / off_dist[key]) * 100, 2)
 
             else:
 

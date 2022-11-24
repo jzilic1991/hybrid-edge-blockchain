@@ -11,7 +11,7 @@ from util import Settings
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q, exe, samp):
+	def __init__ (self, req_q, rsp_q, exe, samp, app_name):
 
 		Thread.__init__ (self)
 		self._r_mon = ResourceMonitor ()
@@ -21,22 +21,23 @@ class EdgeOffloading (Thread):
 		self._rsp_q = rsp_q
 		self._exe = exe
 		self._samp = samp
+		self._app_name = app_name
 		self._log = None
 
 
 	def deploy_rep_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), True)
+		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, True)
 
 
 	def deploy_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), False)
+		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, False)
 
 
 	def deploy_sq_ode (cls):
 
-		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md ())
+		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name)
 
 
 	def run (cls):
@@ -44,7 +45,7 @@ class EdgeOffloading (Thread):
 		cls._log = cls._s_ode.get_logger ()
 		off_sites = cls._r_mon.get_off_sites ()
 		topology = cls._r_mon.get_topology ()
-		app = cls._m_app_prof.dep_rand_mob_app ()
+		app = cls._m_app_prof.dep_app (cls._app_name)
 		app.run ()
 
 		# cls.__print_setup (off_sites, topology, app)
@@ -71,7 +72,7 @@ class EdgeOffloading (Thread):
 
 			if len(tasks) == 0:
 				
-				app = cls._m_app_prof.dep_rand_mob_app ()
+				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
 				cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
@@ -80,7 +81,7 @@ class EdgeOffloading (Thread):
 			epoch_cnt = epoch_cnt + 1
 			cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
-			if exe_cnt == cls._exe:
+			if exe_cnt >= cls._exe:
 
 				cls._s_ode.summarize ()
 				samp_cnt = samp_cnt + 1
@@ -102,8 +103,14 @@ class EdgeOffloading (Thread):
 				continue
 
 			off_sites = cls.__get_reputation (off_sites)
-			off_sites = cls.__update_behav (off_sites)
+			off_sites = cls.__update_behav (off_sites, exe_cnt)
 			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
+
+			if not off_transactions:
+
+				exe_cnt = cls._exe
+				continue
+
 			cls._req_q.put (('update', off_transactions))
 
 
@@ -169,11 +176,11 @@ class EdgeOffloading (Thread):
 			off_site.print_system_config ()
 
 
-	def __update_behav (cls, off_sites):
+	def __update_behav (cls, off_sites, exe_cnt):
 
 		for site in off_sites:
 
-			if site.get_n_id () == "EC1":
+			if site.get_n_id () == "EC1" and (50 <= exe_cnt <= 80):
 				
 				site.set_mal_behav (True)
 

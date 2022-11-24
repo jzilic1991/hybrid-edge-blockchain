@@ -8,7 +8,7 @@ function getRandomInt (min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
 
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return (Math.floor(Math.random() * (max - min + 1)) + min).toFixed (3);
 
 }
 
@@ -75,7 +75,7 @@ contract ('Reputation', () => {
 
 			assert.equal (event.id, 1, "This ID is not expected!")
 			assert.equal (event.name, nodeAstr, "Node name is not correct!")
-			assert.equal (event.value, 0, "Reputation score should be initialized!")
+			assert.equal (event.value, 1000, "Reputation score should be initialized!")
 			assert.equal (event.valid, true, "Score validity should be valid!")
 
 			result = await reputation.getNodeCount.call({ from: accounts[0] })
@@ -86,7 +86,7 @@ contract ('Reputation', () => {
 
 			assert.equal (event.id, 2, "This ID is not expected!")
 			assert.equal (event.name, nodeBstr, "Node name is not correct!")
-			assert.equal (event.value, 0, "Reputation score should be initialized!")
+			assert.equal (event.value, 1000, "Reputation score should be initialized!")
 			assert.equal (event.valid, true, "Score validity should be valid!")
 
 			result = await reputation.getNodeCount.call({from: accounts[0] })
@@ -96,11 +96,11 @@ contract ('Reputation', () => {
 			var nodeB = await reputation.getNode.call (2, { from: accounts[0] })
 
 			assert.equal (nodeA['0'], nodeAstr, "Node name is not correct!")
-			assert.equal (nodeA['1'].toNumber (), 0, "Reputation score should be initialized!")
+			assert.equal (nodeA['1'].toNumber (), 1000, "Reputation score should be initialized!")
 			assert.equal (nodeA['2'], true, "Score validity should be valid!")
 
 			assert.equal (nodeB['0'], nodeBstr, "Node name is not correct!")
-			assert.equal (nodeB['1'].toNumber (), 0, "Reputation score should be initialized!")
+			assert.equal (nodeB['1'].toNumber (), 1000, "Reputation score should be initialized!")
 			assert.equal (nodeB['2'], true, "Score validity should be valid!")
 
 			result = await reputation.unregisterNode (1, { from: accounts[0] })
@@ -116,7 +116,7 @@ contract ('Reputation', () => {
 			nodeB = await reputation.getNode.call (2, { from: accounts[0] })
 
 			assert.equal (nodeB['0'], nodeBstr, "Node name is not correct!")
-			assert.equal (nodeB['1'].toNumber (), 0, "Reputation score should be initialized!")
+			assert.equal (nodeB['1'].toNumber (), 1000, "Reputation score should be initialized!")
 			assert.equal (nodeB['2'], true, "Score validity should be valid!")
 
 			await reputation.unregisterNode (2, { from: accounts[0] })
@@ -138,7 +138,7 @@ contract ('Reputation', () => {
 
 			var reward = 0
 			var value = 0
-			var contractScore = 0
+			var contractScore = 1000
 			var residual = 0
 			var repScore = 0
 			var incentive = 0
@@ -150,7 +150,7 @@ contract ('Reputation', () => {
 
 			for (var i = 0; i < 5; i++) {
 
-				reward = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+				reward = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
 				incentive = reward * BASE
 				contractScore = (contractScore * (BASE - WEIGHT) + WEIGHT * incentive)
 				residual = contractScore % BASE
@@ -182,8 +182,8 @@ contract ('Reputation', () => {
 			const BASE = await reputation.BASE.call ({ from: accounts[0] })
 			const WEIGHT = await reputation.WEIGHT.call ({ from: accounts[0] })
 
-			var contractScoreA = 0
-			var contractScoreB = 0
+			var contractScoreA = 1000
+			var contractScoreB = 1000
 
 			var result = await reputation.registerNode (nodeAstr, { from: accounts[0] })
 			var event = result.logs[0].args
@@ -196,13 +196,13 @@ contract ('Reputation', () => {
 			var repScoreA = await reputation.getReputationScore.call(idA, { from: accounts[0] })
 			var repScoreB = await reputation.getReputationScore.call(idB, { from: accounts[0] })
 
-			assert.equal (repScoreA['0'].words[0], 0, "Initial reputation score is not correct!")
-			assert.equal (repScoreB['0'].words[0], 0, "Initial reputation score is not correct!")
+			assert.equal (repScoreA['0'].words[0], 1000, "Initial reputation score is not correct!")
+			assert.equal (repScoreB['0'].words[0], 1000, "Initial reputation score is not correct!")
 
 			for (var i = 0; i < 3; i++) {
 
-				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
-				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
+				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
 				var incentiveA = rewardA * BASE
 				var incentiveB = rewardB * BASE
 				
@@ -250,9 +250,9 @@ contract ('Reputation', () => {
 			const BASE = await reputation.BASE.call ({ from: accounts[0] })
 			const WEIGHT = await reputation.WEIGHT.call ({ from: accounts[0] })
 
-			var contractScoreA = 0
-			var contractScoreB = 0
-			var contractScoreC = 0
+			var contractScoreA = 1000
+			var contractScoreB = 1000
+			var contractScoreC = 1000
 
 			var result = await reputation.registerNode (nodeAstr, { from: accounts[0] })
 			var event = result.logs[0].args
@@ -272,9 +272,9 @@ contract ('Reputation', () => {
 
 			for (var i = 0; i < 5; i++) {
 
-				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
-				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
-				var rewardC = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : -1)
+				var rewardA = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
+				var rewardB = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
+				var rewardC = Math.random().toFixed (3) * (Math.round(Math.random()) ? 1 : 0)
 
 				transactionsA.push ([idA, rewardA * BASE])
 				transactionsB.push ([idB, rewardB * BASE])
@@ -450,7 +450,7 @@ contract ('Reputation', () => {
 
 			for (let i = 0; i < event.rsp.length; i++) {
 
-				assert.equal ((event.rsp[i].value / BASE).toFixed (3), 0.0, "Reputation score should be 0 after reset!")
+				assert.equal ((event.rsp[i].value / BASE).toFixed (3), 1.0, "Reputation score should be 1000 after reset!")
 							
 			}
 

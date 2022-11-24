@@ -8,13 +8,12 @@ from models import Model
 
 class OffloadingDecisionEngine(ABC):
 
-    def __init__(self, name, curr_n, md):
+    def __init__(self, name, curr_n, md, app_name):
             
         self._name = name
         self._curr_n = curr_n
         self._md = md
 
-        self._REP = 0
         self._BL = Settings.BATTERY_LF
         self._rsp_time_hist = list ()
         self._e_consum_hist = list ()
@@ -24,7 +23,7 @@ class OffloadingDecisionEngine(ABC):
         self._qos_viol_hist = 0
         self._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         self._stats = Stats ()
-        self._log = Logger ('logs/sim_traces_' + self._name + '.txt', True, 'w')
+        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         super().__init__()
 
@@ -46,6 +45,10 @@ class OffloadingDecisionEngine(ABC):
 
     def offload (cls, tasks, off_sites, topology):
 
+        if cls._BL <= 0.0:
+
+            return []
+
         cand_n = None
         t_rsp_time_arr = tuple ()
         t_e_consum_arr = tuple ()
@@ -61,20 +64,20 @@ class OffloadingDecisionEngine(ABC):
             t_price = 0.0
 
             metrics = cls.__compute_metrics (task, off_sites, \
-                    cls._curr_n, topology)
+                cls._curr_n, topology)
 
             while True:
 
                 cand_n, values = cls.offloading_decision (task, metrics)
 
-                t_rsp_time = t_rsp_time + values['rt']
-                t_e_consum = t_e_consum + values['ec']
-                t_price = t_price + values['pr']
                 cls._off_dist_hist[cand_n.get_n_id ()] = \
                     cls._off_dist_hist[cand_n.get_n_id ()] + 1
 
                 if cand_n.execute (task):
 
+                    t_rsp_time = t_rsp_time + values['rt']
+                    t_e_consum = t_e_consum + values['ec']
+                    t_price = t_price + values['pr']
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
@@ -92,9 +95,11 @@ class OffloadingDecisionEngine(ABC):
                 else:
 
                     cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
-                    cls._log.w ("Failure cost is RT:" + str (metrics[cand_n]['rt']) + "s, EC: " + \
-                        str (metrics[cand_n]['ec']) + " J, PR: " + str (metrics[cand_n]['pr']) + \
-                        " monetary units")
+                    (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
+                    cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
+                        str (e_cost) + " J")
+                    t_rsp_time = t_rsp_time + time_cost
+                    t_e_consum = t_e_consum + e_cost
                     cls._qos_viol_hist = cls._qos_viol_hist + 1
                     del metrics[cand_n]
                     off_transactions.append ([cand_n.get_sc_id (), 0])
@@ -119,7 +124,7 @@ class OffloadingDecisionEngine(ABC):
         cls._stats.add_rsp_time (sum (cls._rsp_time_hist))
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
-        cls._stats.add_bl (cls._BL)
+        cls._stats.add_bl (round (cls._BL / Settings.BATTERY_LF * 100, 3))
         cls._stats.add_off_dist (cls._off_dist_hist)
         cls._stats.add_off_fail (cls._off_fail_hist)
         cls._stats.add_qos_viol (cls._qos_viol_hist)

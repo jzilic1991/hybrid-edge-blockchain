@@ -29,7 +29,7 @@ class Prices:
 class Settings:
 
     OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
-    BATTERY_LF = 100 # percentage
+    BATTERY_LF = 1000 # joules
     SNR = 5 # dB
     ETA = 0.5
     W_RT = 0.5

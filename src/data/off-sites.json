@@ -2,7 +2,7 @@
 	"off-sites": {
 		"ED1": {
 			"type": "Edge Database Server",
-			"mips": 1800,
+			"mips": 2100,
 			"cores": 8,
 			"mem": 8,
 			"stor": 300,
@@ -10,7 +10,7 @@
 		},
 		"EC1": {
 			"type": "Edge Computational Server",
-			"mips": 3200,
+			"mips": 2800,
 			"cores": 16,
 			"mem": 8,
 			"stor": 150,
@@ -18,8 +18,8 @@
 		},
 		"ER1": {
 			"type": "Edge Regular Server",
-			"mips": 1200,
-			"cores": 2,
+			"mips": 1800,
+			"cores": 4,
 			"mem": 8,
 			"stor": 150,
 			"url": "http://128.131.169.143:30256/regular/"

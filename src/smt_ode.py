@@ -9,18 +9,16 @@ from util import NodeTypes, Settings
 
 class SmtOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, activate):
+    def __init__(self, name, curr_n, md, app_name, activate):
 
-        super().__init__(name, curr_n, md)
+        super().__init__(name, curr_n, md, app_name)
         self._activate = activate
+        self._k = 2
 
 
     def dynamic_t_incentive (cls, task, metric):
 
         incentive = int (round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000)
-        # int(round(random.uniform (0, 1), 3) * 1000)
-        # cls._log.w ("Task incentive is " + str (incentive))
-
         if incentive >= 0 and incentive <= 1000:
 
             return incentive
@@ -88,8 +86,11 @@ class SmtOde (OffloadingDecisionEngine):
 
         if cls._activate:
             
+            rep_thr = cls.__compute_rep_threshold (sites)
+            cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
+
             s.add ([Implies (b[0] == True, \
-                    And (b[1].get_reputation () >= cls._REP, \
+                    And (b[1].get_reputation () >= rep_thr, \
                         1.0 >= b[1].get_reputation () >= 0.0)) \
                         for b in b_sites])
 
@@ -123,3 +124,9 @@ class SmtOde (OffloadingDecisionEngine):
                 Settings.W_EC * abs (val['ec'] - ec) + Settings.W_PR * abs (val['pr'] - pr)
 
         return metrics
+
+
+    def __compute_rep_threshold (cls, off_sites):
+
+        reps = [site.get_reputation () for site in off_sites]
+        return min (sorted (reps, key = lambda x: x, reverse = True)[:cls._k])
