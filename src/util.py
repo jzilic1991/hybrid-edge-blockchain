@@ -37,6 +37,8 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
+    EXECUTIONS = 100
+    SAMPLES = 100
 
 
 class Testnets:

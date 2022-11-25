@@ -13,7 +13,7 @@ class SmtOde (OffloadingDecisionEngine):
 
         super().__init__(name, curr_n, md, app_name)
         self._activate = activate
-        self._k = 2
+        self._k = 3
 
 
     def dynamic_t_incentive (cls, task, metric):

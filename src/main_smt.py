@@ -57,8 +57,8 @@ class EdgeOffloading (Thread):
 		prev_progress = 0
 		curr_progress = 0
 
-		cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
-		cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
+		# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+		# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
 		print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
 		print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
@@ -75,11 +75,11 @@ class EdgeOffloading (Thread):
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
-				cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
 				
 			epoch_cnt = epoch_cnt + 1
-			cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
+			# cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
 			if exe_cnt >= cls._exe:
 
@@ -96,7 +96,7 @@ class EdgeOffloading (Thread):
 
 						break
 
-				cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
+				# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 				app = cls._m_app_prof.dep_rand_mob_app ()
 				app.run ()
 				off_sites = cls.__reset_reputation (off_sites)
@@ -161,7 +161,7 @@ class EdgeOffloading (Thread):
 					if site_rep[0] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep[1])
-				 		cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
+				 		# cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 
 		return off_sites
 
@@ -180,7 +180,15 @@ class EdgeOffloading (Thread):
 
 		for site in off_sites:
 
-			if site.get_n_id () == "EC1" and (50 <= exe_cnt <= 80):
+			if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
+				
+				site.set_mal_behav (True)
+
+			elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
+				
+				site.set_mal_behav (True)
+
+			elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
 				
 				site.set_mal_behav (True)
 
@@ -206,6 +214,6 @@ class EdgeOffloading (Thread):
 				 	if site_rep['id'] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep['score'])
-				 		cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
+				 		# cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
 
 		return off_sites

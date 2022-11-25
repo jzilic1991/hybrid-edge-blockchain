@@ -81,11 +81,11 @@ class OffloadingDecisionEngine(ABC):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
-                    cls._log.w ("Task " + task.get_name () + \
-                        " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
-                        "is offloaded successfully on " + cand_n.get_n_id ())
-                    cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
-                        ", PR: " + str (t_price))
+                    # cls._log.w ("Task " + task.get_name () + \
+                    #     " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
+                    #     "is offloaded successfully on " + cand_n.get_n_id ())
+                    # cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
+                    #     ", PR: " + str (t_price))
                     cls.__determine_qos_violations (task, metrics[cand_n])
                     cand_n.terminate (task)
                     off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (task, \
@@ -94,10 +94,10 @@ class OffloadingDecisionEngine(ABC):
 
                 else:
 
-                    cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
-                    cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
-                        str (e_cost) + " J")
+                    # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
+                    #     str (e_cost) + " J")
                     t_rsp_time = t_rsp_time + time_cost
                     t_e_consum = t_e_consum + e_cost
                     cls._qos_viol_hist = cls._qos_viol_hist + 1
@@ -111,7 +111,7 @@ class OffloadingDecisionEngine(ABC):
         cls._BL = round (cls._BL - acc_e_consum, 3)
         cls._curr_n = cand_n
 
-        cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
+        # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         cls._res_pr_hist.append (acc_price)

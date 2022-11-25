@@ -7,7 +7,7 @@ from queue import Queue
 
 # user-defined libs
 from chain_msg_handler import ChainHandler
-from util import Testnets, MobApps
+from util import Testnets, MobApps, Settings
 from main_smt import EdgeOffloading
 
 
@@ -129,19 +129,19 @@ chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':
 
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.INTRASAFED)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.INTRASAFED)
     edge_off.deploy_rep_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
         
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.INTRASAFED)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.INTRASAFED)
     edge_off.deploy_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
     
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.INTRASAFED)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.INTRASAFED)
     edge_off.deploy_sq_ode ()
     edge_off.start ()
 
@@ -150,19 +150,19 @@ if sys.argv[1] == 'intra':
 
 elif sys.argv[1] == 'mobiar':
 
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.MOBIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.MOBIAR)
     edge_off.deploy_rep_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
         
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.MOBIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.MOBIAR)
     edge_off.deploy_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
     
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.MOBIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.MOBIAR)
     edge_off.deploy_sq_ode ()
     edge_off.start ()
 
@@ -170,19 +170,19 @@ elif sys.argv[1] == 'mobiar':
 
 elif sys.argv[1] == 'naviar':
     
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.NAVIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
     edge_off.deploy_rep_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
         
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.NAVIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
     edge_off.deploy_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
     
-    edge_off = EdgeOffloading (req_q, rsp_q, 100, 2, MobApps.NAVIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
     edge_off.deploy_sq_ode ()
     edge_off.start ()
 
