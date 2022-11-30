@@ -12,7 +12,7 @@
 			"type": "Edge Computational Server",
 			"mips": 2800,
 			"cores": 16,
-			"mem": 8,
+			"mem": 16,
 			"stor": 150,
 			"url": "http://128.131.169.143:30256/comp/"
 		},

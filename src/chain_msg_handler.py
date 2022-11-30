@@ -42,6 +42,7 @@ class ChainHandler:
 		tx_hash = cls._w3.eth.sendRawTransaction (signed_tx.rawTransaction)
 		tx_receipt = cls._w3.eth.waitForTransactionReceipt (tx_hash)
 		result = registration_event.processReceipt(tx_receipt)
+		# print ("Node registration event: " + str (result))
 		
 		return result[0]['args']
 
@@ -80,6 +81,7 @@ class ChainHandler:
 		result = reputation_update_event.processReceipt(tx_receipt)
 		# end = time.time ()
 		event = result[0]['args']
+		# print ("Update reputation event: " + str (result))
 		response = list ()
 		for i in range (len (event.rsp)):
 			response.append ({ 'id': event.rsp[i][0], 'score': event.rsp[i][1] / cls._base })

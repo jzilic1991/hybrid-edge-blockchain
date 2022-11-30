@@ -180,15 +180,29 @@ class EdgeOffloading (Thread):
 
 		for site in off_sites:
 
-			if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
+			# first experiment
+			# if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
 				
-				site.set_mal_behav (True)
+			# 	site.set_mal_behav (True)
 
-			elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
+			# elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
 				
-				site.set_mal_behav (True)
+			# 	site.set_mal_behav (True)
 
-			elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
+			# elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
+				
+			# 	site.set_mal_behav (True)
+
+			# second experiment
+			# if site.get_n_id () == "EC1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
+				
+			# 	site.set_mal_behav (True)
+
+			# if site.get_n_id () == "EC1" or site.get_n_id () == "ED1" and (50 <= exe_cnt):
+				
+			# 	site.set_mal_behav (True)
+
+			if site.get_n_id () == "ED1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
 				
 				site.set_mal_behav (True)
 
