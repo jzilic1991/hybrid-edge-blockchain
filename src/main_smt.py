@@ -11,7 +11,7 @@ from util import Settings
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q, exe, samp, app_name):
+	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay):
 
 		Thread.__init__ (self)
 		self._r_mon = ResourceMonitor ()
@@ -23,21 +23,25 @@ class EdgeOffloading (Thread):
 		self._samp = samp
 		self._app_name = app_name
 		self._log = None
+		self._con_delay = con_delay
 
 
 	def deploy_rep_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, True)
+		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name,\
+			True, cls._con_delay)
 
 
 	def deploy_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, False)
+		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
+			False, cls._con_delay)
 
 
 	def deploy_sq_ode (cls):
 
-		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name)
+		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
+			cls._con_delay)
 
 
 	def run (cls):
@@ -56,6 +60,8 @@ class EdgeOffloading (Thread):
 		samp_cnt = 0  # counts samples
 		prev_progress = 0
 		curr_progress = 0
+		con_delay = cls._con_delay
+		task_n_delay = ""
 
 		# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 		# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
@@ -77,7 +83,12 @@ class EdgeOffloading (Thread):
 				exe_cnt = exe_cnt + 1
 				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
-				
+			
+			if tasks[0].get_name () == task_n_delay:
+
+				con_delay = con_delay + 1
+				# cls._log.w ("Consensus delay: " + str (con_delay))	
+			
 			epoch_cnt = epoch_cnt + 1
 			# cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
@@ -102,9 +113,16 @@ class EdgeOffloading (Thread):
 				off_sites = cls.__reset_reputation (off_sites)
 				continue
 
-			off_sites = cls.__get_reputation (off_sites)
+			if con_delay == cls._con_delay:
+				
+				off_sites = cls.__get_reputation (off_sites)
+				con_delay = 0
+				task_n_delay = tasks[0].get_name ()
+				# cls._log.w ("Consensus delay reset: " + str (con_delay) + ", task " + task_n_delay + " as a counter trigger!")
+			
 			off_sites = cls.__update_behav (off_sites, exe_cnt)
 			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
+			# cls._log.w ("Transactions:" + str (off_transactions))
 
 			if not off_transactions:
 
@@ -181,17 +199,17 @@ class EdgeOffloading (Thread):
 		for site in off_sites:
 
 			# first experiment
-			# if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
+			if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
 				
-			# 	site.set_mal_behav (True)
+				site.set_mal_behav (True)
 
-			# elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
+			elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
 				
-			# 	site.set_mal_behav (True)
+				site.set_mal_behav (True)
 
-			# elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
+			elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
 				
-			# 	site.set_mal_behav (True)
+				site.set_mal_behav (True)
 
 			# second experiment
 			# if site.get_n_id () == "EC1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
@@ -202,9 +220,9 @@ class EdgeOffloading (Thread):
 				
 			# 	site.set_mal_behav (True)
 
-			if site.get_n_id () == "ED1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
+			# if site.get_n_id () == "ED1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
 				
-				site.set_mal_behav (True)
+			# 	site.set_mal_behav (True)
 
 			else:
 

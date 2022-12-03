@@ -10,9 +10,9 @@ from util import NodeTypes, Settings
 
 class SmtOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, activate):
+    def __init__(self, name, curr_n, md, app_name, activate, con_delay):
 
-        super().__init__(name, curr_n, md, app_name)
+        super().__init__(name, curr_n, md, app_name, con_delay)
         self._activate = activate
         self._k = 3
 

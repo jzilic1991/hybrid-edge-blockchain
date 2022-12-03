@@ -44,6 +44,7 @@ def submit_cached_trx ():
         submit_trx = [trx for trx in cached_trx]
         cached_trx.clear ()
         update_thread = True
+        # print ('Submitted transactions: ' + str (submit_trx))
         update_rep_thread (chain, submit_trx)
         return
 
@@ -71,7 +72,7 @@ def experiment_run ():
         msg = req_q.get ()
 
         if msg[0] == 'update':
-
+            # print ("Received transactions: " + str (msg[1]))
             if update_thread:
 
                 for trx in msg[1]:
@@ -86,6 +87,9 @@ def experiment_run ():
         elif msg[0] == 'get':
 
             site_rep = []
+            while update_thread:
+                continue
+
             for n_id in msg[1]: 
                 
                 site_rep.append((n_id, chain.get_reputation (n_id)))
@@ -170,23 +174,23 @@ elif sys.argv[1] == 'mobiar':
 
 elif sys.argv[1] == 'naviar':
     
-    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR, 2)
     edge_off.deploy_rep_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
         
-    # edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
-    # edge_off.deploy_smt_ode ()
-    # edge_off.start ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR, 2)
+    edge_off.deploy_smt_ode ()
+    edge_off.start ()
 
-    # experiment_run ()
+    experiment_run ()
     
-    # edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR)
-    # edge_off.deploy_sq_ode ()
-    # edge_off.start ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, MobApps.NAVIAR, 2)
+    edge_off.deploy_sq_ode ()
+    edge_off.start ()
 
-    # experiment_run ()
+    experiment_run ()
 
 
 
