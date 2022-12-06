@@ -98,6 +98,17 @@ class OffActs:
     MD, ED, EC, ER, CD = range(NUM_OFFLOAD_ACTS)
 
 
+class OffloadingSiteCode:
+    MOBILE_DEVICE, EDGE_DATABASE_SERVER, EDGE_COMPUTATIONAL_INTENSIVE_SERVER, EDGE_REGULAR_SERVER, CLOUD_DATA_CENTER,\
+            UNKNOWN = range(6)
+
+
+class OffloadingActions:
+    NUMBER_OF_OFFLOADING_ACTIONS = 5
+    MOBILE_DEVICE, EDGE_DATABASE_SERVER, EDGE_COMPUTATIONAL_INTENSIVE_SERVER, EDGE_REGULAR_SERVER, CLOUD_DATA_CENTER = \
+        range(NUMBER_OF_OFFLOADING_ACTIONS)
+
+
 class Objective:
     
     def __init__ (self, execution, downlink, uplink, task_overall):
@@ -140,6 +151,51 @@ class EnergyConsum (Objective):
 
 
 class Util (object):
+
+    @classmethod
+    def determine_name_and_action (cls, offloading_site_code):
+    
+        if offloading_site_code == OffloadingSiteCode.EDGE_DATABASE_SERVER:
+            return OffloadingActions.EDGE_DATABASE_SERVER
+
+        elif offloading_site_code == OffloadingSiteCode.EDGE_COMPUTATIONAL_INTENSIVE_SERVER:
+            return OffloadingActions.EDGE_COMPUTATIONAL_INTENSIVE_SERVER
+
+        elif offloading_site_code == OffloadingSiteCode.EDGE_REGULAR_SERVER:
+            return OffloadingActions.EDGE_REGULAR_SERVER
+
+        elif offloading_site_code == OffloadingSiteCode.CLOUD_DATA_CENTER:
+            return OffloadingActions.CLOUD_DATA_CENTER
+
+        elif offloading_site_code == OffloadingSiteCode.MOBILE_DEVICE:
+            return OffloadingActions.MOBILE_DEVICE
+
+        else:
+            raise ValueError ("Offloading site code is invalid! (" + str(offloading_site_code) + ")")
+
+    @classmethod
+    def determine_off_site_code (cls, node_type):
+        
+        if isinstance (node_type, NodeTypes):
+            return OffloadingSiteCode.UNKNOWN
+
+        if node_type == NodeTypes.E_DATABASE:
+            return OffloadingSiteCode.EDGE_DATABASE_SERVER
+        
+        elif node_type == NodeTypes.E_COMP:
+            return OffloadingSiteCode.EDGE_COMPUTATIONAL_INTENSIVE_SERVER
+
+        elif node_type == NodeTypes.E_REG:
+            return OffloadingSiteCode.EDGE_REGULAR_SERVER
+        
+        elif node_type == NodeTypes.CLOUD:
+            return OffloadingSiteCode.CLOUD_DATA_CENTER
+
+        elif node_type == NodeTypes.MOBILE:
+            return OffloadingSiteCode.MOBILE_DEVICE
+
+        else:
+            return OffloadingSiteCode.UNKNOWN
 
     @classmethod
     def generate_di_cpu_cycles(cls):

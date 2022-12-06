@@ -4,6 +4,7 @@ from threading import Thread
 
 from smt_ode import SmtOde
 from sq_ode import SqOde
+from mdp_ode import MdpOde
 from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
 from util import Settings
@@ -11,7 +12,7 @@ from util import Settings
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q, exe, samp, app_name):
+	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay):
 
 		Thread.__init__ (self)
 		self._r_mon = ResourceMonitor ()
@@ -22,22 +23,32 @@ class EdgeOffloading (Thread):
 		self._exe = exe
 		self._samp = samp
 		self._app_name = app_name
+		self._con_delay = con_delay
 		self._log = None
 
 
 	def deploy_rep_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, True)
+		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+			cls._app_name, True, cls._con_delay)
 
 
 	def deploy_smt_ode (cls):
 
-		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, False)
+		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+			cls._app_name, False, cls._con_delay)
 
 
 	def deploy_sq_ode (cls):
 
-		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name)
+		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
+			cls._con_delay)
+
+
+	def deploy_mdp_ode (cls):
+
+		cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+			cls._app_name, cls._con_delay, cls._r_mon.get_off_sites ())
 
 
 	def run (cls):
@@ -56,6 +67,8 @@ class EdgeOffloading (Thread):
 		samp_cnt = 0  # counts samples
 		prev_progress = 0
 		curr_progress = 0
+		con_delay = 0
+		task_n_delay = ""
 
 		# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 		# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
@@ -78,6 +91,10 @@ class EdgeOffloading (Thread):
 				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
 				
+			if tasks[0].get_name == task_n_delay:
+
+				con_delay = con_delay + 1
+
 			epoch_cnt = epoch_cnt + 1
 			# cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
@@ -102,7 +119,12 @@ class EdgeOffloading (Thread):
 				off_sites = cls.__reset_reputation (off_sites)
 				continue
 
-			off_sites = cls.__get_reputation (off_sites)
+			if con_delay == cls._con_delay:
+
+				off_sites = cls.__get_reputation (off_sites)
+				con_delay = 0
+				task_n_delay = tasks[0].get_name ()
+			
 			off_sites = cls.__update_behav (off_sites, exe_cnt)
 			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
 

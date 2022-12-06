@@ -24,7 +24,7 @@ def plot_objective (regex_exp, y_axis_title, show):
 
 	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
 	x = np.arange(len(app_names))
-	ode_names = ["Rep-SMT", "SMT", "SQ"]
+	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
 
 	for ode_n in ode_names:
@@ -41,19 +41,21 @@ def plot_objective (regex_exp, y_axis_title, show):
 					
 					result[ode_n].append (float (matched.group (1)))
 
-	plt.rcParams.update({'font.size': 14})
+	plt.rcParams.update({'font.size': 16})
 	ax = plt.subplot(111)
-	ax.bar(x - 0.2, result['Rep-SMT'], width = 0.2, color = 'b', \
+	ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
 		align = 'center', label = 'Rep-SMT')
-	ax.bar(x, result['SMT'], width = 0.2, color = 'pink', \
+	ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
 		align = 'center', label = 'SMT')
-	ax.bar(x + 0.2, result['SQ'], width = 0.2, color = 'black', \
+	ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
 		align = 'center', label = 'SQ')
+	ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+		align = 'center', label = 'MDP')
 
 	plt.xlabel('Mobile applications')
 	plt.ylabel(y_axis_title)
 	#plt.title('Average response time')
-	plt.xticks(x, app_names, fontsize = 14)
+	plt.xticks(x, app_names, fontsize = 16)
 	
 	if show:
 		plt.legend()
@@ -63,34 +65,168 @@ def plot_objective (regex_exp, y_axis_title, show):
 
 def print_distribution ():
 
-	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
-	x = np.arange(len(app_names))
-	ode_names = ["Rep-SMT", "SMT", "SQ"]
-	result = { 'ED1': [], 'EC1': [], 'ER1': [], 'CD1': [], 'MD1': []}
+	NAVIAR_TASKS = 100 * 8
+	app_n = MobApps.NAVIAR
+	mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
+	x = np.arange(len(mal_scenarios))
+	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+	result = dict ()
 
 	for ode_n in ode_names:
 		
-		for app_n in app_names:
+		result [ode_n] = { 'ED1': [], 'EC1': [], 'ER1': [], 'CD1': [], 'MD1': []}
+		for mal in mal_scenarios:
 
-			f = open("logs/backup_logs/1_mal_node/sim_traces_" + ode_n + "_" + app_n + '.txt')
+			if mal == "MAL1/5":
+				
+				f = open("logs/backup_logs/1_mal_node/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5a":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ER/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5b":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5c":
+
+				f = open("logs/backup_logs/2_mal_nodes/ER_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
 			for line in f.readlines ():
 
-				matched = re.search("Offloading distribution \(percentage\): {'ED1': (\d+\.\d+), 'EC1': (\d+\.\d+), 'ER1': (\d+\.\d+), 'CD1': (\d+\.\d+), 'MD1': (\d+\.\d+)}", line)
-				
+				matched = re.search("Offloading distribution \(percentage\): {'ED1': (\d+\.\d+), 'EC1': (\d+\.\d+), " + 
+					"'ER1': (\d+\.\d+), 'CD1': (\d+\.\d+), 'MD1': (\d+\.\d+)}", line)
 				if matched:
 					
-					result['ED1'].append (float (matched.group (1)))
-					result['EC1'].append (float (matched.group (2)))
-					result['ER1'].append (float (matched.group (3)))
-					result['CD1'].append (float (matched.group (4)))
-					result['MD1'].append (float (matched.group (5)))
+					result[ode_n]['ED1'].append (float (matched.group (1)))
+					result[ode_n]['EC1'].append (float (matched.group (2)))
+					result[ode_n]['ER1'].append (float (matched.group (3)))
+					result[ode_n]['CD1'].append (float (matched.group (4)))
+					result[ode_n]['MD1'].append (float (matched.group (5)))
 
 	print ('Offloading distribution: ' + str (result))
 
 
-# overhead_print ()
+def plot_dropping_rates ():
+
+	NAVIAR_TASKS = 100 * 8
+	app_n = MobApps.NAVIAR
+	mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
+	x = np.arange(len(mal_scenarios))
+	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+	result = dict ()
+
+	for ode_n in ode_names:
+		
+		result [ode_n] = list ()
+		for mal in mal_scenarios:
+
+			if mal == "MAL1/5":
+				
+				f = open("logs/backup_logs/1_mal_node/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5a":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ER/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5b":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5c":
+
+				f = open("logs/backup_logs/2_mal_nodes/ER_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			for line in f.readlines ():
+
+				matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+				if matched:
+					
+					result[ode_n].append (round ((float (matched.group (1)) / NAVIAR_TASKS) * 100, 3))
+
+	plt.rcParams.update({'font.size': 16})
+	ax = plt.subplot(111)
+	ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
+		align = 'center', label = 'Rep-SMT')
+	ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+		align = 'center', label = 'SMT')
+	ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
+		align = 'center', label = 'SQ')
+	ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+		align = 'center', label = 'MDP')
+
+	plt.ylabel('Offloading dropping rate (%)')
+	plt.xlabel("Malicious scenarios")
+	#plt.title('Average response time')
+	plt.xticks(x, mal_scenarios, fontsize = 16)
+	plt.legend()
+	plt.show()
+
+
+def plot_objective_with_mal (regex_exp, y_axis_title, show):
+
+	app_n = MobApps.NAVIAR
+	mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
+	x = np.arange(len(mal_scenarios))
+	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+	result = dict ()
+
+	for ode_n in ode_names:
+		
+		result [ode_n] = list ()
+		for mal in mal_scenarios:
+
+			if mal == "MAL1/5":
+				
+				f = open("logs/backup_logs/1_mal_node/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5a":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ER/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5b":
+
+				f = open("logs/backup_logs/2_mal_nodes/EC_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			elif mal == "MAL2/5c":
+
+				f = open("logs/backup_logs/2_mal_nodes/ER_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			for line in f.readlines ():
+
+				matched = re.search(regex_exp, line)
+				if matched:
+					
+					result[ode_n].append (float (matched.group (1)))
+
+	plt.rcParams.update({'font.size': 16})
+	ax = plt.subplot(111)
+	ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
+		align = 'center', label = 'Rep-SMT')
+	ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+		align = 'center', label = 'SMT')
+	ax.bar(x, result['SQ'], width = 0.1, color = 'yellow', \
+		align = 'center', label = 'SQ')
+	ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+		align = 'center', label = 'MDP')
+
+	plt.ylabel(y_axis_title)
+	plt.xlabel("Malicious scenarios")
+	#plt.title('Average response time')
+	plt.xticks(x, mal_scenarios, fontsize = 16)
+	
+	if show:
+		plt.legend()
+	
+	plt.show()
+
+overhead_print ()
 plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
-# print_distribution ()
+print_distribution ()
+plot_dropping_rates ()
+plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)

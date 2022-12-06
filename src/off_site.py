@@ -20,9 +20,11 @@ class OffloadingSite:
         self._node_type = data['type']
         self._url = data['url']
         self._time_epoch_cnt = 0
-        self._reput = 0
+        self._reput = 1
         self._sc_id = 0
         self._mal_behav = False
+        self._off_site_code = Util.determine_off_site_code (self._node_type)
+        self._off_action = Util.determine_name_and_action (self._off_site_code)
         
         # self.print_system_config()
 
@@ -64,6 +66,9 @@ class OffloadingSite:
 
     def get_reputation (cls):
 
+        if cls._node_type == NodeTypes.MOBILE:
+            return 1.0
+        
         return cls._reput
 
 
@@ -100,6 +105,16 @@ class OffloadingSite:
     def get_cores (cls):
 
         return cls._cores
+
+
+    def get_offloading_action_index(cls):
+
+        return cls._off_action
+
+
+    def get_offloading_site_code (cls):
+
+        return cls._off_site_code
     
 
     def time_epoch_count (cls):
@@ -110,11 +125,13 @@ class OffloadingSite:
     def check_valid_deploy(cls, task):
         
         if not isinstance(task, Task):
+            
             return ExeErrCode.EXE_NOK
 
         # check that task resouce requirements fits offloading sites's resource capacity
         if cls._stor > (cls._stor_consum + ((task.get_data_in() + task.get_data_out()) / GIGABYTES)) and \
             cls._mem > (cls._mem_consum + task.get_memory()):
+            
             return ExeErrCode.EXE_OK
 
 

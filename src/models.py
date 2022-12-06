@@ -180,11 +180,44 @@ class Model (object):
 		return wait_times
 
 
+	@classmethod
+	def task_rsp_time_rwd (cls, task_completion_time):
+
+		if task_completion_time == 0.0:
+			return 0.0
+
+		return 1 / (1 + math.exp(task_completion_time))
+
+
+	@classmethod
+	def task_e_consum_rwd (cls, task_energy_consumption):
+
+		if task_energy_consumption == 0.0:
+			return 0.0
+
+		return 1 / (1 + math.exp(task_energy_consumption))
+
+	
+	@classmethod
+	def task_price_rwd (cls, price):
+
+		if price == 0.0:
+			return 0.0
+
+		return 1 / (1 + math.exp(price))
+
+
+	@classmethod
+	def overall_task_rwd (cls, time_reward, energy_reward, price_reward):
+
+		return (0.33 * time_reward) + (0.33 * energy_reward) + (0.34 * price_reward)
+
+
 	def __uplink_time (cls, task, cand_n, curr_n, topology):
 
 		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 			curr_n.get_n_id (), topology)
-        
+
 		bw = topology[name]['bw']
 		lat = topology[name]['lat']
 
@@ -336,28 +369,6 @@ class Model (object):
 	def __idle_e_consum (idle_time):
         
 		return idle_time * PowerConsum.IDLE
-
-    
-	def __task_rsp_time_rwd (task_completion_time):
-        
-		if task_completion_time == 0.0:
-			return 0.0
-
-		return 1 / (1 + math.exp(task_completion_time))
-
-
-	def __task_e_consum_rwd (task_energy_consumption):
-        
-		if task_energy_consumption == 0.0:
-			return 0.0
-
-		return 1 / (1 + math.exp(task_energy_consumption))
-
-    
-	def __overall_task_rwd (time_reward, energy_reward):
-        
-		return (cls._w_f_time_completion * time_reward) + \
-			(cls._w_f_energy_consumption * energy_reward)
 
 
 	def __key_for_topology_access (f_name, s_name, topology):
