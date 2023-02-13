@@ -12,6 +12,10 @@ class Model (object):
 		if cand_n.get_n_id() != curr_n.get_n_id():
 			name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 				curr_n.get_n_id (), topology)
+
+			if name == None:
+
+				return math.inf
 			
 			return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
             	(topology[name]['bw'] * MeasureUnits.KILOBYTE_PER_SECOND)
@@ -218,6 +222,10 @@ class Model (object):
 		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 			curr_n.get_n_id (), topology)
 
+		if name == None:
+
+			return math.inf
+
 		bw = topology[name]['bw']
 		lat = topology[name]['lat']
 
@@ -240,6 +248,10 @@ class Model (object):
 
 		name = cls.__key_for_topology_access (cand_n.get_n_id (), \
 			curr_n.get_n_id (), topology)
+
+		if name == None:
+
+			return math.inf
 
 		bw = topology[name]['bw']
 		lat = topology[name]['lat']
@@ -285,6 +297,11 @@ class Model (object):
 
 			name = cls.__key_for_topology_access (site.get_n_id (), \
 				m_site.get_n_id (), topology)
+
+			if name == None:
+
+				return math.inf
+
 			t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (c_sites)) + (1 / site.get_cores ())
 
 		return t_f
@@ -298,6 +315,11 @@ class Model (object):
 
 			name = cls.__key_for_topology_access (site.get_n_id (), \
 				m_site.get_n_id (), topology)
+
+			if name == None:
+
+				return math.inf
+
 			t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (e_sites))
 
 		return t_f
@@ -383,4 +405,10 @@ class Model (object):
 		else:
 			name = s_alt_name
 
-		return name
+		if name in topology:
+
+			return name
+
+		else:
+
+			return None

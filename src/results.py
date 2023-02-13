@@ -7,17 +7,21 @@ from util import MobApps
 
 def overhead_print ():
 
-	overhead_file = open ("logs/backup_logs/overhead/SMT_overhead.txt", "r")
-	smt_overhead = list ()
+	for scala in [1, 5, 10, 15, 30, 50, 80, 100]:
+		
+		overhead_file = open ("logs/backup_logs/overhead/scala_" + str (scala) + ".txt", "r")
+		smt_overhead = list ()
 
-	for line in overhead_file.readlines ():
+		for line in overhead_file.readlines ():
 
-		matched = re.search("Time elapsed for SMT computing is (\d+\.\d+) s", line)
-		if matched:
+			matched = re.search("Time elapsed for SMT computing is (\d+\.\d+) s", line)
+			
+			if matched:
 
-			smt_overhead.append (float (matched.group (1)))
+				smt_overhead.append (float (matched.group (1)))
 
-	print ('Average SMT overhead is ' + str (round (sum (smt_overhead) / len (smt_overhead), 4)) + ' s')
+		print ('Average SMT overhead (' + str(scala * 4 + 1) + ' nodes) is ' + \
+			str (round (sum (smt_overhead) / len (smt_overhead), 4)) + ' s')
 
 
 def plot_objective (regex_exp, y_axis_title, show):
@@ -222,11 +226,11 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	plt.show()
 
 overhead_print ()
-plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
-print_distribution ()
-plot_dropping_rates ()
-plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# print_distribution ()
+# plot_dropping_rates ()
+# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)

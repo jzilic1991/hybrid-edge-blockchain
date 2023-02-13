@@ -8,7 +8,7 @@ from models import Model
 
 class OffloadingDecisionEngine(ABC):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay):
+    def __init__(self, name, curr_n, md, app_name, con_delay, scala):
             
         self._name = name
         self._curr_n = curr_n
@@ -23,8 +23,15 @@ class OffloadingDecisionEngine(ABC):
         self._qos_viol_hist = 0
         self._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         self._stats = Stats ()
-        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '_' + str(con_delay) + \
-            '.txt', True, 'w')
+
+        if scala > 0:
+
+            self._log = Logger ('logs/scala_' + str(scala) + '.txt', True, 'w')
+
+        else:
+
+            self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '_' + str(con_delay) + \
+                '.txt', True, 'w')
 
         super().__init__()
 

@@ -1,6 +1,6 @@
 {
 	"off-sites": {
-		"ED1": {
+		"ED": {
 			"type": "Edge Database Server",
 			"mips": 2100,
 			"cores": 8,
@@ -8,7 +8,7 @@
 			"stor": 300,
 			"url": "http://128.131.169.143:30256/database/"
 		},
-		"EC1": {
+		"EC": {
 			"type": "Edge Computational Server",
 			"mips": 2800,
 			"cores": 16,
@@ -16,7 +16,7 @@
 			"stor": 150,
 			"url": "http://128.131.169.143:30256/comp/"
 		},
-		"ER1": {
+		"ER": {
 			"type": "Edge Regular Server",
 			"mips": 1800,
 			"cores": 4,
@@ -24,7 +24,7 @@
 			"stor": 150,
 			"url": "http://128.131.169.143:30256/regular/"
 		},
-		"CD1": {
+		"CD": {
 			"type": "Cloud Data Center",
 			"mips": 2400,
 			"cores": 64,
@@ -32,7 +32,7 @@
 			"stor": 1000,
 			"url": "http://128.131.169.143:30256/cloud/"
 		},
-		"MD1": {
+		"MD": {
 			"type": "Mobile Device",
 			"mips": 1000,
 			"cores": 1,

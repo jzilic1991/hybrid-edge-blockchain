@@ -37,8 +37,8 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
-    EXECUTIONS = 100
-    SAMPLES = 100
+    EXECUTIONS = 10
+    SAMPLES = 1
 
 
 class Testnets:
@@ -80,6 +80,11 @@ class NodeTypes:
     MOBILE, E_DATABASE, E_COMP, E_REG, CLOUD = ('Mobile Device', \
             'Edge Database Server', 'Edge Computational Server', \
             'Edge Regular Server', 'Cloud Data Center')
+
+
+class NodePrototypes:
+
+    MD, EC, ER, ED, CD = ('MD', 'EC', 'ER', 'ED', 'CD')
 
 
 class OdeTypes:

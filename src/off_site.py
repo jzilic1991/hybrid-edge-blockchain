@@ -1,5 +1,6 @@
 import sys
 import random
+import uuid
 
 from util import Util, NodeTypes, ExeErrCode, MeasureUnits
 from task import Task
@@ -7,9 +8,10 @@ from task import Task
 
 class OffloadingSite:
 
-    def __init__(self, name_id, data):
+    def __init__(self, p_id, data):
 
-        self._name_id = name_id
+        self._name_id = p_id + str (uuid.uuid4 ())
+        self._p_id = p_id
         self._mips = data['mips']
         self._cores = data['cores']
         self._mem = data['mem']
@@ -67,6 +69,7 @@ class OffloadingSite:
     def get_reputation (cls):
 
         if cls._node_type == NodeTypes.MOBILE:
+            
             return 1.0
         
         return cls._reput
@@ -95,6 +98,11 @@ class OffloadingSite:
     def get_n_id (cls):
         
         return cls._name_id
+
+
+    def get_p_id (cls):
+
+        return cls._p_id
     
 
     def get_mips (cls):

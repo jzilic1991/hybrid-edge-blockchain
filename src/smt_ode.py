@@ -10,16 +10,25 @@ from util import NodeTypes, Settings
 
 class SmtOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, activate, con_delay):
+    def __init__(self, name, curr_n, md, app_name, activate, con_delay, scala):
 
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, curr_n, md, app_name, con_delay, scala)
         self._activate = activate
         self._k = 3
 
 
     def dynamic_t_incentive (cls, task, metric):
 
-        incentive = int (round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000)
+        tmp = round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000
+
+        if tmp == math.inf or tmp == -math.inf:
+
+            incentive = 0
+
+        else:
+
+            incentive = int (tmp)
+        
         if incentive >= 0 and incentive <= 1000:
 
             return incentive
@@ -32,11 +41,11 @@ class SmtOde (OffloadingDecisionEngine):
         if task.is_offloadable ():
 
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics))
-            # start = time.time ()
+            start = time.time ()
             if str(s.check ()) == 'sat':
                 
-                # end = time.time ()
-                # cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
+                end = time.time ()
+                cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
                 sites_to_off = list ()
 
                 # print (s.model ())
@@ -71,6 +80,7 @@ class SmtOde (OffloadingDecisionEngine):
 
         # append tuple (Bool, OffloadingSite) to list
         # b_sites.append ((Bool (site.get_n_id ()), site) for site in sites)
+        # print ([metrics[b[1]]['score'] for b in b_sites])
 
         s.add (Or ([b[0] for b in b_sites]))
         s.add ([Implies (b[0] == True, \
@@ -125,6 +135,10 @@ class SmtOde (OffloadingDecisionEngine):
 
             metrics[site]['score'] = Settings.W_RT * abs (val['rt'] - rt) + \
                 Settings.W_EC * abs (val['ec'] - ec) + Settings.W_PR * abs (val['pr'] - pr)
+
+            if metrics[site]['score'] == math.inf:
+
+                metrics[site]['score'] = 100
 
         return metrics
 

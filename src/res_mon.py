@@ -1,13 +1,14 @@
 import json
 
 from off_site import OffloadingSite
-from util import NodeTypes, Util
+from util import NodeTypes, Util, NodePrototypes
 
 
 class ResourceMonitor:
 
-    def __init__ (self):
+    def __init__ (self, scala):
 
+        self._scala = scala
         self._off_sites = self.__init_off_sites ()
         self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
@@ -68,19 +69,19 @@ class ResourceMonitor:
         for key, val in data['topology'].items ():
             f_peer = None
             s_peer = None
-            i += 1
-            
+                        
             for f in cls._off_sites:
                 for s in cls._off_sites:
-                    if f.get_n_id () == val['peers'][0] and \
-                        s.get_n_id () == val['peers'][1]:
+                    if f.get_p_id () == val['peers'][0] and \
+                        s.get_p_id () == val['peers'][1]:
                         f_peer = f
                         s_peer = s
-                        break
+                        # break
 
-            topology[f_peer.get_n_id () + '-' + s_peer.get_n_id ()] = \
-                {'bw': val['bw'], 'lat': Util.get_lat (f_peer, s_peer), \
-                 'type': val['type']}
+                        topology[f_peer.get_n_id () + '-' + s_peer.get_n_id ()] = \
+                            {'bw': val['bw'], 'lat': Util.get_lat (f_peer, s_peer), \
+                             'type': val['type']}
+                        i += 1
 
         return topology
 
@@ -90,8 +91,17 @@ class ResourceMonitor:
         off_sites = list ()
         data = json.load (open ('data/off-sites.json'))
 
-        for name_id, res in data['off-sites'].items ():
-            off_sites.append (OffloadingSite (name_id, res))
+        for p_id, res in data['off-sites'].items ():
+
+            if p_id == NodePrototypes.MD:
+
+                off_sites.append (OffloadingSite (p_id, res))
+
+            else:
+                
+                for i in range (cls._scala):
+                    
+                    off_sites.append (OffloadingSite (p_id, res))
 
         return off_sites
 

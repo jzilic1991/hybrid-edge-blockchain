@@ -12,10 +12,11 @@ from util import Settings
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay):
+	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay, scala):
 
 		Thread.__init__ (self)
-		self._r_mon = ResourceMonitor ()
+
+		self._r_mon = ResourceMonitor (scala)
 		self._m_app_prof = MobileAppProfiler ()
 		self._s_ode = None
 		self._req_q = req_q
@@ -24,19 +25,20 @@ class EdgeOffloading (Thread):
 		self._samp = samp
 		self._app_name = app_name
 		self._con_delay = con_delay
+		self._scala = scala
 		self._log = None
 
 
 	def deploy_rep_smt_ode (cls):
 
 		cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-			cls._app_name, True, cls._con_delay)
+			cls._app_name, True, cls._con_delay, cls._scala)
 
 
 	def deploy_smt_ode (cls):
 
 		cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-			cls._app_name, False, cls._con_delay)
+			cls._app_name, False, cls._con_delay, cls._scala)
 
 
 	def deploy_sq_ode (cls):
