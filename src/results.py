@@ -5,12 +5,15 @@ import numpy as np
 from util import MobApps
 
 
-def overhead_print ():
+def overhead_plot ():
+
+	scale_nodes = [4, 20, 40, 60, 120, 200, 320, 400]
+	smt_overhead = list ()
 
 	for scala in [1, 5, 10, 15, 30, 50, 80, 100]:
 		
 		overhead_file = open ("logs/backup_logs/overhead/scala_" + str (scala) + ".txt", "r")
-		smt_overhead = list ()
+		smt_ovr_samples = list ()
 
 		for line in overhead_file.readlines ():
 
@@ -18,10 +21,23 @@ def overhead_print ():
 			
 			if matched:
 
-				smt_overhead.append (float (matched.group (1)))
+				smt_ovr_samples.append (float (matched.group (1)))
 
-		print ('Average SMT overhead (' + str(scala * 4 + 1) + ' nodes) is ' + \
-			str (round (sum (smt_overhead) / len (smt_overhead), 4)) + ' s')
+		# print ('Average SMT overhead (' + str(scala * 4 + 1) + ' nodes) is ' + \
+		# 	str (round (sum (smt_overhead) / len (smt_overhead), 4)) + ' s')
+		smt_overhead.append (round (sum (smt_ovr_samples) / len (smt_ovr_samples), 4))
+
+	plt.rcParams.update({'font.size': 16})
+	# plotting the points 
+	plt.plot(scale_nodes, smt_overhead)
+	  
+	# naming the x axis
+	plt.xlabel('Number of nodes')
+	# naming the y axis
+	plt.ylabel('Time (s)')
+	  	  
+	# function to show the plot
+	plt.show()
 
 
 def plot_objective (regex_exp, y_axis_title, show):
@@ -225,7 +241,7 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	
 	plt.show()
 
-overhead_print ()
+overhead_plot ()
 # plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 # plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 # plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
