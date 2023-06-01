@@ -241,10 +241,10 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	
 	plt.show()
 
-overhead_plot ()
-# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# overhead_plot ()
+plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
 # print_distribution ()
 # plot_dropping_rates ()
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
