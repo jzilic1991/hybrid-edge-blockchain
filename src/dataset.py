@@ -1,12 +1,43 @@
 import re
 
+
+def createDatasetNodes (dataset):
+
+	for n_id, intervals in dataset.get_dataset().items():
+
+		DatasetNode (n_id, intervals)
+
+class DatasetNode:
+
+	def __init__ (self, n_id, intervals):
+		
+		self._id = n_id
+		self._intervals = intervals
+		self._avail = self.__compute_avail ()
+		print (self._avail * 100)
+
+
+	def __compute_avail (cls):
+
+		avail = 0.0
+
+		for inter in cls._intervals:
+
+			avail += inter[1] - inter[0]
+
+		return avail
+
+
 class Dataset:
 
 	def __init__ (self, file):
 
 		self._storage = self.__init_storage (file)
 
-		print (self._storage)
+
+	def get_dataset (cls):
+
+		return cls._storage
 
 
 	def __init_storage (cls, file):
@@ -42,4 +73,6 @@ class Dataset:
 		return storage
 
 
-Dataset ("data/SKYPE.avt")
+createDatasetNodes(Dataset ("data/SKYPE.avt"))
+# createDatasetNodes(Dataset ("data/PlanetLAB.avt"))
+# createDatasetNodes(Dataset ("data/LDNS.txt"))
