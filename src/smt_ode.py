@@ -45,7 +45,7 @@ class SmtOde (OffloadingDecisionEngine):
             if str(s.check ()) == 'sat':
                 
                 end = time.time ()
-                cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
+                # cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
                 sites_to_off = list ()
 
                 # print (s.model ())

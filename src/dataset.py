@@ -43,6 +43,14 @@ class LoadedData (object):
 		return ids
 
 
+	@classmethod
+	def print_all_dataset_nodes (cls):
+
+		for node in cls._dataset_nodes:
+
+			node.print_dataset_info ()
+
+
 
 
 class DatasetNode:
@@ -75,7 +83,7 @@ class DatasetNode:
 
 		print ("ID:" + cls._id + ", avail: " + str (cls._avail) + "%, intervals: " + \
 			str (len(cls._intervals)))
-		print (cls._intervals)
+		# print (cls._intervals)
 
 
 	def is_avail_or_not (cls, t):
@@ -168,6 +176,8 @@ class Dataset:
 		return tmp_list
 
 
+LoadedData.load_dataset ("data/SKYPE.avt")
+LoadedData.print_all_dataset_nodes ()
 # createDatasetNodes("data/SKYPE.avt")
 # createDatasetNodes("data/PlanetLAB.avt")
 # createDatasetNodes("data/LDNS.txt")

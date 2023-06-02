@@ -14,6 +14,7 @@ class ResourceMonitor:
         self._off_sites = self.__init_off_sites ()
         self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
+        self._dataset_ids = json.load (open ('data/availability.json'))
 
         LoadedData.load_dataset ("data/SKYPE.avt")
         self.__load_datasets ()
