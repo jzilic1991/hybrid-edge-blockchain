@@ -67,6 +67,8 @@ class EdgeOffloading (Thread):
 		epoch_cnt = 0 # counts task offloadings
 		exe_cnt = 0   # counts application executions
 		samp_cnt = 0  # counts samples
+		time_period = cls.__compute_time_period (app.get_num_of_tasks ())
+		timestamp = 0.0
 		prev_progress = 0
 		curr_progress = 0
 		con_delay = 0
@@ -84,6 +86,7 @@ class EdgeOffloading (Thread):
 				curr_progress, prev_progress)
 						
 			tasks = app.get_ready_tasks ()
+			timestamp = round (time_period * epoch_cnt, 3)
 
 			if len(tasks) == 0:
 				
@@ -127,8 +130,8 @@ class EdgeOffloading (Thread):
 				con_delay = 0
 				task_n_delay = tasks[0].get_name ()
 			
-			off_sites = cls.__update_behav (off_sites, exe_cnt)
-			off_transactions = cls._s_ode.offload (tasks, off_sites, topology)
+			# off_sites = cls.__update_behav (off_sites, exe_cnt)
+			off_transactions = cls._s_ode.offload (tasks, off_sites, topology, timestamp)
 
 			if not off_transactions:
 
@@ -138,12 +141,19 @@ class EdgeOffloading (Thread):
 			cls._req_q.put (('update', off_transactions))
 
 
+	def __compute_time_period (cls, num_of_tasks):
+
+		return round (1 / (num_of_tasks * cls._exe), 3)
+
+
 	def __print_progress (cls, exe_cnt, samp_cnt, curr_progress, prev_progress):
 
 		prev_progress = curr_progress
-		curr_progress = round((exe_cnt + (samp_cnt * cls._exe)) / (cls._samp * cls._exe) * 100)
+		curr_progress = round((exe_cnt + (samp_cnt * cls._exe)) / \
+			(cls._samp * cls._exe) * 100)
 
-		if curr_progress != prev_progress and (curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0):
+		if curr_progress != prev_progress and (curr_progress % \
+			Settings.PROGRESS_REPORT_INTERVAL == 0):
 				
 			print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()))
 

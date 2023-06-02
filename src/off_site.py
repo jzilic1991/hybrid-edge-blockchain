@@ -137,6 +137,15 @@ class OffloadingSite:
         cls._dataset_node.print_dataset_info ()
 
 
+    def eval_avail (cls, t):
+
+        cls._avail = cls._dataset_node.is_avail_or_not (t)
+        print ("Node " + cls._name_id + " is " + str (cls._avail))
+        print ("Timestamp: " + str (t) + ", intervals: " + \
+            str (cls._dataset_node.get_intervals ()))
+        print ()
+
+
     def check_valid_deploy(cls, task):
         
         if not isinstance(task, Task):

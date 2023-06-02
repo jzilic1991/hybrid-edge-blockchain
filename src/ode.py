@@ -51,7 +51,7 @@ class OffloadingDecisionEngine(ABC):
         return cls._md
 
 
-    def offload (cls, tasks, off_sites, topology):
+    def offload (cls, tasks, off_sites, topology, timestamp):
 
         if cls._BL <= 0.0:
 
@@ -63,7 +63,7 @@ class OffloadingDecisionEngine(ABC):
         t_price_arr = tuple ()
         off_transactions = list ()
 
-        cls.__check_off_sites (off_sites)
+        cls.__check_off_sites (off_sites, timestamp)
     
         for task in tasks:
 
@@ -182,7 +182,7 @@ class OffloadingDecisionEngine(ABC):
             cls._qos_viol_hist = cls._qos_viol_hist + 1
 
 
-    def __check_off_sites (cls, off_sites):
+    def __check_off_sites (cls, off_sites, timestamp):
 
         for site in off_sites:
 
@@ -190,6 +190,8 @@ class OffloadingDecisionEngine(ABC):
 
                 cls._off_dist_hist[site.get_n_id ()] = 0
                 cls._off_fail_hist[site.get_n_id ()] = 0
+
+            site.eval_avail (timestamp)
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):

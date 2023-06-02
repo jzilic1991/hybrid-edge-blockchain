@@ -66,6 +66,11 @@ class DatasetNode:
 		return cls._avail
 
 
+	def get_intervals (cls):
+
+		return cls._intervals
+
+
 	def print_dataset_info (cls):
 
 		print ("ID:" + cls._id + ", avail: " + str (cls._avail) + "%, intervals: " + \
@@ -80,6 +85,10 @@ class DatasetNode:
 			if (interval[0] < t) and (interval[1] > t):
 
 				return True
+
+			elif (interval[0] > t) and (interval[1] > t):
+
+				break
 
 		return False
 

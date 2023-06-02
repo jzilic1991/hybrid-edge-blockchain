@@ -30,6 +30,11 @@ class MobileApplication:
 
         return cls._name
 
+
+    def get_num_of_tasks (cls):
+
+        return len (cls._app_struct)
+
     
     def get_ready_tasks(cls):
 
