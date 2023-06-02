@@ -1,7 +1,9 @@
 import json
+import random
 
 from off_site import OffloadingSite
 from util import NodeTypes, Util, NodePrototypes
+from dataset import LoadedData
 
 
 class ResourceMonitor:
@@ -12,6 +14,9 @@ class ResourceMonitor:
         self._off_sites = self.__init_off_sites ()
         self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
+
+        LoadedData.load_dataset ("data/SKYPE.avt")
+        self.__load_datasets ()
 
 
     def get_topology (cls):
@@ -59,6 +64,16 @@ class ResourceMonitor:
     def get_off_sites (cls):
         
         return cls._off_sites
+
+
+    def __load_datasets (cls):
+
+        ids = LoadedData.get_ids ()
+
+        for off_site in cls._off_sites:
+
+            off_site.load_data (LoadedData.get_dataset_node (random.choice (ids)))
+
 
 
     def __create_topology (cls, data):

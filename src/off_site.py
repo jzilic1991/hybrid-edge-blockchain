@@ -27,6 +27,7 @@ class OffloadingSite:
         self._mal_behav = False
         self._off_site_code = Util.determine_off_site_code (self._node_type)
         self._off_action = Util.determine_name_and_action (self._off_site_code)
+        self._dataset_node = None
         
         # self.print_system_config()
 
@@ -128,6 +129,12 @@ class OffloadingSite:
     def time_epoch_count (cls):
         
         cls._time_epoch_cnt += 1
+
+
+    def load_data (cls, dataset_node):
+
+        cls._dataset_node = dataset_node
+        cls._dataset_node.print_dataset_info ()
 
 
     def check_valid_deploy(cls, task):
