@@ -12,9 +12,9 @@ from models import Model
 
 class MdpOde(OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay, off_sites):
+    def __init__(self, name, curr_n, md, app_name, con_delay, off_sites, scala):
 
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, curr_n, md, app_name, con_delay, scala)
         self._offloading_sites = [None for i in range(OffloadingActions.NUMBER_OF_OFFLOADING_ACTIONS)]
         self._mobile_device = md
 

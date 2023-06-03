@@ -38,7 +38,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     EXECUTIONS = 10
-    SAMPLES = 1
+    SAMPLES = 5
 
 
 class Testnets:
@@ -104,14 +104,21 @@ class OffActs:
 
 
 class OffloadingSiteCode:
+    
     MOBILE_DEVICE, EDGE_DATABASE_SERVER, EDGE_COMPUTATIONAL_INTENSIVE_SERVER, EDGE_REGULAR_SERVER, CLOUD_DATA_CENTER,\
             UNKNOWN = range(6)
 
 
 class OffloadingActions:
+    
     NUMBER_OF_OFFLOADING_ACTIONS = 5
     MOBILE_DEVICE, EDGE_DATABASE_SERVER, EDGE_COMPUTATIONAL_INTENSIVE_SERVER, EDGE_REGULAR_SERVER, CLOUD_DATA_CENTER = \
         range(NUMBER_OF_OFFLOADING_ACTIONS)
+
+
+class AvailabilityModes:
+    
+    HA, MA, LA = ("HA", "MA", "LA")
 
 
 class Objective:

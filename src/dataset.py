@@ -176,8 +176,8 @@ class Dataset:
 		return tmp_list
 
 
-LoadedData.load_dataset ("data/SKYPE.avt")
-LoadedData.print_all_dataset_nodes ()
+# LoadedData.load_dataset ("data/SKYPE.avt")
+# LoadedData.print_all_dataset_nodes ()
 # createDatasetNodes("data/SKYPE.avt")
 # createDatasetNodes("data/PlanetLAB.avt")
 # createDatasetNodes("data/LDNS.txt")

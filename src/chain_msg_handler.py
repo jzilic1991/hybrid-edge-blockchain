@@ -81,7 +81,6 @@ class ChainHandler:
 		result = reputation_update_event.process_receipt(tx_receipt)
 		# end = time.time ()
 		event = result[0]['args']
-		print (event)
 		# print ("Update reputation event: " + str (result))
 		response = list ()
 		for i in range (len (event.rsp)):
@@ -97,7 +96,7 @@ class ChainHandler:
 		tx = cls._smart_contract.functions.resetReputations(ids).build_transaction({
 		        'from': cls._account.address,
 		        'gasPrice': cls._w3.eth.gas_price,
-		        'nonce': cls._w3.eth.getTransactionCount (cls._account.address)
+		        'nonce': cls._w3.eth.get_transaction_count (cls._account.address)
 		    })
 		
 		signed_tx = cls._w3.eth.account.sign_transaction (tx, cls._key)
@@ -109,7 +108,7 @@ class ChainHandler:
 		event = result[0]['args']
 		response = list ()
 		for i in range (len (event.rsp)):
-			response.append ({ 'id': event.rsp[i][0], 'score': event.rsp[i][1] / cls._base })
+			response.append ({ 'id': event.rsp[i].id, 'score': event.rsp[i].value / cls._base })
 
 		# print ('Elapsed time is ' + str (round (end - start, 3)) + ' s')
 		return (response)

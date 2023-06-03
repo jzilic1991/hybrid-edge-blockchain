@@ -10,10 +10,10 @@ from models import Model
 
 class SqOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay):
+    def __init__(self, name, curr_n, md, app_name, con_delay, scala):
 
         self._k = Settings.K
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, curr_n, md, app_name, con_delay, scala)
 
 
     def dynamic_t_incentive (cls, task, metric):

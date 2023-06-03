@@ -2,7 +2,7 @@ import json
 import random
 
 from off_site import OffloadingSite
-from util import NodeTypes, Util, NodePrototypes
+from util import NodeTypes, Util, NodePrototypes, AvailabilityModes
 from dataset import LoadedData
 
 
@@ -14,10 +14,10 @@ class ResourceMonitor:
         self._off_sites = self.__init_off_sites ()
         self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
-        self._dataset_ids = json.load (open ('data/availability.json'))
+        self._json_dataset_ids = json.load (open ('data/availability.json'))
 
         LoadedData.load_dataset ("data/SKYPE.avt")
-        self.__load_datasets ()
+        self.load_datasets ()
 
 
     def get_topology (cls):
@@ -67,14 +67,26 @@ class ResourceMonitor:
         return cls._off_sites
 
 
-    def __load_datasets (cls):
+    def load_datasets (cls):
 
         ids = LoadedData.get_ids ()
 
         for off_site in cls._off_sites:
 
-            off_site.load_data (LoadedData.get_dataset_node (random.choice (ids)))
+            if off_site.get_node_type () == NodeTypes.MOBILE or \
+                off_site.get_node_type () == NodeTypes.CLOUD:
 
+                off_site.load_data (LoadedData.get_dataset_node (\
+                    cls._json_dataset_ids[AvailabilityModes.HA]["1"]))
+
+            else:
+
+                off_site.load_data (LoadedData.get_dataset_node (\
+                    cls._json_dataset_ids[random.choice ([AvailabilityModes.HA, \
+                        AvailabilityModes.MA, AvailabilityModes.LA])]\
+                    [str (random.randrange (1, 6))]))
+
+        return cls._off_sites
 
 
     def __create_topology (cls, data):

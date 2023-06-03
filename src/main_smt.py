@@ -44,13 +44,13 @@ class EdgeOffloading (Thread):
 	def deploy_sq_ode (cls):
 
 		cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
-			cls._con_delay)
+			cls._con_delay, cls._scala)
 
 
 	def deploy_mdp_ode (cls):
 
 		cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-			cls._app_name, cls._con_delay, cls._r_mon.get_off_sites ())
+			cls._app_name, cls._con_delay, cls._r_mon.get_off_sites (), cls._scala)
 
 
 	def run (cls):
@@ -103,21 +103,31 @@ class EdgeOffloading (Thread):
 			epoch_cnt = epoch_cnt + 1
 			# cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
+			# all executions are completed
 			if exe_cnt >= cls._exe:
 
+				# summarize offloading results
 				cls._s_ode.summarize ()
+
+				# count new sample
 				samp_cnt = samp_cnt + 1
+
+				# reset execution counter
 				exe_cnt = 0
-									
+				
+				# if all samples are completed, end the experiment via queue message close
 				if samp_cnt == cls._samp: 
 						
 					cls._s_ode.log_stats ()
 					# cls.__reset_reputation (off_sites)
 					cls._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
 					if cls._rsp_q.get () == 'confirm': 
-
+						# break from the run loop
 						break
 
+				# load new datasets for new sample
+				off_sites = cls._r_mon.load_datasets ()
+				
 				# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 				app = cls._m_app_prof.dep_rand_mob_app ()
 				app.run ()
