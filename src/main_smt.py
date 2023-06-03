@@ -129,7 +129,7 @@ class EdgeOffloading (Thread):
 				off_sites = cls._r_mon.load_datasets ()
 				
 				# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
-				app = cls._m_app_prof.dep_rand_mob_app ()
+				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				off_sites = cls.__reset_reputation (off_sites)
 				continue

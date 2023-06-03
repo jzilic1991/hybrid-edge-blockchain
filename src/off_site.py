@@ -166,7 +166,7 @@ class OffloadingSite:
             raise ValueError("Task for execution on offloading site should be Task class instance!")
 
         if (not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE) or \
-            cls._mal_behav:
+            cls._avail:
                 
             return ExeErrCode.EXE_NOK
         
