@@ -1,4 +1,5 @@
 import re
+import random
 
 
 
@@ -17,6 +18,18 @@ class LoadedData (object):
 		for n_id, intervals in cls._dataset.get_dataset().items():
 
 			cls._dataset_nodes.append (DatasetNode (n_id, intervals))
+
+
+	@classmethod
+	def get_random_dataset_nodes (cls, n):
+
+		r_nodes = list ()
+		
+		for i in range (n):
+			
+			r_nodes.append (random.choice (cls._dataset_nodes))
+
+		return r_nodes
 
 
 	@classmethod
@@ -77,6 +90,11 @@ class DatasetNode:
 	def get_intervals (cls):
 
 		return cls._intervals
+
+
+	def get_num_of_ints (cls):
+
+		return len (cls._intervals)
 
 
 	def print_dataset_info (cls):
