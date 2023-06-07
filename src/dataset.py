@@ -124,9 +124,12 @@ class DatasetNode:
 
 	def is_avail_or_not (cls, t):
 
+		print ("Timestamp: " + str (t))
+		# print ("Intervals: " + str (cls._intervals))
+
 		for interval in cls._intervals:
 
-			if (interval[0] < t) and (interval[1] > t):
+			if (interval[0] <= t) and (interval[1] >= t):
 
 				return True
 

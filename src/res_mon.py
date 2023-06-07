@@ -18,7 +18,7 @@ class ResourceMonitor:
 
         LoadedData.load_dataset ("data/SKYPE.avt")
         # starting with first dataset node per node type
-        self.load_datasets (0)
+        self._off_sites = self.load_datasets (0)
 
 
     def get_topology (cls):

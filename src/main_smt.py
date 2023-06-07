@@ -30,6 +30,7 @@ class EdgeOffloading (Thread):
 		
 		# user moves to another cell location after certain number of applications excutions
 		self._user_move = self._exe / locs
+		print ("User move: " + str (self._user_move))
 
 
 	def deploy_rep_smt_ode (cls):
@@ -70,6 +71,7 @@ class EdgeOffloading (Thread):
 		epoch_cnt = 0 # counts task offloadings
 		exe_cnt = 0   # counts application executions
 		samp_cnt = 0  # counts samples
+		period_cnt = 0 # counts number of task offloadings within single time period in cell location
 		time_period = cls.__compute_time_period (app.get_num_of_tasks ())
 		timestamp = 0.0
 		prev_progress = 0
@@ -89,7 +91,7 @@ class EdgeOffloading (Thread):
 				curr_progress, prev_progress)
 						
 			tasks = app.get_ready_tasks ()
-			timestamp = round (time_period * epoch_cnt, 3)
+			timestamp = round (time_period * period_cnt, 3)
 
 			# when all application tasks are completed
 			if len (tasks) == 0:
@@ -97,6 +99,7 @@ class EdgeOffloading (Thread):
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
+				print ("Execution:" + str (exe_cnt))
 
 				# when certain number of application executions are completed 
 				# then mobile device moves to another cell location and 
@@ -104,8 +107,9 @@ class EdgeOffloading (Thread):
 				if exe_cnt % cls._user_move == 0:
 
 					print ("Cell move")
+					period_cnt = 0
 					# load dataset by number of changed cell locations
-					off_sites = cls._r_mon.load_dataset (int (exe_cnt / cls._user_move))
+					off_sites = cls._r_mon.load_datasets (int (exe_cnt / cls._user_move))
 
 				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
@@ -115,7 +119,9 @@ class EdgeOffloading (Thread):
 
 				con_delay = con_delay + 1
 
+			# incrementing epoch (i.e. task offloading) and period counter (i.e. epochs within same time period)
 			epoch_cnt = epoch_cnt + 1
+			period_cnt = period_cnt + 1
 			# cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
 			# all executions are completed
@@ -169,7 +175,7 @@ class EdgeOffloading (Thread):
 
 	def __compute_time_period (cls, num_of_tasks):
 
-		return round (1 / (num_of_tasks * cls._exe), 3)
+		return round (1 / (num_of_tasks * (cls._user_move - 1)), 3)
 
 
 	def __print_progress (cls, exe_cnt, samp_cnt, curr_progress, prev_progress):

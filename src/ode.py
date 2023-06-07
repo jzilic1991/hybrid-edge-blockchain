@@ -81,7 +81,7 @@ class OffloadingDecisionEngine(ABC):
                 cls._off_dist_hist[cand_n.get_n_id ()] = \
                     cls._off_dist_hist[cand_n.get_n_id ()] + 1
 
-                if cand_n.execute (task):
+                if cand_n.execute (task, timestamp):
 
                     t_rsp_time = t_rsp_time + values['rt']
                     t_e_consum = t_e_consum + values['ec']
@@ -103,6 +103,7 @@ class OffloadingDecisionEngine(ABC):
                 else:
 
                     # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    # print ("Offloading failure occur on " + str (cand_n))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
                     #     str (e_cost) + " J")
@@ -191,7 +192,7 @@ class OffloadingDecisionEngine(ABC):
                 cls._off_dist_hist[site.get_n_id ()] = 0
                 cls._off_fail_hist[site.get_n_id ()] = 0
 
-            site.eval_avail (timestamp)
+            # site.eval_avail (timestamp)
 
 
     def __get_total_objs (cls, rsp_arr, e_consum_arr, price_arr):
