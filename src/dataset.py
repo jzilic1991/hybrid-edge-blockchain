@@ -57,6 +57,24 @@ class LoadedData (object):
 
 
 	@classmethod
+	def get_nodes_above_thr (cls, thr, cnt):
+
+		nodes = list ()
+
+		for n in cls._dataset_nodes:
+
+			if n.get_avail () >= thr:
+
+				nodes.append (n)
+
+			if cnt == len (nodes):
+
+				break
+
+		return nodes
+
+
+	@classmethod
 	def print_all_dataset_nodes (cls):
 
 		for node in cls._dataset_nodes:

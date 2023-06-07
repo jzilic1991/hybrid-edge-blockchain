@@ -1,17 +1,31 @@
 import json
 
 from dataset import LoadedData
+from util import NodePrototypes
 
 
 
 
 LoadedData.load_dataset ("data/SKYPE.avt")
 # LoadedData.print_all_dataset_nodes ()
-data = {"EC": [], "ED": [], "ER": [], "CD": []}
+data = {NodePrototypes.EC: [], NodePrototypes.ED: [], NodePrototypes.ER: [], \
+	NodePrototypes.CD: [], NodePrototypes.MD: []}
 
 for d in data:
 
-	nodes = LoadedData.get_random_dataset_nodes (10)
+	nodes = list ()
+
+	if d == NodePrototypes.CD:
+
+		nodes = LoadedData.get_nodes_above_thr (99.0, 10)
+
+	elif d == NodePrototypes.MD:
+
+		nodes = LoadedData.get_nodes_above_thr (100.0, 10)
+
+	else:
+
+		nodes = LoadedData.get_random_dataset_nodes (10)
 
 	for n in nodes:
 

@@ -12,7 +12,7 @@ from util import Settings
 
 class EdgeOffloading (Thread):
 
-	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay, scala):
+	def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay, scala, locs):
 
 		Thread.__init__ (self)
 
@@ -27,6 +27,9 @@ class EdgeOffloading (Thread):
 		self._con_delay = con_delay
 		self._scala = scala
 		self._log = None
+		
+		# user moves to another cell location after certain number of applications excutions
+		self._user_move = self._exe / locs
 
 
 	def deploy_rep_smt_ode (cls):
@@ -88,14 +91,26 @@ class EdgeOffloading (Thread):
 			tasks = app.get_ready_tasks ()
 			timestamp = round (time_period * epoch_cnt, 3)
 
-			if len(tasks) == 0:
+			# when all application tasks are completed
+			if len (tasks) == 0:
 				
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
+
+				# when certain number of application executions are completed 
+				# then mobile device moves to another cell location and 
+				# new availability datasets are loaded per offloading site
+				if exe_cnt % cls._user_move == 0:
+
+					print ("Cell move")
+					# load dataset by number of changed cell locations
+					off_sites = cls._r_mon.load_dataset (int (exe_cnt / cls._user_move))
+
 				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
-				
+			
+			# consensus delay
 			if tasks[0].get_name == task_n_delay:
 
 				con_delay = con_delay + 1
@@ -115,18 +130,19 @@ class EdgeOffloading (Thread):
 				# reset execution counter
 				exe_cnt = 0
 				
-				# if all samples are completed, end the experiment via queue message close
+				# if all samples are completed, end the experiment via message queue close
 				if samp_cnt == cls._samp: 
 						
 					cls._s_ode.log_stats ()
 					# cls.__reset_reputation (off_sites)
 					cls._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
-					if cls._rsp_q.get () == 'confirm': 
+					
+					if cls._rsp_q.get () == 'confirm':
 						# break from the run loop
 						break
 
 				# load new datasets for new sample
-				off_sites = cls._r_mon.load_datasets ()
+				# off_sites = cls._r_mon.load_datasets ()
 				
 				# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 				app = cls._m_app_prof.dep_app (cls._app_name)

@@ -37,8 +37,9 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
-    EXECUTIONS = 10
-    SAMPLES = 5
+    EXECUTIONS = 100
+    SAMPLES = 2
+    NUM_LOCS = 5
 
 
 class Testnets:
@@ -208,6 +209,26 @@ class Util (object):
 
         else:
             return OffloadingSiteCode.UNKNOWN
+
+
+    @classmethod
+    def determine_node_prototype (cls, node_type):
+
+        if node_type == NodeTypes.E_DATABASE:
+            return NodePrototypes.ED
+        
+        elif node_type == NodeTypes.E_COMP:
+            return NodePrototypes.EC
+
+        elif node_type == NodeTypes.E_REG:
+            return NodePrototypes.ER
+        
+        elif node_type == NodeTypes.CLOUD:
+            return NodePrototypes.CD
+
+        elif node_type == NodeTypes.MOBILE:
+            return NodePrototypes.MD
+
 
     @classmethod
     def generate_di_cpu_cycles(cls):

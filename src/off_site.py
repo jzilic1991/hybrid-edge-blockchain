@@ -24,9 +24,9 @@ class OffloadingSite:
         self._time_epoch_cnt = 0
         self._reput = 1
         self._sc_id = 0
-        self._mal_behav = False
         self._off_site_code = Util.determine_off_site_code (self._node_type)
         self._off_action = Util.determine_name_and_action (self._off_site_code)
+        self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
         
         # self.print_system_config()
@@ -52,9 +52,9 @@ class OffloadingSite:
         cls._reput = reput
 
 
-    def set_mal_behav (cls, behav):
+    def get_node_prototype (cls):
 
-        cls._mal_behav = behav
+        return cls._node_prototype
 
 
     def get_sc_id (cls):
@@ -74,11 +74,6 @@ class OffloadingSite:
             return 1.0
         
         return cls._reput
-
-
-    def get_behav (cls):
-
-        return cls._mal_behav
 
 
     def get_cpu_consum (cls):
@@ -134,7 +129,7 @@ class OffloadingSite:
     def load_data (cls, dataset_node):
 
         cls._dataset_node = dataset_node
-        # cls._dataset_node.print_dataset_info ()
+        cls._dataset_node.print_dataset_info ()
 
 
     def eval_avail (cls, t):

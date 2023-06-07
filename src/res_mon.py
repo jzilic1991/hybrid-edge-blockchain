@@ -14,10 +14,11 @@ class ResourceMonitor:
         self._off_sites = self.__init_off_sites ()
         self._topology = self.__create_topology (json.load \
             (open ('data/topology.json')))
-        self._json_dataset_ids = json.load (open ('data/availability.json'))
+        self._json_datasets = json.load (open ('data/mapping.json'))
 
         LoadedData.load_dataset ("data/SKYPE.avt")
-        self.load_datasets ()
+        # starting with first dataset node per node type
+        self.load_datasets (0)
 
 
     def get_topology (cls):
@@ -67,24 +68,13 @@ class ResourceMonitor:
         return cls._off_sites
 
 
-    def load_datasets (cls):
-
-        ids = LoadedData.get_ids ()
+    def load_datasets (cls, n):
 
         for off_site in cls._off_sites:
 
-            if off_site.get_node_type () == NodeTypes.MOBILE or \
-                off_site.get_node_type () == NodeTypes.CLOUD:
-
-                off_site.load_data (LoadedData.get_dataset_node (\
-                    cls._json_dataset_ids[AvailabilityModes.HA]["1"]))
-
-            else:
-
-                off_site.load_data (LoadedData.get_dataset_node (\
-                    cls._json_dataset_ids[random.choice ([AvailabilityModes.HA, \
-                        AvailabilityModes.MA, AvailabilityModes.LA])]\
-                    [str (random.randrange (1, 6))]))
+            # dataset nodes are not mapped to mobile device since it is assumed to be failure-free
+            id_ = cls._json_datasets[off_site.get_node_prototype ()][n]['id']
+            off_site.load_data (LoadedData.get_dataset_node (id_))
 
         return cls._off_sites
 
