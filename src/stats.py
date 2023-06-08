@@ -9,8 +9,6 @@ class Stats:
          self._e_consum_samp = list ()   # of scalars
          self._price_samp = list ()      # of scalars
          self._bl_samp = list ()         # of scalars
-         self._off_dist_samp = dict ()   # of dicts per offloading site key
-         self._off_fail_samp = dict ()   # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
          self._obj_viol_samp = {'rt': [], 'ec': [], 'pr': []}   # of dicts per objective
          self._qos_viol_samp = list ()   # of scalars
@@ -55,11 +53,23 @@ class Stats:
         return ("Offloading objective violation (absolute): " + str (result))
 
 
-    def get_avg_off_dist (cls):
+    def get_avg_off_dist (cls, cells):
 
         result = dict ()
+        off_dist_samp = dict ()
+        print ("Cells: " + str (cells))
 
-        for key, val in cls._off_dist_samp.items ():
+        for cell in cells:
+
+            for site, samples in cell.get_off_dist_samp().items ():
+
+                if not site in off_dist_samp:
+
+                    off_dist_samp[site] = list ()
+                    
+                off_dist_samp[site] += samples
+
+        for key, val in off_dist_samp.items ():
             
             result[key] = round (sum (val) / len (val), 2)
 
@@ -72,20 +82,82 @@ class Stats:
         return ("Offloading distribution (percentage): " + str (rel_result))
 
 
-    def get_avg_off_fail (cls):
+    def get_avg_off_fail (cls, cells):
+
+        off_fail = list ()
+        off_fail_samp = dict ()
+        off_dist_samp = dict ()
+
+        for cell in cells:
+
+            for site, samples in cell.get_off_fail_samp().items ():
+
+                if not site in off_fail_samp:
+
+                    off_fail_samp[site] = list ()
+                    
+                off_fail_samp[site] += samples
+
+            for site, samples in cell.get_off_dist_samp().items ():
+
+                if not site in off_dist_samp:
+
+                    off_dist_samp[site] = list ()
+                    
+                off_dist_samp[site] += samples
+
+        for key, _ in off_fail_samp.items ():
+            
+            for i in range (len (off_fail_samp[key])):
+                
+                if off_dist_samp[key][i] != 0:
+                    
+                    off_fail.append (round (off_fail_samp[key][i] / off_dist_samp[key][i] \
+                        * 100, 3))
+
+                else:
+
+                    off_fail.append (0.0)
+
+        return "Average task failure rate (percentage) is " + \
+            str (round (sum (off_fail) / len (off_fail), 3))
+
+
+    def get_avg_off_fail_dist (cls, cells):
+
+        off_fail_samp = dict ()
+        off_dist_samp = dict ()
+
+        for cell in cells:
+
+            for site, samples in cell.get_off_fail_samp().items ():
+
+                if not site in off_fail_samp:
+
+                    off_fail_samp[site] = list ()
+                    
+                off_fail_samp[site] += samples
+
+            for site, samples in cell.get_off_dist_samp().items ():
+
+                if not site in off_dist_samp:
+
+                    off_dist_samp[site] = list ()
+                    
+                off_dist_samp[site] += samples
 
         off_fail = dict ()
-        for key, val in cls._off_fail_samp.items ():
+        for key, val in off_fail_samp.items ():
             
             off_fail[key] = round (sum (val) / len (val), 3)
 
         off_dist = dict ()
-        for key, val in cls._off_dist_samp.items ():
+        for key, val in off_dist_samp.items ():
             
             off_dist[key] = round (sum (val) / len (val), 3)
 
         result = dict ()
-        for key in cls._off_fail_samp.keys ():
+        for key in off_fail_samp.keys ():
             
             if off_dist[key] != 0:
 
@@ -101,9 +173,15 @@ class Stats:
     def get_all (cls):
 
         return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
-            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + cls.get_avg_off_dist () + '\n' + \
-            cls.get_avg_off_fail () + '\n' + cls.get_avg_obj_viol () + '\n' + cls.get_avg_qos_viol () +\
+            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + \
+            cls.get_avg_obj_viol () + '\n' + cls.get_avg_qos_viol () +\
             '\n'
+
+
+    def get_cell_stats (cls, cell_stats):
+
+        return cls.get_avg_off_dist (cell_stats) + "\n" + cls.get_avg_off_fail_dist (cell_stats) + "\n" + \
+            cls.get_avg_off_fail (cell_stats) + "\n"
 
 
     def print_off_dist (cls):
@@ -153,30 +231,30 @@ class Stats:
         cls._obj_viol_samp['pr'].append (obj_viol['pr'])
 
 
-    def add_off_dist (cls, off_dist_samp):
+    # def add_off_dist (cls, off_dist_samp):
         
-        for key, val in off_dist_samp.items ():
+    #     for key, val in off_dist_samp.items ():
 
-            if key in cls._off_dist_samp.keys ():
+    #         if key in cls._off_dist_samp.keys ():
 
-                cls._off_dist_samp[key].append (val)
+    #             cls._off_dist_samp[key].append (val)
 
-            else:
+    #         else:
 
-                cls._off_dist_samp[key] = [val]
+    #             cls._off_dist_samp[key] = [val]
 
 
-    def add_off_fail (cls, off_fail_samp):
+    # def add_off_fail (cls, off_fail_samp):
         
-        for key, val in off_fail_samp.items ():
+    #     for key, val in off_fail_samp.items ():
 
-            if key in cls._off_fail_samp.keys ():
+    #         if key in cls._off_fail_samp.keys ():
 
-                cls._off_fail_samp[key].append (val)
+    #             cls._off_fail_samp[key].append (val)
 
-            else:
+    #         else:
 
-                cls._off_fail_samp[key] = [val]
+    #             cls._off_fail_samp[key] = [val]
 
 
     def add_mal_beh (cls, mal_beh_samp):
@@ -190,6 +268,4 @@ class Stats:
         cls._e_consum_samp = list ()   # of scalars
         cls._price_samp = list ()      # of scalars
         cls._bl_samp = list ()        # of scalars
-        cls._off_dist_samp = dict ()   # of dicts per offloading site key
-        cls._off_fail_samp = dict ()   # of scalars
         cls._mal_beh_samp = list ()    # of dicts per offloading site key

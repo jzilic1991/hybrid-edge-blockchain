@@ -30,7 +30,7 @@ class EdgeOffloading (Thread):
 		
 		# user moves to another cell location after certain number of applications excutions
 		self._user_move = self._exe / locs
-		print ("User move: " + str (self._user_move))
+		# print ("User move: " + str (self._user_move))
 
 
 	def deploy_rep_smt_ode (cls):
@@ -68,6 +68,9 @@ class EdgeOffloading (Thread):
 		# cls.__print_setup (off_sites, topology, app)
 		off_sites = cls.__register_nodes (off_sites)
 
+		# setting cell statistics (this is updated after each loading dataset nodes into off sites)
+		cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
+
 		epoch_cnt = 0 # counts task offloadings
 		exe_cnt = 0   # counts application executions
 		samp_cnt = 0  # counts samples
@@ -99,17 +102,24 @@ class EdgeOffloading (Thread):
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
-				print ("Execution:" + str (exe_cnt))
+				# print ("Execution:" + str (exe_cnt))
 
 				# when certain number of application executions are completed 
 				# then mobile device moves to another cell location and 
 				# new availability datasets are loaded per offloading site
 				if exe_cnt % cls._user_move == 0:
 
-					print ("Cell move")
+					# print ("Cell move")
 					period_cnt = 0
+					
+					# summarize cell statistics
+					cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
+					
 					# load dataset by number of changed cell locations
 					off_sites = cls._r_mon.load_datasets (int (exe_cnt / cls._user_move))
+
+					# when new datasets are loaded then cell location is changed for statistics
+					cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
 
 				# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 				continue
@@ -175,7 +185,7 @@ class EdgeOffloading (Thread):
 
 	def __compute_time_period (cls, num_of_tasks):
 
-		return round (1 / (num_of_tasks * (cls._user_move - 1)), 3)
+		return round (1 / (num_of_tasks * (cls._user_move)), 3)
 
 
 	def __print_progress (cls, exe_cnt, samp_cnt, curr_progress, prev_progress):
@@ -240,43 +250,6 @@ class EdgeOffloading (Thread):
 		for off_site in off_sites:
 	
 			off_site.print_system_config ()
-
-
-	def __update_behav (cls, off_sites, exe_cnt):
-
-		for site in off_sites:
-
-			# first experiment
-			# if site.get_n_id () == "EC1" and (20 <= exe_cnt <= 30):
-				
-			# 	site.set_mal_behav (True)
-
-			# elif site.get_n_id () == "ED1" and (30 <= exe_cnt <= 40):
-				
-			# 	site.set_mal_behav (True)
-
-			# elif site.get_n_id () == "ER1" and (40 <= exe_cnt <= 50):
-				
-			# 	site.set_mal_behav (True)
-
-			# second experiment
-			# if site.get_n_id () == "EC1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
-				
-			# 	site.set_mal_behav (True)
-
-			# if site.get_n_id () == "EC1" or site.get_n_id () == "ED1" and (50 <= exe_cnt):
-				
-			# 	site.set_mal_behav (True)
-
-			if site.get_n_id () == "ED1" or site.get_n_id () == "ER1" and (50 <= exe_cnt):
-				
-				site.set_mal_behav (True)
-
-			else:
-
-				site.set_mal_behav (False)
-
-		return off_sites
 
 
 	def __reset_reputation (cls, off_sites):

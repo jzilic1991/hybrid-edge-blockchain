@@ -17,6 +17,8 @@ class ResourceMonitor:
         self._json_datasets = json.load (open ('data/mapping.json'))
 
         LoadedData.load_dataset ("data/SKYPE.avt")
+        # cell name is updated after loading dataset node
+        self._curr_cell = ""
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
 
@@ -24,6 +26,11 @@ class ResourceMonitor:
     def get_topology (cls):
 
         return cls._topology
+
+
+    def get_cell_name (cls):
+
+        return cls._curr_cell
 
 
     def get_edge_regs (cls):
@@ -76,7 +83,21 @@ class ResourceMonitor:
             id_ = cls._json_datasets[off_site.get_node_prototype ()][n]['id']
             off_site.load_data (LoadedData.get_dataset_node (id_))
 
+        # update cell name when new dataset nodes are loaded
+        cls._curr_cell = cls.__get_cell_name ()
+
         return cls._off_sites
+
+
+    def __get_cell_name (cls):
+
+        cell_name = ""
+
+        for off_site in cls._off_sites:
+
+            cell_name += off_site.get_dataset_info () + "\n"
+
+        return cell_name
 
 
     def __create_topology (cls, data):

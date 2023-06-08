@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from util import Settings
 from stats import Stats
+from cell_stats import CellStats
 from logger import Logger
 from models import Model
 
@@ -24,14 +25,10 @@ class OffloadingDecisionEngine(ABC):
         self._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         self._stats = Stats ()
 
-        if scala > 0:
+        # key (cell name) - value is cell stats class object
+        self._cell_stats = dict ()
 
-            self._log = Logger ('logs/scala_' + str(scala) + '.txt', True, 'w')
-
-        else:
-
-            self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '_' + str(con_delay) + \
-                '.txt', True, 'w')
+        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         super().__init__()
 
@@ -49,6 +46,13 @@ class OffloadingDecisionEngine(ABC):
     def get_md (cls):
 
         return cls._md
+
+
+    def set_cell_stats (cls, cell_name):
+
+        if not cell_name in cls._cell_stats:
+
+            cls._cell_stats[cell_name] = CellStats (cell_name)
 
 
     def offload (cls, tasks, off_sites, topology, timestamp):
@@ -103,7 +107,7 @@ class OffloadingDecisionEngine(ABC):
                 else:
 
                     # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
-                    # print ("Offloading failure occur on " + str (cand_n))
+                    # print ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
                     #     str (e_cost) + " J")
@@ -126,7 +130,7 @@ class OffloadingDecisionEngine(ABC):
         cls._res_pr_hist.append (acc_price)
 
         return off_transactions
-    
+
 
     def summarize (cls):
 
@@ -134,24 +138,38 @@ class OffloadingDecisionEngine(ABC):
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
         cls._stats.add_bl (round (cls._BL / Settings.BATTERY_LF * 100, 3))
-        cls._stats.add_off_dist (cls._off_dist_hist)
-        cls._stats.add_off_fail (cls._off_fail_hist)
+        # cls._stats.add_off_dist (cls._off_dist_hist)
+        # cls._stats.add_off_fail (cls._off_fail_hist)
         cls._stats.add_qos_viol (cls._qos_viol_hist)
         cls._stats.add_obj_viol (cls._obj_viol_hist)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
-        cls._off_dist_hist = dict ()
-        cls._off_fail_hist = dict ()
         cls._qos_viol_hist = 0
         cls._obj_viol_hist = {'rt': 0, 'ec': 0, 'pr': 0}
         cls._BL = Settings.BATTERY_LF
 
 
+    def summarize_cell_stats (cls, cell_name):
+
+        # cell statistics
+        cls._cell_stats[cell_name].add_off_dist (cls._off_dist_hist)
+        cls._cell_stats[cell_name].add_off_fail (cls._off_fail_hist)
+
+        # reset failure and offloading distribution counters for next cell location
+        cls._off_dist_hist = dict ()
+        cls._off_fail_hist = dict ()
+
+
     def log_stats (cls):
 
+        for key in cls._cell_stats:
+
+            cls._log.w (cls._cell_stats[key].get_all ())
+        
         cls._log.w (cls._stats.get_all ())
+        cls._log.w (cls._stats.get_cell_stats (cls._cell_stats))
 
 
     def get_logger (cls):

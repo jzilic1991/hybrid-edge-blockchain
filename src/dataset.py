@@ -115,16 +115,22 @@ class DatasetNode:
 		return len (cls._intervals)
 
 
-	def print_dataset_info (cls):
+	def print_dataset_info (cls, node_type):
 
-		print ("ID:" + cls._id + ", avail: " + str (cls._avail) + "%, intervals: " + \
+		print ("Node: " + node_type + ", id:" + cls._id + ", avail: " + str (cls._avail) + "%, intervals: " + \
 			str (len(cls._intervals)))
 		# print (cls._intervals)
 
 
+	def get_dataset_info (cls, node_type):
+
+		return ("Node: " + node_type + ", id:" + cls._id + ", avail: " + str (cls._avail) + "%, intervals: " + \
+			str (len(cls._intervals)))
+
+
 	def is_avail_or_not (cls, t):
 
-		print ("Timestamp: " + str (t))
+		# print ("Timestamp: " + str (t))
 		# print ("Intervals: " + str (cls._intervals))
 
 		for interval in cls._intervals:
