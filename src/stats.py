@@ -57,9 +57,8 @@ class Stats:
 
         result = dict ()
         off_dist_samp = dict ()
-        print ("Cells: " + str (cells))
 
-        for cell in cells:
+        for cell_name, cell in cells.items ():
 
             for site, samples in cell.get_off_dist_samp().items ():
 
@@ -88,7 +87,7 @@ class Stats:
         off_fail_samp = dict ()
         off_dist_samp = dict ()
 
-        for cell in cells:
+        for cell_name, cell in cells.items ():
 
             for site, samples in cell.get_off_fail_samp().items ():
 
@@ -128,7 +127,7 @@ class Stats:
         off_fail_samp = dict ()
         off_dist_samp = dict ()
 
-        for cell in cells:
+        for cell_name, cell in cells.items ():
 
             for site, samples in cell.get_off_fail_samp().items ():
 

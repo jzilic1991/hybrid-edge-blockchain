@@ -111,6 +111,9 @@ class EdgeOffloading (Thread):
 
 					# print ("Cell move")
 					period_cnt = 0
+
+					# reset reputation when moved to a new cell location
+					off_sites = cls.__reset_reputation (off_sites)
 					
 					# summarize cell statistics
 					cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
@@ -156,14 +159,11 @@ class EdgeOffloading (Thread):
 					if cls._rsp_q.get () == 'confirm':
 						# break from the run loop
 						break
-
-				# load new datasets for new sample
-				# off_sites = cls._r_mon.load_datasets ()
 				
 				# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
-				off_sites = cls.__reset_reputation (off_sites)
+				# off_sites = cls.__reset_reputation (off_sites)
 				continue
 
 			if con_delay == cls._con_delay:
@@ -267,6 +267,7 @@ class EdgeOffloading (Thread):
 				 	if site_rep['id'] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep['score'])
+				 		# print (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
 				 		# cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
 
 		return off_sites
