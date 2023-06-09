@@ -54,8 +54,14 @@ class CellStats:
 
 					off_fail.append (0.0)
 
-		return "Average task failure rate (percentage) is " + \
-			str (round (sum (off_fail) / len (off_fail), 3))
+		if len (off_fail) == 0:
+
+			return "Average task failure rate (percentage) is 0.0"
+		else:
+
+			return "Average task failure rate (percentage) is " + \
+				str (round (sum (off_fail) / len (off_fail), 3))
+
 
 
 	def get_avg_off_fail_dist (cls):
