@@ -16,7 +16,7 @@ class ResourceMonitor:
             (open ('data/topology.json')))
         self._json_datasets = json.load (open ('data/mapping.json'))
 
-        LoadedData.load_dataset ("logs/SKYPE.avt")
+        LoadedData.load_dataset ("data/SKYPE.avt")
         # cell name is updated after loading dataset node
         self._curr_cell = ""
         # starting with first dataset node per node type
