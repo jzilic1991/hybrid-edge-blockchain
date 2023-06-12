@@ -28,7 +28,7 @@ class OffloadingDecisionEngine(ABC):
         # key (cell name) - value is cell stats class object
         self._cell_stats = dict ()
 
-        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
+        self._log = Logger ('results/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         super().__init__()
 
