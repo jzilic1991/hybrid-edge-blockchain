@@ -38,8 +38,8 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     EXECUTIONS = 100
-    SAMPLES = 100
-    NUM_LOCS = 5
+    SAMPLES = 3
+    NUM_LOCS = 4
 
 
 class Testnets:
@@ -51,7 +51,7 @@ class Testnets:
 class PrivateKeys:
 
 	TRUFFLE, GANACHE = \
-		('73da343c609ec75ba846091a38970e4e57566beae9f328f375c67a90a308edbf', \
+		('1f41756c4f3d7abf3fc0c81c813e71d5e920d54acfe743bf99326935fabdf451', \
 			'0x389496993f10af5a7c4b0af6310b09877894f5b26556b4016aafd3b345fe8f18')
 
 

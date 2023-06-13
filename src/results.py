@@ -42,8 +42,8 @@ def overhead_plot ():
 
 def plot_objective (regex_exp, y_axis_title, show):
 
-	#app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
-	app_names = [MobApps.NAVIAR]
+	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
+	# app_names = [MobApps.NAVIAR]
 	x = np.arange(len(app_names))
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
@@ -51,6 +51,7 @@ def plot_objective (regex_exp, y_axis_title, show):
 	for ode_n in ode_names:
 		
 		result [ode_n] = list ()
+		
 		for app_n in app_names:
 
 			f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
@@ -87,7 +88,7 @@ def plot_objective (regex_exp, y_axis_title, show):
 
 def print_distribution ():
 
-	NAVIAR_TASKS = 100 * 8
+	# NAVIAR_TASKS = 100 * 8
 	app_n = MobApps.NAVIAR
 	# mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
 	# x = np.arange(len(mal_scenarios))
@@ -119,10 +120,10 @@ def print_distribution ():
 
 def plot_dropping_rates ():
 
-	NAVIAR_TASKS = 100 * 8
-	app_n = MobApps.NAVIAR
+	# NAVIAR_TASKS = 100 * 8
+	app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
 	# mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
-	x = np.arange(1)
+	x = np.arange(len(app_n))
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
 	# flag to detect when final part of result log will be parsed 
@@ -133,29 +134,31 @@ def plot_dropping_rates ():
 		
 		result [ode_n] = list ()
 
-		f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
-		
-		# reset the flag when reading a next file
-		summary_flag = False
+		for app in app_n:
 
-		for line in f.readlines ():
+			f = open("results/sim_traces_" + ode_n + "_" + app + '.txt')
+			
+			# reset the flag when reading a next file
+			summary_flag = False
 
-			if not summary_flag:
+			for line in f.readlines ():
 
-				matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+				if not summary_flag:
 
-				if matched:
+					matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+
+					if matched:
+						
+						summary_flag = True
+
+				else:
+
+					matched = re.search("Average task failure rate \(percentage\) is (\d+\.\d+)", line)
 					
-					summary_flag = True
-
-			else:
-
-				matched = re.search("Average task failure rate \(percentage\) is (\d+\.\d+)", line)
-				
-				if matched:
-					
-					# casting parsed string into float
-					result[ode_n] = float (matched.group (1))
+					if matched:
+						
+						# casting parsed string into float
+						result[ode_n] = float (matched.group (1))
 
 
 	plt.rcParams.update({'font.size': 16})
@@ -171,7 +174,7 @@ def plot_dropping_rates ():
 
 	plt.ylabel('Task failure rate (%)')
 	plt.xlabel("Offloading decision engine")
-	# plt.xticks(x, ode_names, fontsize = 16)
+	plt.xticks(x, app_n, fontsize = 16)
 	plt.legend()
 	plt.show()
 

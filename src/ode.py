@@ -28,7 +28,7 @@ class OffloadingDecisionEngine(ABC):
         # key (cell name) - value is cell stats class object
         self._cell_stats = dict ()
 
-        self._log = Logger ('results/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
+        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         super().__init__()
 
@@ -93,9 +93,9 @@ class OffloadingDecisionEngine(ABC):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
-                    # cls._log.w ("Task " + task.get_name () + \
-                    #     " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
-                    #     "is offloaded successfully on " + cand_n.get_n_id ())
+                    cls._log.w ("Task " + task.get_name () + \
+                         " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
+                         "is offloaded successfully on " + cand_n.get_n_id ())
                     # cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
                     cls.__determine_qos_violations (task, metrics[cand_n])
@@ -106,7 +106,7 @@ class OffloadingDecisionEngine(ABC):
 
                 else:
 
-                    # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
                     # print ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \

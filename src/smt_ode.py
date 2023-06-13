@@ -42,6 +42,7 @@ class SmtOde (OffloadingDecisionEngine):
 
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics))
             start = time.time ()
+            
             if str(s.check ()) == 'sat':
                 
                 end = time.time ()
@@ -100,7 +101,7 @@ class SmtOde (OffloadingDecisionEngine):
         if cls._activate:
             
             rep_thr = cls.__compute_rep_threshold (sites)
-            # cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
+            cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \

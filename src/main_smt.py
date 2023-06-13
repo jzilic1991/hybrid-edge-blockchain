@@ -112,14 +112,14 @@ class EdgeOffloading (Thread):
 					# print ("Cell move")
 					period_cnt = 0
 
-					# reset reputation when moved to a new cell location
-					off_sites = cls.__reset_reputation (off_sites)
-					
 					# summarize cell statistics
 					cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
 					
 					# load dataset by number of changed cell locations
 					off_sites = cls._r_mon.load_datasets (int (exe_cnt / cls._user_move))
+
+					# reset reputation when moved to a new cell location
+					off_sites = cls.__reset_reputation (off_sites)
 
 					# when new datasets are loaded then cell location is changed for statistics
 					cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
@@ -237,7 +237,7 @@ class EdgeOffloading (Thread):
 					if site_rep[0] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep[1])
-				 		# cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
+				 		cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 
 		return off_sites
 
