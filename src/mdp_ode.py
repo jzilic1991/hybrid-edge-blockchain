@@ -55,7 +55,7 @@ class MdpOde(OffloadingDecisionEngine):
             if cls._policy[offloading_site_index] == OffloadingActions.MOBILE_DEVICE:
                 
                 return (cls._offloading_sites[cls._mobile_device.get_offloading_action_index()], \
-                    validity_vector)
+                    metrics[cls._mobile_device])
     
             trans_prob = ()
             action_index = cls._policy[offloading_site_index]
