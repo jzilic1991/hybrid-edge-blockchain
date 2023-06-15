@@ -16,6 +16,7 @@ class OffloadingSite:
         self._cores = data['cores']
         self._mem = data['mem']
         self._stor = data['stor']
+        self._constr = SiteConstraint (data)
         self._cpu_consum = 0
         self._stor_consum = 0
         self._mem_consum = 0
@@ -30,6 +31,11 @@ class OffloadingSite:
         self._dataset_node = None
         
         # self.print_system_config()
+
+
+    def get_constraints (cls):
+
+        return cls._constr
 
 
     def print_system_config(cls):
@@ -186,7 +192,50 @@ class OffloadingSite:
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
 
         if cls._mem_consum < 0 or cls._stor_consum < 0:
+            
             raise ValueError("Memory consumption: " + str(cls._mem_consum) + \
                     "Gb, data storage consumption: " + str(cls._stor_consum) + \
                     "Gb, both should be positive! Node: " + cls._name + ", task: " + \
                     task.get_name())
+
+
+class SiteConstraint
+
+    def __init__ (self, data):
+
+        self._proc_intra = data['proc-intra']
+        self._lat_intra = data['lat-intra']
+        self._proc_mobiar = data['proc-mobiar']
+        self._lat_mobiar = data['lat-mobiar']
+        self._proc_naviar = data['proc-mobiar']
+        self._lat_naviar = data['lat-mobiar']
+
+
+    def get_proc_intra (cls):
+
+        return cls._proc_intra
+
+
+    def get_lat_intra (cls):
+
+        return cls._lat_intra
+
+
+    def get_proc_mobiar (cls):
+
+        return cls._proc_mobiar
+
+
+    def get_lat_mobiar (cls):
+
+        return cls._lat_mobiar
+
+
+    def get_proc_naviar (cls):
+
+        return cls._proc_naviar
+
+
+    def get_lat_naviar (cls):
+
+        return cls._lat_naviar

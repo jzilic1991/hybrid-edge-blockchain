@@ -1,9 +1,7 @@
 {
 	"INTRASAFED": {
 		"qos": {
-			"rt": 0.5,
-			"ec": 1.2,
-			"pr": 3
+			"rt": 0.108
 		},
 		"tasks": {
 			"LOAD_MODEL": {
@@ -65,9 +63,7 @@
 	},
 	"MOBIAR": {
 		"qos": {
-			"rt": 0.5,
-			"ec": 1.2,
-			"pr": 3
+			"rt": 0.25
 		},
 		"tasks": {
 			"UPLOAD": {
@@ -129,9 +125,7 @@
 	},
 	"NAVIAR": {
 		"qos": {
-			"rt": 0.5,
-			"ec": 1.2,
-			"pr": 3
+			"rt": 0.8
 		},
 		"tasks": {
 			"MAP": {

@@ -5,7 +5,7 @@ import time
 
 from ode import OffloadingDecisionEngine
 from task import Task
-from util import NodeTypes, Settings
+from util import NodeTypes, Settings, MobApps
 
 
 class SmtOde (OffloadingDecisionEngine):
@@ -36,11 +36,11 @@ class SmtOde (OffloadingDecisionEngine):
         return 0
 
 
-    def offloading_decision(cls, task, metrics):
+    def offloading_decision(cls, task, metrics, app_name, qos):
         
         if task.is_offloadable ():
 
-            (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics))
+            (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), app_name, qos)
             start = time.time ()
             
             if str(s.check ()) == 'sat':
@@ -71,7 +71,7 @@ class SmtOde (OffloadingDecisionEngine):
         raise ValueError ("No mobile devices found!")
 
 
-    def __smt_solving (cls, task, metrics):
+    def __smt_solving (cls, task, metrics, app_name, qos):
 
         # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum":, "price": }}
         score = Real ('score')
@@ -85,9 +85,10 @@ class SmtOde (OffloadingDecisionEngine):
 
         s.add (Or ([b[0] for b in b_sites]))
         s.add ([Implies (b[0] == True, \
-                And (metrics[b[1]]['rt'] <= task.get_rt (), \
+                And (metrics[b[1]]['rt'] <= qos['rt'], \
+                    b[1].get_constraints(),
                     metrics[b[1]]['ec'] <= task.get_ec (), \
-                    metrics[b[1]]['pr'] <= task.get_pr (),
+                    metrics[b[1]]['pr'] <= task.get_pr (), \
                     metrics[b[1]]['score'] == score)) \
                     for b in b_sites])        
         s.add ([Implies (b[0] == True, \

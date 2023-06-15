@@ -6,6 +6,12 @@
 			"cores": 8,
 			"mem": 8,
 			"stor": 300,
+			"proc-intra": 0.018, 
+			"lat-intra": 0.015,
+			"proc-mobiar": 0.02, 
+			"lat-mobiar": 0.015,
+			"proc-naviar": 0.3, 
+			"lat-naviar": 0.075,
 			"url": "http://128.131.169.143:30256/database/"
 		},
 		"EC": {
@@ -14,6 +20,12 @@
 			"cores": 16,
 			"mem": 16,
 			"stor": 150,
+			"proc-intra": 0.018,
+			"lat-intra": 0.015,
+			"proc-mobiar": 0.02, 
+			"lat-mobiar": 0.015,
+			"proc-naviar": 0.3, 
+			"lat-naviar": 0.075,
 			"url": "http://128.131.169.143:30256/comp/"
 		},
 		"ER": {
@@ -22,6 +34,12 @@
 			"cores": 4,
 			"mem": 8,
 			"stor": 150,
+			"proc-intra": 0.018,
+			"lat-intra": 0.015,
+			"proc-mobiar": 0.02, 
+			"lat-mobiar": 0.015,
+			"proc-naviar": 0.3, 
+			"lat-naviar": 0.075,
 			"url": "http://128.131.169.143:30256/regular/"
 		},
 		"CD": {
@@ -30,6 +48,12 @@
 			"cores": 64,
 			"mem": 128,
 			"stor": 1000,
+			"proc-intra": 0.02,
+			"lat-intra": 0.09,
+			"proc-mobiar": 0.001, 
+			"lat-mobiar": 0.3,
+			"proc-naviar": 0.02, 
+			"lat-naviar": 1.5,
 			"url": "http://128.131.169.143:30256/cloud/"
 		},
 		"MD": {
@@ -38,6 +62,12 @@
 			"cores": 1,
 			"mem": 8,
 			"stor": 16,
+			"proc-intra": 0.3,
+			"lat-intra": 0.0,
+			"proc-mobiar": 0.3,
+			"lat-mobiar": 0.0,
+			"proc-naviar": 0.8,
+			"lat-naviar": 0.0,
 			"url": ""
 		}
 	}

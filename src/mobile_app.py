@@ -23,12 +23,18 @@ class MobileApplication:
     def run(cls):
 
         if not cls._running:
+
             cls._running = True
 
 
     def get_name(cls):
 
         return cls._name
+
+
+    def get_qos (cls):
+
+        return cls._qos
 
 
     def get_num_of_tasks (cls):

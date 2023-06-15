@@ -55,7 +55,7 @@ class OffloadingDecisionEngine(ABC):
             cls._cell_stats[cell_name] = CellStats (cell_name)
 
 
-    def offload (cls, tasks, off_sites, topology, timestamp):
+    def offload (cls, tasks, off_sites, topology, timestamp, app_name, qos):
 
         if cls._BL <= 0.0:
 
@@ -80,7 +80,7 @@ class OffloadingDecisionEngine(ABC):
 
             while True:
 
-                cand_n, values = cls.offloading_decision (task, metrics)
+                cand_n, values = cls.offloading_decision (task, metrics, app_name, qos)
 
                 cls._off_dist_hist[cand_n.get_n_id ()] = \
                     cls._off_dist_hist[cand_n.get_n_id ()] + 1
