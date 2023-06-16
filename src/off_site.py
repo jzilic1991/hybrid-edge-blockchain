@@ -2,7 +2,7 @@ import sys
 import random
 import uuid
 
-from util import Util, NodeTypes, ExeErrCode, MeasureUnits
+from util import Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps
 from task import Task
 
 
@@ -16,7 +16,9 @@ class OffloadingSite:
         self._cores = data['cores']
         self._mem = data['mem']
         self._stor = data['stor']
-        self._constr = SiteConstraint (data)
+        self._intra_constr = IntraConstraints (data['proc-intra'], data['lat-intra'])
+        self._mobiar_constr = MobiarConstraints (data['proc-mobiar'], data['lat-mobiar'])
+        self._naviar_constr = NaviarConstraints (data['proc-naviar'], data['lat-naviar'])
         self._cpu_consum = 0
         self._stor_consum = 0
         self._mem_consum = 0
@@ -32,10 +34,24 @@ class OffloadingSite:
         
         # self.print_system_config()
 
+    def get_constr (cls, app_name):
 
-    def get_constraints (cls):
+        if app_name == MobApps.INTRASAFED:
 
-        return cls._constr
+            return cls._intra_constr
+
+        elif app_name == MobApps.MOBIAR:
+
+            return cls._mobiar_constr
+
+        elif app_name == MobApps.NAVIAR:
+
+            return cls._naviar_constr
+
+
+    def avail_or_not (cls, t):
+
+        return cls._dataset_node.is_avail_or_not (t)
 
 
     def print_system_config(cls):
@@ -199,43 +215,34 @@ class OffloadingSite:
                     task.get_name())
 
 
-class SiteConstraint
+class Constraints:
 
-    def __init__ (self, data):
+    def __init__ (self, proc, lat):
 
-        self._proc_intra = data['proc-intra']
-        self._lat_intra = data['lat-intra']
-        self._proc_mobiar = data['proc-mobiar']
-        self._lat_mobiar = data['lat-mobiar']
-        self._proc_naviar = data['proc-mobiar']
-        self._lat_naviar = data['lat-mobiar']
+        self._proc = proc
+        self._lat = lat
 
 
-    def get_proc_intra (cls):
+    def get_proc (cls):
 
-        return cls._proc_intra
-
-
-    def get_lat_intra (cls):
-
-        return cls._lat_intra
+        return cls._proc
 
 
-    def get_proc_mobiar (cls):
+    def get_lat (cls):
 
-        return cls._proc_mobiar
-
-
-    def get_lat_mobiar (cls):
-
-        return cls._lat_mobiar
+        return cls._lat
 
 
-    def get_proc_naviar (cls):
+class IntraConstraints (Constraints):
 
-        return cls._proc_naviar
+    pass
 
 
-    def get_lat_naviar (cls):
+class MobiarConstraints (Constraints):
 
-        return cls._lat_naviar
+    pass
+
+
+class NaviarConstraints (Constraints):
+
+    pass

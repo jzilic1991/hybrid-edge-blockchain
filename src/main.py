@@ -143,12 +143,12 @@ if sys.argv[1] == 'intra':
 
    # experiment_run ()
     
-   edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
-       MobApps.INTRASAFED,0, 1, Settings.NUM_LOCS)
-   edge_off.deploy_sq_ode ()
-   edge_off.start ()
+   # edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
+   #     MobApps.INTRASAFED,0, 1, Settings.NUM_LOCS)
+   # edge_off.deploy_sq_ode ()
+   # edge_off.start ()
 
-   experiment_run ()
+   # experiment_run ()
 
    #  edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
    #      MobApps.INTRASAFED, 0, 1, Settings.NUM_LOCS)

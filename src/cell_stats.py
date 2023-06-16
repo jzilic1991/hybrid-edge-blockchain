@@ -6,8 +6,9 @@ class CellStats:
 	def __init__(self, cell_name):
 
 		self._id = cell_name
-		self._off_dist_samp = dict ()   # of dicts per offloading site key
-		self._off_fail_samp = dict ()   # of scalars
+		self._off_dist_samp = dict ()   # of dicts per offloading site key per sampling
+		self._off_fail_samp = dict ()   # of scalars per sampling
+		self._constr_viol = dict ()     # 
 
 
 	def get_off_dist_samp (cls):
@@ -30,6 +31,7 @@ class CellStats:
 
 		rel_result = dict ()
 		all_offloads = sum (result.values ())
+		
 		for key, val in result.items ():
 
 			rel_result[key] = round (val / all_offloads, 2) * 100
@@ -90,10 +92,36 @@ class CellStats:
 		return ("Offloading failure distribution (percentage): " + str (result))
 
 
+	def get_avg_constr_viol (cls):
+
+		constr_viol = dict ()
+		for key, val in cls._constr_viol.items ():
+
+			constr_viol[key] = round (sum (val) / len (val), 3)
+
+		off_dist = dict ()
+		for key, val in cls._off_dist_samp.items ():
+
+			off_dist[key] = round (sum (val) / len (val), 3)
+
+		result = dict ()
+		for key in cls._constr_viol.keys ():
+
+			if off_dist[key] != 0:
+
+				result[key] = round ((constr_viol[key] / off_dist[key]) * 100, 2)
+
+			else:
+
+				result[key] = 0
+
+		return ("Constraint violation distribution (percentage): " + str (result))
+
+
 	def get_all (cls):
 
 		return cls._id + "\n" + cls.get_avg_off_dist () + '\n' + cls.get_avg_off_fail_dist () + '\n' +\
-			cls.get_avg_off_fail () + '\n'
+			cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol () + '\n'
 
 
 	def add_off_dist (cls, off_dist_samp):
@@ -120,3 +148,16 @@ class CellStats:
 			else:
 
 				cls._off_fail_samp[key] = [val]
+
+
+	def add_constr_viol (cls, constr_viol):
+
+		for key, val in constr_viol.items ():
+
+			if key in cls._constr_viol.keys ():
+
+				cls._constr_viol[key].append (val)
+
+			else:
+
+				cls._constr_viol[key] = [val] 

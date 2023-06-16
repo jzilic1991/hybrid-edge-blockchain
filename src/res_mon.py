@@ -89,6 +89,7 @@ class ResourceMonitor:
         return cls._off_sites
 
 
+    # cell name is a concatination of all dataset node ids
     def __get_cell_name (cls):
 
         cell_name = ""

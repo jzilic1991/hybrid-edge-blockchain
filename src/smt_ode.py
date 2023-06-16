@@ -36,11 +36,12 @@ class SmtOde (OffloadingDecisionEngine):
         return 0
 
 
-    def offloading_decision(cls, task, metrics, app_name, qos):
+    def offloading_decision(cls, task, metrics, timestamp, app_name, qos):
         
         if task.is_offloadable ():
 
-            (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), app_name, qos)
+            (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
+                app_name, qos)
             start = time.time ()
             
             if str(s.check ()) == 'sat':
@@ -59,7 +60,8 @@ class SmtOde (OffloadingDecisionEngine):
                 
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
-            return random.choice (list (metrics.items ()))
+            site = random.choice (list (metrics.items ()))
+            return (site, metrics[site])
             # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
         for key, values in metrics.items ():
@@ -71,24 +73,27 @@ class SmtOde (OffloadingDecisionEngine):
         raise ValueError ("No mobile devices found!")
 
 
-    def __smt_solving (cls, task, metrics, app_name, qos):
+    def __smt_solving (cls, task, metrics, timestamp, app_name, qos):
 
         # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum":, "price": }}
         score = Real ('score')
         sites = [key for key, _ in metrics.items ()]
-        b_sites = [(Bool (site.get_n_id ()), site) for site in sites]
+        b_sites = [(Bool (site.avail_or_not (timestamp)), site, site.get_constr (app_name)) \
+            for site in sites]
         s = Optimize ()
+
+        cls.__print_smt_offload_info (metrics, b_sites, app_name, qos)
 
         # append tuple (Bool, OffloadingSite) to list
         # b_sites.append ((Bool (site.get_n_id ()), site) for site in sites)
         # print ([metrics[b[1]]['score'] for b in b_sites])
 
         s.add (Or ([b[0] for b in b_sites]))
-        s.add ([Implies (b[0] == True, \
-                And (metrics[b[1]]['rt'] <= qos['rt'], \
-                    b[1].get_constraints(),
-                    metrics[b[1]]['ec'] <= task.get_ec (), \
-                    metrics[b[1]]['pr'] <= task.get_pr (), \
+        s.add ([Implies (b[0] == True, # is offloading site available \
+                And (metrics[b[1]]['rt'] <= qos['rt'], # application time requirement \
+                    metrics[b[1]]['rt'] <= (b[2].get_proc () + b[2].get_lat ()), # offloading site constraints \
+                    metrics[b[1]]['ec'] <= task.get_ec (), # task constraint \
+                    metrics[b[1]]['pr'] <= task.get_pr (), # task constraint \
                     metrics[b[1]]['score'] == score)) \
                     for b in b_sites])        
         s.add ([Implies (b[0] == True, \
@@ -99,10 +104,11 @@ class SmtOde (OffloadingDecisionEngine):
                     b[1].get_stor_consum () < 1)) \
                     for b in b_sites])
 
+        # adding reputation score in SMT formula
         if cls._activate:
             
             rep_thr = cls.__compute_rep_threshold (sites)
-            cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
+            # cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \
@@ -112,6 +118,23 @@ class SmtOde (OffloadingDecisionEngine):
         s.minimize (score)
 
         return (s, b_sites)
+
+
+    def __print_smt_offload_info (cls, metrics, b_sites, app_name, qos):
+
+        cls._log.w (app_name + " QoS: " + str (qos['rt']) + ' s')
+        
+        for triple in b_sites:
+
+            cls._log.w ("Name: " + triple[1].get_n_id ())
+            cls._log.w ("Available: " + str (triple[0]))
+            cls._log.w ("Processing latency constraint: " + str (triple[2].get_proc ()) + " s")
+            cls._log.w ("Network latency constraint: " + str (triple[2].get_lat ()) + " s")
+            cls._log.w ("Complete latency constraint: " + str (triple[2].get_proc () + \
+                triple[2].get_lat ()) + " s")
+            cls._log.w ("Response time: " + str (metrics[triple[1]]['rt']) + " s")
+            cls._log.w ("Score: " + str (metrics[triple[1]]))
+            cls._log.w ("")
 
 
     def __compute_local_optimum (cls, metrics, obj):

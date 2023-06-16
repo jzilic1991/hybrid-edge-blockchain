@@ -2,10 +2,10 @@
 	"off-sites": {
 		"ED": {
 			"type": "Edge Database Server",
-			"mips": 2100,
+			"mips": 2400,
 			"cores": 8,
 			"mem": 8,
-			"stor": 300,
+			"stor": 500,
 			"proc-intra": 0.018, 
 			"lat-intra": 0.015,
 			"proc-mobiar": 0.02, 
@@ -16,7 +16,7 @@
 		},
 		"EC": {
 			"type": "Edge Computational Server",
-			"mips": 2800,
+			"mips": 3200,
 			"cores": 16,
 			"mem": 16,
 			"stor": 150,
@@ -33,7 +33,7 @@
 			"mips": 1800,
 			"cores": 4,
 			"mem": 8,
-			"stor": 150,
+			"stor": 64,
 			"proc-intra": 0.018,
 			"lat-intra": 0.015,
 			"proc-mobiar": 0.02, 
