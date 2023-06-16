@@ -192,8 +192,8 @@ class OffloadingDecisionEngine(ABC):
         if (constr.get_proc () + constr.get_lat ()) < values['rt']:
 
             cls._constr_viol_hist[off_site.get_n_id ()] += 1
-            cls._log.w (off_site.get_n_id () + " has violated " + \
-                str (constr.get_proc () + constr.get_lat ()) + "s constraint with " + \
+            cls._log.w (off_site.get_n_id () + " has constraint violation " + \
+                str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
                 str (values['rt']))
 
     

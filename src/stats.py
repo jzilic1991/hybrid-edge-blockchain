@@ -112,6 +112,47 @@ class Stats:
             str (round (sum (off_fail) / len (off_fail), 3))
 
 
+    def get_avg_constr_viol (cls, cells):
+
+        constr_viol = list ()
+        constr_viol_samp = dict ()
+        off_dist_samp = dict ()
+
+        for cell_name, cell in cells.items ():
+
+            for site, samples in cell.get_constr_viol_samp().items ():
+
+                if not site in constr_viol_samp:
+
+                    constr_viol_samp[site] = list ()
+                    
+                constr_viol_samp[site] += samples
+
+            for site, samples in cell.get_off_dist_samp().items ():
+
+                if not site in off_dist_samp:
+
+                    off_dist_samp[site] = list ()
+                    
+                off_dist_samp[site] += samples
+
+        for key, _ in constr_viol_samp.items ():
+            
+            for i in range (len (constr_viol_samp[key])):
+                
+                if off_dist_samp[key][i] != 0:
+                    
+                    constr_viol.append (round (constr_viol_samp[key][i] / off_dist_samp[key][i] \
+                        * 100, 3))
+
+                else:
+
+                    constr_viol.append (0.0)
+
+        return "Average constraint violation rate (percentage) is " + \
+            str (round (sum (constr_viol) / len (constr_viol), 3))
+
+
     def get_avg_off_fail_dist (cls, cells):
 
         off_fail_samp = dict ()
@@ -159,7 +200,7 @@ class Stats:
         return ("Offloading failure distribution (percentage): " + str (result))
 
 
-    def get_avg_constr_viol (cls, cells):
+    def get_avg_constr_viol_dist (cls, cells):
 
         constr_viol_samp = dict ()
         off_dist_samp = dict ()
@@ -216,7 +257,8 @@ class Stats:
     def get_cell_stats (cls, cell_stats):
 
         return cls.get_avg_off_dist (cell_stats) + "\n" + cls.get_avg_off_fail_dist (cell_stats) + "\n" + \
-            cls.get_avg_constr_viol (cell_stats) + "\n" + cls.get_avg_off_fail (cell_stats) + "\n"
+            cls.get_avg_off_fail (cell_stats) + "\n" + cls.get_avg_constr_viol_dist (cell_stats) + "\n"+ \
+            cls.get_avg_constr_viol (cell_stats) + "\n"
 
 
     def print_off_dist (cls):

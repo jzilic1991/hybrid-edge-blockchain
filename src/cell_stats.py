@@ -154,7 +154,8 @@ class CellStats:
 	def get_all (cls):
 
 		return cls._id + "\n" + cls.get_avg_off_dist () + '\n' + cls.get_avg_off_fail_dist () + '\n' +\
-			cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + cls.get_avg_constr_viol ()
+			cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + \
+			cls.get_avg_constr_viol () + "\n"
 
 
 	def add_off_dist (cls, off_dist_samp):
