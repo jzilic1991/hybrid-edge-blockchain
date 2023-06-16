@@ -21,6 +21,11 @@ class CellStats:
 		return cls._off_fail_samp
 
 
+	def get_constr_viol_samp (cls):
+
+		return cls._constr_viol
+
+
 	def get_avg_off_dist (cls):
 
 		result = dict ()
@@ -65,6 +70,34 @@ class CellStats:
 				str (round (sum (off_fail) / len (off_fail), 3))
 
 
+	def get_avg_constr_viol (cls):
+
+		constr_viol = list ()
+
+		for key, _ in cls._constr_viol.items ():
+
+			for i in range (len (cls._constr_viol[key])):
+
+				if cls._off_dist_samp[key][i] != 0:
+
+					constr_viol.append (round (cls._constr_viol[key][i] / cls._off_dist_samp[key][i] \
+						* 100, 3))
+
+				else:
+
+					constr_viol.append (0.0)
+
+		if len (constr_viol) == 0:
+
+			return "Average constraint violation rate (percentage) is 0.0"
+		
+		else:
+
+			return "Average constraint violation rate (percentage) is " + \
+				str (round (sum (constr_viol) / len (constr_viol), 3))
+
+
+
 
 	def get_avg_off_fail_dist (cls):
 
@@ -92,7 +125,7 @@ class CellStats:
 		return ("Offloading failure distribution (percentage): " + str (result))
 
 
-	def get_avg_constr_viol (cls):
+	def get_avg_constr_viol_dist (cls):
 
 		constr_viol = dict ()
 		for key, val in cls._constr_viol.items ():
@@ -121,7 +154,7 @@ class CellStats:
 	def get_all (cls):
 
 		return cls._id + "\n" + cls.get_avg_off_dist () + '\n' + cls.get_avg_off_fail_dist () + '\n' +\
-			cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol () + '\n'
+			cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + cls.get_avg_constr_viol ()
 
 
 	def add_off_dist (cls, off_dist_samp):

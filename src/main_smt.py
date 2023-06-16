@@ -102,6 +102,7 @@ class EdgeOffloading (Thread):
 				app = cls._m_app_prof.dep_app (cls._app_name)
 				app.run ()
 				exe_cnt = exe_cnt + 1
+				cls._s_ode.app_exc_done (app.get_qos ())
 				# print ("Execution:" + str (exe_cnt))
 
 				# when certain number of application executions are completed 

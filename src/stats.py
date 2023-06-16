@@ -10,8 +10,13 @@ class Stats:
          self._price_samp = list ()      # of scalars
          self._bl_samp = list ()         # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
-         self._obj_viol_samp = {'rt': [], 'ec': [], 'pr': []}   # of dicts per objective
-         self._qos_viol_samp = list ()   # of scalars
+         self._qos_viol_samp = list ()
+
+
+    def get_avg_qos_viol (cls):
+
+        return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
+            str (round (np.mean(cls._qos_viol_samp), 2)) + " QoS violations")
 
 
     def get_avg_rsp_time (cls): 
@@ -36,21 +41,6 @@ class Stats:
 
         return ("After " + str (len (cls._bl_samp)) + " samples, average is " + \
             str (round (np.mean(cls._bl_samp), 2)) + " % of energy remains")
-
-
-    def get_avg_qos_viol (cls):
-
-        return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._qos_viol_samp), 2)) + " QoS violations")
-
-
-    def get_avg_obj_viol (cls):
-
-        result = {'rt': round (sum (cls._obj_viol_samp['rt']) / len (cls._obj_viol_samp['rt']), 2),\
-            'ec': round (sum (cls._obj_viol_samp['ec']) / len (cls._obj_viol_samp['ec']), 2),
-            'pr': round (sum (cls._obj_viol_samp['pr']) / len (cls._obj_viol_samp['pr']), 2)}
-
-        return ("Offloading objective violation (absolute): " + str (result))
 
 
     def get_avg_off_dist (cls, cells):
@@ -169,18 +159,64 @@ class Stats:
         return ("Offloading failure distribution (percentage): " + str (result))
 
 
+    def get_avg_constr_viol (cls, cells):
+
+        constr_viol_samp = dict ()
+        off_dist_samp = dict ()
+
+        for cell_name, cell in cells.items ():
+
+            for site, samples in cell.get_constr_viol_samp().items ():
+
+                if not site in constr_viol_samp:
+
+                    constr_viol_samp[site] = list ()
+                    
+                constr_viol_samp[site] += samples
+
+            for site, samples in cell.get_off_dist_samp().items ():
+
+                if not site in off_dist_samp:
+
+                    off_dist_samp[site] = list ()
+                    
+                off_dist_samp[site] += samples
+
+        constr_viol = dict ()
+        for key, val in constr_viol_samp.items ():
+            
+            constr_viol[key] = round (sum (val) / len (val), 3)
+
+        off_dist = dict ()
+        for key, val in off_dist_samp.items ():
+            
+            off_dist[key] = round (sum (val) / len (val), 3)
+
+        result = dict ()
+        for key in constr_viol_samp.keys ():
+            
+            if off_dist[key] != 0:
+
+                result[key] = round ((constr_viol[key] / off_dist[key]) * 100, 2)
+
+            else:
+
+                result[key] = 0
+
+        return ("Constraint violation distribution (percentage): " + str (result))
+
+
     def get_all (cls):
 
         return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
             cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + \
-            cls.get_avg_obj_viol () + '\n' + cls.get_avg_qos_viol () +\
-            '\n'
+            cls.get_avg_qos_viol () + '\n'
 
 
     def get_cell_stats (cls, cell_stats):
 
         return cls.get_avg_off_dist (cell_stats) + "\n" + cls.get_avg_off_fail_dist (cell_stats) + "\n" + \
-            cls.get_avg_off_fail (cell_stats) + "\n"
+            cls.get_avg_constr_viol (cell_stats) + "\n" + cls.get_avg_off_fail (cell_stats) + "\n"
 
 
     def print_off_dist (cls):
@@ -221,13 +257,6 @@ class Stats:
     def add_qos_viol (cls, qos_viol):
 
         cls._qos_viol_samp.append (qos_viol)
-
-
-    def add_obj_viol (cls, obj_viol):
-
-        cls._obj_viol_samp['rt'].append (obj_viol['rt'])
-        cls._obj_viol_samp['ec'].append (obj_viol['ec'])
-        cls._obj_viol_samp['pr'].append (obj_viol['pr'])
 
 
     # def add_off_dist (cls, off_dist_samp):

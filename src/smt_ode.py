@@ -60,8 +60,9 @@ class SmtOde (OffloadingDecisionEngine):
                 
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
-            site = random.choice (list (metrics.items ()))
-            return (site, metrics[site])
+            #site = random.choice (list (metrics.items ()))
+            site, metric = cls.__get_site_min_score (metrics)
+            return (site, metric)
             # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
         for key, values in metrics.items ():
@@ -78,7 +79,7 @@ class SmtOde (OffloadingDecisionEngine):
         # metrics is a dict {OffloadingSite: dict {"rsp":, "e_consum":, "price": }}
         score = Real ('score')
         sites = [key for key, _ in metrics.items ()]
-        b_sites = [(Bool (site.avail_or_not (timestamp)), site, site.get_constr (app_name)) \
+        b_sites = [(Bool (site.get_n_id ()), site, site.get_constr (app_name)) \
             for site in sites]
         s = Optimize ()
 
@@ -89,11 +90,11 @@ class SmtOde (OffloadingDecisionEngine):
         # print ([metrics[b[1]]['score'] for b in b_sites])
 
         s.add (Or ([b[0] for b in b_sites]))
-        s.add ([Implies (b[0] == True, # is offloading site available \
-                And (metrics[b[1]]['rt'] <= qos['rt'], # application time requirement \
-                    metrics[b[1]]['rt'] <= (b[2].get_proc () + b[2].get_lat ()), # offloading site constraints \
-                    metrics[b[1]]['ec'] <= task.get_ec (), # task constraint \
-                    metrics[b[1]]['pr'] <= task.get_pr (), # task constraint \
+        s.add ([Implies (b[0] == True, \
+                And (metrics[b[1]]['rt'] <= qos['rt'], \
+                    metrics[b[1]]['rt'] <= (b[2].get_proc () + b[2].get_lat ()),\
+                    metrics[b[1]]['ec'] <= task.get_ec (), \
+                    metrics[b[1]]['pr'] <= task.get_pr (), \
                     metrics[b[1]]['score'] == score)) \
                     for b in b_sites])        
         s.add ([Implies (b[0] == True, \
@@ -108,7 +109,7 @@ class SmtOde (OffloadingDecisionEngine):
         if cls._activate:
             
             rep_thr = cls.__compute_rep_threshold (sites)
-            # cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
+            cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \
@@ -133,7 +134,7 @@ class SmtOde (OffloadingDecisionEngine):
             cls._log.w ("Complete latency constraint: " + str (triple[2].get_proc () + \
                 triple[2].get_lat ()) + " s")
             cls._log.w ("Response time: " + str (metrics[triple[1]]['rt']) + " s")
-            cls._log.w ("Score: " + str (metrics[triple[1]]))
+            cls._log.w ("Score: " + str (metrics[triple[1]]['score']))
             cls._log.w ("")
 
 
@@ -172,3 +173,20 @@ class SmtOde (OffloadingDecisionEngine):
 
         reps = [site.get_reputation () for site in off_sites]
         return min (sorted (reps, key = lambda x: x, reverse = True)[:cls._k])
+
+
+    def __get_site_min_score (cls, metrics):
+
+        min_score = math.inf
+        site = None
+
+        for key, value in metrics.items ():
+
+            if value['score'] < min_score:
+
+                min_score = value['score']
+                site = key
+
+        cls._log.w ("Min score of " + str (min_score) + " has site " + site.get_n_id ())
+
+        return (site, metrics[site])

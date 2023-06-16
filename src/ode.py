@@ -22,8 +22,7 @@ class OffloadingDecisionEngine(ABC):
         self._off_dist_hist = dict ()
         self._off_fail_hist = dict ()
         self._constr_viol_hist = dict ()
-        self._qos_viol_hist = list ()
-        self._app_exc_cnt = 0
+        self._qos_viol_cnt = 0
         self._curr_app_time = 0.0
         self._stats = Stats ()
         self._cell_stats = dict ()       # key (cell name) - value is cell stats class object
@@ -58,6 +57,8 @@ class OffloadingDecisionEngine(ABC):
 
         if qos['rt'] < cls._curr_app_time:
 
+            cls._log.w ("QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
+                str (qos['rt']) + "s")
             cls._qos_viol_cnt += 1
 
         cls._curr_app_time = 0.0
@@ -116,13 +117,12 @@ class OffloadingDecisionEngine(ABC):
                 else:
 
                     cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
-                    # print ("Offloading failure occur on " + str (cand_n.get_node_type ()))
+                    # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
                     #     str (e_cost) + " J")
                     t_rsp_time = t_rsp_time + time_cost
                     t_e_consum = t_e_consum + e_cost
-                    cls._qos_viol_hist = cls._qos_viol_hist + 1
                     del metrics[cand_n]
                     off_transactions.append ([cand_n.get_sc_id (), 0])
                     cls._off_fail_hist[cand_n.get_n_id ()] = \
@@ -148,10 +148,12 @@ class OffloadingDecisionEngine(ABC):
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
         cls._stats.add_bl (round (cls._BL / Settings.BATTERY_LF * 100, 3))
+        cls._stats.add_qos_viol (cls._qos_viol_cnt)
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()
         cls._res_pr_hist = list ()
+        cls._qos_viol_cnt = 0
         cls._BL = Settings.BATTERY_LF
 
 
@@ -189,10 +191,10 @@ class OffloadingDecisionEngine(ABC):
 
         if (constr.get_proc () + constr.get_lat ()) < values['rt']:
 
-            cls._constr_viol_hist[off_site] += 1
+            cls._constr_viol_hist[off_site.get_n_id ()] += 1
             cls._log.w (off_site.get_n_id () + " has violated " + \
                 str (constr.get_proc () + constr.get_lat ()) + "s constraint with " + \
-                str (value['rt']))
+                str (values['rt']))
 
     
     def __check_off_sites (cls, off_sites):
