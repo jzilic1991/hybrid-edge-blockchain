@@ -233,25 +233,25 @@ class Util (object):
     @classmethod
     def generate_di_cpu_cycles(cls):
 
-        return random.randint(100, 200)
+        return random.randint(50, 150)
 
 
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.randint(750, 850)
+        return random.randint(300, 400)
 
 
     @classmethod
     def generate_random_cpu_cycles(cls):
 
-        return random.randint(100, 200)
+        return random.randint(50, 150)
 
 
     @classmethod
     def generate_di_input_data(cls):
 
-        return random.randint(4 * 35, 4 * 50)
+        return random.randint(4 * 50, 4 * 75)
 
 
     @classmethod

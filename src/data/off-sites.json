@@ -2,7 +2,7 @@
 	"off-sites": {
 		"ED": {
 			"type": "Edge Database Server",
-			"mips": 2400,
+			"mips": 2800,
 			"cores": 8,
 			"mem": 8,
 			"stor": 500,
@@ -30,7 +30,7 @@
 		},
 		"ER": {
 			"type": "Edge Regular Server",
-			"mips": 1800,
+			"mips": 2100,
 			"cores": 4,
 			"mem": 8,
 			"stor": 64,
@@ -44,7 +44,7 @@
 		},
 		"CD": {
 			"type": "Cloud Data Center",
-			"mips": 2400,
+			"mips": 2800,
 			"cores": 64,
 			"mem": 128,
 			"stor": 1000,
@@ -58,8 +58,8 @@
 		},
 		"MD": {
 			"type": "Mobile Device",
-			"mips": 1000,
-			"cores": 1,
+			"mips": 1400,
+			"cores": 2,
 			"mem": 8,
 			"stor": 16,
 			"proc-intra": 0.3,

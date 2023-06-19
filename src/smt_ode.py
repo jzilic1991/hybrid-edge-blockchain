@@ -17,9 +17,14 @@ class SmtOde (OffloadingDecisionEngine):
         self._k = 3
 
 
-    def dynamic_t_incentive (cls, task, metric):
+    def dynamic_t_incentive (cls, site, metric, app_name):
 
-        tmp = round ((task.get_rt () - metric['rt']) / task.get_rt (), 3) * 1000
+        constr = site.get_constr (app_name)
+        proc = constr.get_proc ()
+        lat = constr.get_lat ()
+        deadline = proc + lat
+
+        tmp = round ((deadline - metric['rt']) / deadline, 3) * 1000
 
         if tmp == math.inf or tmp == -math.inf:
 
@@ -37,38 +42,38 @@ class SmtOde (OffloadingDecisionEngine):
 
 
     def offloading_decision(cls, task, metrics, timestamp, app_name, qos):
-        
+
         if task.is_offloadable ():
 
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
                 app_name, qos)
             start = time.time ()
-            
+
             if str(s.check ()) == 'sat':
-                
+
                 end = time.time ()
                 # cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
                 sites_to_off = list ()
 
                 # print (s.model ())
-                
+
                 for b in b_sites:
-                    
+
                     if is_true (s.model ()[b[0]]):
 
                         sites_to_off.append (b[1])
-                
+
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
             #site = random.choice (list (metrics.items ()))
-            site, metric = cls.__get_site_min_score (metrics)
+            site, metric = cls.__get_site_min_score (metrics, timestamp)
             return (site, metric)
             # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
         for key, values in metrics.items ():
-                
+
             if key.get_node_type() == NodeTypes.MOBILE:
-                    
+
                 return (key, values)
 
         raise ValueError ("No mobile devices found!")
@@ -83,7 +88,7 @@ class SmtOde (OffloadingDecisionEngine):
             for site in sites]
         s = Optimize ()
 
-        cls.__print_smt_offload_info (metrics, b_sites, app_name, qos)
+        cls.__print_smt_offload_info (metrics, b_sites, timestamp, app_name, qos)
 
         # append tuple (Bool, OffloadingSite) to list
         # b_sites.append ((Bool (site.get_n_id ()), site) for site in sites)
@@ -95,8 +100,9 @@ class SmtOde (OffloadingDecisionEngine):
                     metrics[b[1]]['rt'] <= (b[2].get_proc () + b[2].get_lat ()),\
                     metrics[b[1]]['ec'] <= task.get_ec (), \
                     metrics[b[1]]['pr'] <= task.get_pr (), \
-                    metrics[b[1]]['score'] == score)) \
-                    for b in b_sites])        
+                    metrics[b[1]]['score'] == score, \
+                    b[1].avail_or_not (timestamp) == True)) \
+                    for b in b_sites])
         s.add ([Implies (b[0] == True, \
                 And (Settings.BATTERY_LF >= (cls._BL - metrics[b[1]]['ec']) \
                     / cls._BL >= 0.0)) for b in b_sites])
@@ -121,14 +127,14 @@ class SmtOde (OffloadingDecisionEngine):
         return (s, b_sites)
 
 
-    def __print_smt_offload_info (cls, metrics, b_sites, app_name, qos):
+    def __print_smt_offload_info (cls, metrics, b_sites, timestamp, app_name, qos):
 
         cls._log.w (app_name + " QoS: " + str (qos['rt']) + ' s')
         
         for triple in b_sites:
 
             cls._log.w ("Name: " + triple[1].get_n_id ())
-            cls._log.w ("Available: " + str (triple[0]))
+            cls._log.w ("Available: " + str (triple[1].avail_or_not (timestamp)))
             cls._log.w ("Processing latency constraint: " + str (triple[2].get_proc ()) + " s")
             cls._log.w ("Network latency constraint: " + str (triple[2].get_lat ()) + " s")
             cls._log.w ("Complete latency constraint: " + str (triple[2].get_proc () + \
@@ -175,14 +181,14 @@ class SmtOde (OffloadingDecisionEngine):
         return min (sorted (reps, key = lambda x: x, reverse = True)[:cls._k])
 
 
-    def __get_site_min_score (cls, metrics):
+    def __get_site_min_score (cls, metrics, timestamp):
 
         min_score = math.inf
         site = None
 
         for key, value in metrics.items ():
 
-            if value['score'] < min_score:
+            if value['score'] < min_score and key.avail_or_not (timestamp):
 
                 min_score = value['score']
                 site = key

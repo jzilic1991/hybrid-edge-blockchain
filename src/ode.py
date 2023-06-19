@@ -110,8 +110,8 @@ class OffloadingDecisionEngine(ABC):
                     #     ", PR: " + str (t_price))
                     cls.__evaluate_constraint_violations (cand_n, values, app_name)
                     cand_n.terminate (task)
-                    off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (task, \
-                        metrics[cand_n])])
+                    off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (cand_n, \
+                        values, app_name)])
                     break
 
                 else:
