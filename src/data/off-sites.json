@@ -58,7 +58,7 @@
 		},
 		"MD": {
 			"type": "Mobile Device",
-			"mips": 1400,
+			"mips": 2100,
 			"cores": 2,
 			"mem": 8,
 			"stor": 16,

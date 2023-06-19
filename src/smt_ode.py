@@ -10,35 +10,12 @@ from util import NodeTypes, Settings, MobApps
 
 class SmtOde (OffloadingDecisionEngine):
 
+
     def __init__(self, name, curr_n, md, app_name, activate, con_delay, scala):
 
         super().__init__(name, curr_n, md, app_name, con_delay, scala)
         self._activate = activate
         self._k = 3
-
-
-    def dynamic_t_incentive (cls, site, metric, app_name):
-
-        constr = site.get_constr (app_name)
-        proc = constr.get_proc ()
-        lat = constr.get_lat ()
-        deadline = proc + lat
-
-        tmp = round ((deadline - metric['rt']) / deadline, 3) * 1000
-
-        if tmp == math.inf or tmp == -math.inf:
-
-            incentive = 0
-
-        else:
-
-            incentive = int (tmp)
-        
-        if incentive >= 0 and incentive <= 1000:
-
-            return incentive
-
-        return 0
 
 
     def offloading_decision(cls, task, metrics, timestamp, app_name, qos):
@@ -115,7 +92,7 @@ class SmtOde (OffloadingDecisionEngine):
         if cls._activate:
             
             rep_thr = cls.__compute_rep_threshold (sites)
-            cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
+            # cls._log.w ("Rep-SMT threshold is: " + str (rep_thr))
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \

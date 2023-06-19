@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 
 from util import Settings
@@ -44,6 +45,30 @@ class OffloadingDecisionEngine(ABC):
     def get_md (cls):
 
         return cls._md
+
+
+    def dynamic_t_incentive (cls, site, metric, app_name):
+
+        constr = site.get_constr (app_name)
+        proc = constr.get_proc ()
+        lat = constr.get_lat ()
+        deadline = proc + lat
+
+        tmp = round ((deadline - metric['rt']) / deadline, 3) * 1000
+
+        if tmp == math.inf or tmp == -math.inf:
+
+            incentive = 0
+
+        else:
+
+            incentive = int (tmp)
+
+        if incentive >= 0 and incentive <= 1000:
+
+            return incentive
+
+        return 0
 
 
     def set_cell_stats (cls, cell_name):
@@ -254,12 +279,6 @@ class OffloadingDecisionEngine(ABC):
 
         return (t_rsp_time.get_overall (), t_e_consum.get_overall (), \
             round (t_price, 3))
-
-
-    @abstractmethod
-    def dynamic_t_incentive (cls, task, metric):
-
-        pass
 
 
     @abstractmethod
