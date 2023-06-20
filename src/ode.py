@@ -133,7 +133,6 @@ class OffloadingDecisionEngine(ABC):
                          "is offloaded successfully on " + cand_n.get_n_id ())
                     # cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
-                    cls.__evaluate_constraint_violations (cand_n, values, app_name)
                     cand_n.terminate (task)
                     off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (cand_n, \
                         values, app_name)])
@@ -152,6 +151,9 @@ class OffloadingDecisionEngine(ABC):
                     off_transactions.append ([cand_n.get_sc_id (), 0])
                     cls._off_fail_hist[cand_n.get_n_id ()] = \
                         cls._off_fail_hist[cand_n.get_n_id ()] + 1
+                    continue
+
+            cls.__evaluate_constraint_violations (cand_n, t_rsp_time, app_name)
 
         (max_rsp_time, acc_e_consum, acc_price) = cls.__get_total_objs (t_rsp_time_arr, \
             t_e_consum_arr, t_price_arr)
@@ -210,16 +212,16 @@ class OffloadingDecisionEngine(ABC):
         return cls._log
 
 
-    def __evaluate_constraint_violations (cls, off_site, values, app_name):
+    def __evaluate_constraint_violations (cls, off_site, rt, app_name):
 
         constr = off_site.get_constr (app_name)
 
-        if (constr.get_proc () + constr.get_lat ()) < values['rt']:
+        if (constr.get_proc () + constr.get_lat ()) < rt:
 
             cls._constr_viol_hist[off_site.get_n_id ()] += 1
             cls._log.w (off_site.get_n_id () + " has constraint violation " + \
                 str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
-                str (values['rt']))
+                str (rt))
 
     
     def __check_off_sites (cls, off_sites):

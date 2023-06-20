@@ -44,7 +44,7 @@
 		},
 		"CD": {
 			"type": "Cloud Data Center",
-			"mips": 2800,
+			"mips": 2400,
 			"cores": 64,
 			"mem": 128,
 			"stor": 1000,
@@ -58,8 +58,8 @@
 		},
 		"MD": {
 			"type": "Mobile Device",
-			"mips": 2100,
-			"cores": 2,
+			"mips": 1000,
+			"cores": 1,
 			"mem": 8,
 			"stor": 16,
 			"proc-intra": 0.3,

@@ -38,7 +38,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     EXECUTIONS = 100
-    SAMPLES = 3
+    SAMPLES = 2
     NUM_LOCS = 4
 
 
@@ -233,19 +233,19 @@ class Util (object):
     @classmethod
     def generate_di_cpu_cycles(cls):
 
-        return random.randint(50, 150)
+        return random.randint(15, 35)
 
 
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.randint(300, 400)
+        return random.randint(150, 250)
 
 
     @classmethod
     def generate_random_cpu_cycles(cls):
 
-        return random.randint(50, 150)
+        return random.randint(15, 35)
 
 
     @classmethod
