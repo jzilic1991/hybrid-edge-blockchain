@@ -65,7 +65,7 @@ class SmtOde (OffloadingDecisionEngine):
             for site in sites]
         s = Optimize ()
 
-        cls.__print_smt_offload_info (metrics, b_sites, timestamp, app_name, qos)
+        # cls.__print_smt_offload_info (metrics, b_sites, timestamp, app_name, qos)
 
         # append tuple (Bool, OffloadingSite) to list
         # b_sites.append ((Bool (site.get_n_id ()), site) for site in sites)
@@ -170,6 +170,6 @@ class SmtOde (OffloadingDecisionEngine):
                 min_score = value['score']
                 site = key
 
-        cls._log.w ("Min score of " + str (min_score) + " has site " + site.get_n_id ())
+        # cls._log.w ("Min score of " + str (min_score) + " has site " + site.get_n_id ())
 
         return (site, metrics[site])
