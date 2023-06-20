@@ -244,7 +244,7 @@ class EdgeOffloading (Thread):
 					if site_rep[0] == site.get_sc_id ():
 
 				 		site.set_reputation (site_rep[1])
-				 		cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
+				 		# cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 
 		return off_sites
 

@@ -82,8 +82,8 @@ class OffloadingDecisionEngine(ABC):
 
         if qos['rt'] < cls._curr_app_time:
 
-            cls._log.w ("QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
-                str (qos['rt']) + "s")
+            # cls._log.w ("QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
+            #     str (qos['rt']) + "s")
             cls._qos_viol_cnt += 1
 
         cls._curr_app_time = 0.0
@@ -128,9 +128,9 @@ class OffloadingDecisionEngine(ABC):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
-                    cls._log.w ("Task " + task.get_name () + \
-                         " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
-                         "is offloaded successfully on " + cand_n.get_n_id ())
+                    # cls._log.w ("Task " + task.get_name () + \
+                    #      " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
+                    #      "is offloaded successfully on " + cand_n.get_n_id ())
                     # cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
                     cand_n.terminate (task)
@@ -140,7 +140,7 @@ class OffloadingDecisionEngine(ABC):
 
                 else:
 
-                    cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
                     # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
@@ -219,9 +219,9 @@ class OffloadingDecisionEngine(ABC):
         if (constr.get_proc () + constr.get_lat ()) < rt:
 
             cls._constr_viol_hist[off_site.get_n_id ()] += 1
-            cls._log.w (off_site.get_n_id () + " has constraint violation " + \
-                str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
-                str (rt))
+            # cls._log.w (off_site.get_n_id () + " has constraint violation " + \
+            #     str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
+            #     str (rt))
 
     
     def __check_off_sites (cls, off_sites):
