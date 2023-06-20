@@ -79,8 +79,9 @@ class EdgeOffloading (Thread):
 		timestamp = 0.0
 		prev_progress = 0
 		curr_progress = 0
-		con_delay = 0
-		task_n_delay = ""
+		con_delay = 0 # consensus delay constraint
+		task_n_delay = "" # delay counter (counting epochs)
+		off_transactions = list ()
 
 		# cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
 		# cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
@@ -103,6 +104,10 @@ class EdgeOffloading (Thread):
 				app.run ()
 				exe_cnt = exe_cnt + 1
 				cls._s_ode.app_exc_done (app.get_qos ())
+
+				# update reputation after each application execution and reset transaction list
+				cls._req_q.put (('update', off_transactions))
+				off_transactions = list ()
 				# print ("Execution:" + str (exe_cnt))
 
 				# when certain number of application executions are completed 
@@ -174,15 +179,15 @@ class EdgeOffloading (Thread):
 				task_n_delay = tasks[0].get_name ()
 			
 			# off_sites = cls.__update_behav (off_sites, exe_cnt)
-			off_transactions = cls._s_ode.offload (tasks, off_sites, topology, timestamp, \
+			trxs = cls._s_ode.offload (tasks, off_sites, topology, timestamp, \
 				app.get_name (), app.get_qos ())
+
+			off_transactions += trxs
 
 			if not off_transactions:
 
 				exe_cnt = cls._exe
 				continue
-
-			cls._req_q.put (('update', off_transactions))
 
 
 	def __compute_time_period (cls, num_of_tasks):
