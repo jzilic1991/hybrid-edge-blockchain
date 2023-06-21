@@ -27,7 +27,8 @@ class MdpOde(OffloadingDecisionEngine):
 
     def offloading_decision (cls, task, metrics, timestamp, app_name, qos):
 
-        validity_vector = [True for i in range (len (cls._offloading_sites))]
+        validity_vector = [cls._offloading_sites[i].avail_or_not (timestamp) \
+            for i in range (len (cls._offloading_sites))]
         
         for off_site in cls._offloading_sites:
 

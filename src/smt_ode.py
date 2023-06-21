@@ -43,7 +43,16 @@ class SmtOde (OffloadingDecisionEngine):
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
             #site = random.choice (list (metrics.items ()))
-            site, metric = cls.__get_site_min_score (metrics, timestamp)
+            if cls._activate:
+                
+                site, metric = cls.__get_site_min_score (metrics, timestamp)
+                return (site, metric)
+            
+            else:
+
+                site = random.choice (list (metrics.items ()))
+                return (site[0], metrics[site[0]])
+
             return (site, metric)
             # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
@@ -63,7 +72,14 @@ class SmtOde (OffloadingDecisionEngine):
         sites = [key for key, _ in metrics.items ()]
         b_sites = [(Bool (site.get_n_id ()), site, site.get_constr (app_name)) \
             for site in sites]
-        s = Optimize ()
+
+        if cls._activate:
+
+            s = Optimize ()
+
+        else:
+
+            s = Solver ()
 
         # cls.__print_smt_offload_info (metrics, b_sites, timestamp, app_name, qos)
 
@@ -77,7 +93,6 @@ class SmtOde (OffloadingDecisionEngine):
                     metrics[b[1]]['rt'] <= (b[2].get_proc () + b[2].get_lat ()),\
                     metrics[b[1]]['ec'] <= task.get_ec (), \
                     metrics[b[1]]['pr'] <= task.get_pr (), \
-                    metrics[b[1]]['score'] == score, \
                     b[1].avail_or_not (timestamp) == True)) \
                     for b in b_sites])
         s.add ([Implies (b[0] == True, \
@@ -96,10 +111,11 @@ class SmtOde (OffloadingDecisionEngine):
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \
-                        1.0 >= b[1].get_reputation () >= 0.0)) \
+                        1.0 >= b[1].get_reputation () >= 0.0, \
+                        metrics[b[1]]['score'] == score)) \
                         for b in b_sites])
 
-        s.minimize (score)
+            s.minimize (score)
 
         return (s, b_sites)
 
