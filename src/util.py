@@ -38,7 +38,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     EXECUTIONS = 100
-    SAMPLES = 2
+    SAMPLES = 100
     NUM_LOCS = 4
 
 
