@@ -328,7 +328,7 @@ def plot_average_deviations (regex, title):
 		align = 'center', label = 'MDP')
 
 	plt.ylabel(title)
-	plt.xlabel("Offloading decision engine")
+	plt.xlabel("Mobile applications")
 	plt.xticks(x, app_n, fontsize = 16)
 	plt.legend()
 	plt.show()
@@ -393,8 +393,8 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
 # overhead_plot ()
 plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
 print_constraint_violation_distribution ()
 plot_offloading_distribution ()
 # plot_dropping_rates ()
