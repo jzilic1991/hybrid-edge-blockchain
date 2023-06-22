@@ -157,7 +157,7 @@ def plot_offloading_distribution():
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
 	regex_ex = "Offloading distribution \(percentage\): {'(ED[^']*'): (\d+\.\d+), '(EC[^']*'): (\d+\.\d+)," + \
-	" '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
+	 	" '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
 
 	for ode_n in ode_names:
 		
@@ -186,7 +186,7 @@ def plot_offloading_distribution():
 						result[ode_n][app_n]["CD"] = float (matched.group (8))
 						result[ode_n][app_n]["MD"] = float (matched.group (10))
 
-	# print (result) 
+	# print (result)
 	# exit ()
 	for app in app_names:
 
@@ -216,49 +216,68 @@ def plot_offloading_distribution():
 					value_format = "{:.2f}",
 					y_label = "Quantity (units)") 
 
+		ax.set_title (app + " application")
 		ax.set_xlabel('Offloading decision engines', fontsize = 16)
 		ax.set_ylabel('Distribution (%)', fontsize = 16)
 		ax.set_ylim(0, 102)
 		plt.show()
 
 
-def print_distribution ():
+def print_constraint_violation_distribution ():
 
-	# NAVIAR_TASKS = 100 * 8
-	app_n = MobApps.NAVIAR
-	# mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
-	# x = np.arange(len(mal_scenarios))
+	plt.rcParams.update({'font.size': 16})
+	# key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
+	offload_dist_dict = dict ()
+	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
+	x = np.arange(len(app_names))
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
 
 	for ode_n in ode_names:
 		
-		result [ode_n] = { 'ED1': [], 'EC1': [], 'ER1': [], 'CD1': [], 'MD1': []}
-		for mal in mal_scenarios:
+		result [ode_n] = dict ()
+		for app_n in app_names:
 
+			result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
 			f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
-
+			summary_flag = False
 			for line in f.readlines ():
 
-				matched = re.search("Offloading distribution \(percentage\): {'ED1': (\d+\.\d+), 'EC1': (\d+\.\d+), " + 
-					"'ER1': (\d+\.\d+), 'CD1': (\d+\.\d+), 'MD1': (\d+\.\d+)}", line)
-				
-				if matched:
-					
-					result[ode_n]['ED1'].append (float (matched.group (1)))
-					result[ode_n]['EC1'].append (float (matched.group (2)))
-					result[ode_n]['ER1'].append (float (matched.group (3)))
-					result[ode_n]['CD1'].append (float (matched.group (4)))
-					result[ode_n]['MD1'].append (float (matched.group (5)))
+				if not summary_flag:
 
-	print ('Offloading distribution: ' + str (result))
+					matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+					if matched:
+						
+						summary_flag = True
+				else:
+
+					matched = re.search("Constraint violation distribution \(percentage\): {'(ED[^']*'): (\d+\.\d+), '(EC[^']*'): (\d+\.\d+)," + \
+ 					" '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}", line)
+
+					if matched:
+
+						result[ode_n][app_n]['ED'] = float (matched.group (2))
+						result[ode_n][app_n]['EC'] = float (matched.group (4))
+						result[ode_n][app_n]['ER'] = float (matched.group (6))
+						result[ode_n][app_n]['CD'] = float (matched.group (8))
+						result[ode_n][app_n]['MD'] = float (matched.group (10))
+
+	# print ('Constraint violation distribution: ' + str (result))
+
+	for app_n in app_names:
+
+		print (app_n + " constraint violations (in percentages)")
+
+		for ode_n in ode_names:
+
+			print (ode_n + ": " + str (result[ode_n][app_n]))
+
+		print ()
 
 
-def plot_dropping_rates ():
+def plot_average_deviations (regex, title):
 
-	# NAVIAR_TASKS = 100 * 8
 	app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
-	# mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
 	x = np.arange(len(app_n))
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
@@ -289,12 +308,12 @@ def plot_dropping_rates ():
 
 				else:
 
-					matched = re.search("Average task failure rate \(percentage\) is (\d+\.\d+)", line)
+					matched = re.search(regex, line)
 					
 					if matched:
 						
 						# casting parsed string into float
-						result[ode_n] = float (matched.group (1))
+						result[ode_n].append (float (matched.group (1)))
 
 
 	plt.rcParams.update({'font.size': 16})
@@ -308,7 +327,7 @@ def plot_dropping_rates ():
 	ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
 		align = 'center', label = 'MDP')
 
-	plt.ylabel('Task failure rate (%)')
+	plt.ylabel(title)
 	plt.xlabel("Offloading decision engine")
 	plt.xticks(x, app_n, fontsize = 16)
 	plt.legend()
@@ -373,12 +392,16 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	plt.show()
 
 # overhead_plot ()
-# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
-# print_distribution ()
+plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
+print_constraint_violation_distribution ()
 plot_offloading_distribution ()
 # plot_dropping_rates ()
+# regex = "Average task failure rate \(percentage\) is (\d+\.\d+)"
+# plot_average_deviations (regex, "Task failure rate")
+regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
+plot_average_deviations (regex, "Constraint violation rate")
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
