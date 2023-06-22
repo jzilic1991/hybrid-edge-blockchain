@@ -148,50 +148,78 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
 
 
 def plot_offloading_distribution():
-    plt.rcParams.update({'font.size': 16})
-    # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
-    offload_dist_dict = dict ()
+
+	plt.rcParams.update({'font.size': 16})
+	# key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
+	offload_dist_dict = dict ()
 	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
 	x = np.arange(len(app_names))
 	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
 	result = dict ()
-	regex_ex = "Offloading distribution (percentage): {'(ED.+)': (\d+\.\d+)," + \
-	"'(EC.+)': (\d+\.\d+)', '(ER.+)': (\d+\.\d+)'," + \
-	"'(CD.+)': (\d+\.\d+), '(MD.+)': (\d+\.\d+)}"
+	regex_ex = "Offloading distribution \(percentage\): {'(ED[^']*'): (\d+\.\d+), '(EC[^']*'): (\d+\.\d+)," + \
+	" '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
 
 	for ode_n in ode_names:
 		
-		result [ode_n] = list ()
-		
+		result [ode_n] = dict ()
 		for app_n in app_names:
 
+			result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
 			f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
-
+			summary_flag = False
 			for line in f.readlines ():
 
-				matched = re.search(regex_exp, line)
-				if matched:
+				if not summary_flag:
+
+					matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+					if matched:
+						
+						summary_flag = True
+				else:
+
+					matched = re.search(regex_ex, line)
+					if matched:
 					
-					result[ode_n].append (float (matched.group (1)))
+						result[ode_n][app_n]["ED"] = float (matched.group (2))
+						result[ode_n][app_n]["EC"] = float (matched.group (4))
+						result[ode_n][app_n]["ER"] = float (matched.group (6))
+						result[ode_n][app_n]["CD"] = float (matched.group (8))
+						result[ode_n][app_n]["MD"] = float (matched.group (10))
 
-    series_labels = ['MD', 'ER', 'ED', 'Cloud', 'EC']
-    color_labels = ['y', 'mediumslateblue', 'pink',  'lightyellow', 'slateblue']
+	# print (result) 
+	# exit ()
+	for app in app_names:
 
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
+		data = list ()
+		data.append ((result[ode_names[0]][app]["MD"], result[ode_names[1]][app]["MD"], \
+			result[ode_names[2]][app]["MD"], result[ode_names[3]][app]["MD"]))
+		data.append ((result[ode_names[0]][app]["ER"], result[ode_names[1]][app]["ER"], \
+			result[ode_names[2]][app]["ER"], result[ode_names[3]][app]["ER"]))
+		data.append ((result[ode_names[0]][app]["ED"], result[ode_names[1]][app]["ED"], \
+			result[ode_names[2]][app]["ED"], result[ode_names[3]][app]["ED"]))
+		data.append ((result[ode_names[0]][app]["CD"], result[ode_names[1]][app]["CD"], \
+			result[ode_names[2]][app]["CD"], result[ode_names[3]][app]["CD"]))
+		data.append ((result[ode_names[0]][app]["EC"], result[ode_names[1]][app]["EC"], \
+			result[ode_names[2]][app]["EC"], result[ode_names[3]][app]["EC"]))
 
-    stacked_bar(data,
-               series_labels,
-               color_labels,
-               category_labels = category_labels, 
-               show_values = True, 
-               value_format = "{:.2f}",
-               y_label = "Quantity (units)") 
+		series_labels = ['MD', 'ER', 'ED', 'CD', 'EC']
+		color_labels = ['y', 'mediumslateblue', 'pink', 'lightyellow', 'slateblue']
 
-    ax.set_xlabel('Offloading decision engines', fontsize = 16)
-    ax.set_ylabel('Distribution (%)', fontsize = 16)
-    ax.set_ylim(0, 102)
-        plt.show()
+		fig = plt.figure(figsize = (8, 6))
+		ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
+
+		stacked_bar(data,
+					series_labels,
+					color_labels,
+					category_labels = ode_names,
+					show_values = True, 
+					value_format = "{:.2f}",
+					y_label = "Quantity (units)") 
+
+		ax.set_xlabel('Offloading decision engines', fontsize = 16)
+		ax.set_ylabel('Distribution (%)', fontsize = 16)
+		ax.set_ylim(0, 102)
+		plt.show()
 
 
 def print_distribution ():
@@ -345,12 +373,12 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	plt.show()
 
 # overhead_plot ()
-plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
 # print_distribution ()
 plot_offloading_distribution ()
-plot_dropping_rates ()
+# plot_dropping_rates ()
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
