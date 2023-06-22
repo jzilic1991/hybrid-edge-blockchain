@@ -86,6 +86,114 @@ def plot_objective (regex_exp, y_axis_title, show):
 	plt.show()
 
 
+def stacked_bar(data, series_labels, color_labels, category_labels = None, 
+                show_values = False, value_format = "{}", y_label = None, 
+                grid = False, reverse = False):
+    """Plots a stacked bar chart with the data and labels provided.
+
+    Keyword arguments:
+    data            -- 2-dimensional numpy array or nested list
+                       containing data for each series in rows
+    series_labels   -- list of series labels (these appear in
+                       the legend)
+    category_labels -- list of category labels (these appear
+                       on the x-axis)
+    show_values     -- If True then numeric value labels will 
+                       be shown on each bar
+    value_format    -- Format string for numeric value labels
+                       (default is "{}")
+    y_label         -- Label for y-axis (str)
+    grid            -- If True display grid
+    reverse         -- If True reverse the order that the
+                       series are displayed (left-to-right
+                       or right-to-left)
+    """
+
+    ny = len(data[0])
+    ind = list(range(ny))
+
+    axes = []
+    cum_size = np.zeros(ny)
+
+    data = np.array(data)
+
+    if reverse:
+        data = np.flip(data, axis = 1)
+        category_labels = reversed(category_labels)
+
+    for i, row_data in enumerate(data):
+        axes.append(plt.bar(ind, row_data, bottom = cum_size, color = color_labels[i],
+                            label = series_labels[i]))
+        cum_size += row_data
+
+    if category_labels:
+        plt.xticks(ind, category_labels)
+
+    if y_label:
+        plt.ylabel(y_label)
+
+    plt.legend(bbox_to_anchor = (1.04,1), loc = "upper left", prop = {'size': 14}, framealpha = 1, frameon = True)
+
+    if grid:
+        plt.grid()
+
+    if show_values:
+        for axis in axes:
+            for bar in axis:
+                w, h = bar.get_width(), bar.get_height()
+                if h != 0.0:
+                    plt.text(bar.get_x() + w/2, bar.get_y() + h/2, 
+                             value_format.format(h), ha = "center", 
+                             va = "center")
+
+
+def plot_offloading_distribution():
+    plt.rcParams.update({'font.size': 16})
+    # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
+    offload_dist_dict = dict ()
+	app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
+	x = np.arange(len(app_names))
+	ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+	result = dict ()
+	regex_ex = "Offloading distribution (percentage): {'(ED.+)': (\d+\.\d+)," + \
+	"'(EC.+)': (\d+\.\d+)', '(ER.+)': (\d+\.\d+)'," + \
+	"'(CD.+)': (\d+\.\d+), '(MD.+)': (\d+\.\d+)}"
+
+	for ode_n in ode_names:
+		
+		result [ode_n] = list ()
+		
+		for app_n in app_names:
+
+			f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
+
+			for line in f.readlines ():
+
+				matched = re.search(regex_exp, line)
+				if matched:
+					
+					result[ode_n].append (float (matched.group (1)))
+
+    series_labels = ['MD', 'ER', 'ED', 'Cloud', 'EC']
+    color_labels = ['y', 'mediumslateblue', 'pink',  'lightyellow', 'slateblue']
+
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
+
+    stacked_bar(data,
+               series_labels,
+               color_labels,
+               category_labels = category_labels, 
+               show_values = True, 
+               value_format = "{:.2f}",
+               y_label = "Quantity (units)") 
+
+    ax.set_xlabel('Offloading decision engines', fontsize = 16)
+    ax.set_ylabel('Distribution (%)', fontsize = 16)
+    ax.set_ylim(0, 102)
+        plt.show()
+
+
 def print_distribution ():
 
 	# NAVIAR_TASKS = 100 * 8
@@ -241,6 +349,7 @@ plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (se
 plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", True)
 plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", True)
 # print_distribution ()
+plot_offloading_distribution ()
 plot_dropping_rates ()
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
