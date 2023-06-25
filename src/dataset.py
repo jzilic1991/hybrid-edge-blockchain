@@ -102,7 +102,7 @@ class DatasetNode:
 
 	def get_avail (cls):
 
-		return cls._avail
+		return round (cls._avail / 100, 2)
 
 
 	def get_intervals (cls):

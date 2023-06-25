@@ -306,11 +306,15 @@ def plot_average_deviations (regex, title):
 						
 						summary_flag = True
 
+					if app == MobApps.NAVIAR and matched:
+
+						result[ode_n].append (float (matched.group (1)))
+
 				else:
 
 					matched = re.search(regex, line)
 					
-					if matched:
+					if matched and app != MobApps.NAVIAR:
 						
 						# casting parsed string into float
 						result[ode_n].append (float (matched.group (1)))
@@ -391,17 +395,17 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	
 	plt.show()
 
-# overhead_plot ()
-plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
-print_constraint_violation_distribution ()
-plot_offloading_distribution ()
+# # overhead_plot ()
+# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# print_constraint_violation_distribution ()
+# plot_offloading_distribution ()
 # plot_dropping_rates ()
 # regex = "Average task failure rate \(percentage\) is (\d+\.\d+)"
 # plot_average_deviations (regex, "Task failure rate")
 regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
-plot_average_deviations (regex, "Constraint violation rate")
+plot_average_deviations (regex, "Violation rate (percentage)")
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 # plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)

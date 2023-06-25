@@ -54,6 +54,11 @@ class OffloadingSite:
         return cls._dataset_node.is_avail_or_not (t)
 
 
+    def get_avail (cls):
+
+        return cls._dataset_node.get_avail ()
+
+
     def print_system_config(cls):
         
         print ("################### " + cls._name_id  +" SYSTEM CONFIGURATION ###################", file = sys.stdout)
