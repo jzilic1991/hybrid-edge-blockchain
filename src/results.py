@@ -396,11 +396,11 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	plt.show()
 
 # # overhead_plot ()
-# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
 # print_constraint_violation_distribution ()
-# plot_offloading_distribution ()
+plot_offloading_distribution ()
 # plot_dropping_rates ()
 # regex = "Average task failure rate \(percentage\) is (\d+\.\d+)"
 # plot_average_deviations (regex, "Task failure rate")

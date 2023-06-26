@@ -96,9 +96,9 @@ class OffloadingSite:
 
     def get_reputation (cls):
 
-        if cls._node_type == NodeTypes.MOBILE:
+        # if cls._node_type == NodeTypes.MOBILE:
             
-            return 1.0
+        #     return 1.0
         
         return cls._reput
 

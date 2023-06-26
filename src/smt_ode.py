@@ -15,7 +15,7 @@ class SmtOde (OffloadingDecisionEngine):
 
         super().__init__(name, curr_n, md, app_name, con_delay, scala)
         self._activate = activate
-        self._k = 5
+        self._k = 4
 
 
     def offloading_decision(cls, task, metrics, timestamp, app_name, qos):
