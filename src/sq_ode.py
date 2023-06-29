@@ -16,7 +16,7 @@ class SqOde (OffloadingDecisionEngine):
         super().__init__(name, curr_n, md, app_name, con_delay, scala)
 
 
-    def offloading_decision(cls, task, metrics, timestamp, app_name, qos):
+    def offloading_decision(cls, task, metrics, timestamp, app_name, constr, qos):
 
         k = cls._k
 

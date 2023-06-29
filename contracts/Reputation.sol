@@ -45,7 +45,7 @@ contract Reputation {
 		nodeId++;
 		nodeCount++;
 		reputationSystem[nodeId].name = _name;
-		reputationSystem[nodeId].value = BASE;
+		reputationSystem[nodeId].value = 500;
 		reputationSystem[nodeId].valid = true;
 
 		emit NodeRegistered (nodeId, reputationSystem[nodeId].name, reputationSystem[nodeId].value,
@@ -144,7 +144,7 @@ contract Reputation {
 
 		for (uint i = 0; i < _id.length; i++) {
 
-			reputationSystem[_id[i]].value = 1000;
+			reputationSystem[_id[i]].value = 500;
 			response[i] = Response (_id[i], reputationSystem[_id[i]].value);
 
 		}

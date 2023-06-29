@@ -40,7 +40,7 @@ class Settings:
     K = 3
     EXECUTIONS = 100
     SAMPLES = 100
-    NUM_LOCS = 4
+    NUM_LOCS = 5
 
 
 class Testnets:

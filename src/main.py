@@ -179,7 +179,7 @@ elif sys.argv[1] == 'mobiar':
     edge_off.deploy_sq_ode ()
     edge_off.start ()
 
-   experiment_run ()
+    experiment_run ()
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
         MobApps.MOBIAR, 0, 1, Settings.NUM_LOCS)
     edge_off.deploy_mdp_ode ()
@@ -196,7 +196,7 @@ if sys.argv[1] == 'naviar':
 
    experiment_run ()
     
-    for i in [2,4,8,16,32]:
+   # for i in [2,4,8,16,32]:
    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
        MobApps.NAVIAR, 0, 1, Settings.NUM_LOCS)
    edge_off.deploy_smt_ode ()

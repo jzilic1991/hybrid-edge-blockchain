@@ -1,7 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 
-from util import Settings
+from util import Settings, NodePrototypes
 from stats import Stats
 from cell_stats import CellStats
 from logger import Logger
@@ -103,7 +103,17 @@ class OffloadingDecisionEngine(ABC):
 
         # check does offloading site history statistics exists
         cls.__check_off_sites (off_sites)
-    
+
+        # find edge site for timing deadine constraint
+        constr = None
+        for site in off_sites:
+
+            if site.get_node_prototype () == NodePrototypes.ED or \
+                site.get_node_prototype () == NodePrototypes.EC or \
+                site.get_node_prototype () == NodePrototypes.ER:
+
+                constr = site.get_constr (app_name)
+
         for task in tasks:
 
             t_rsp_time = 0.0
@@ -115,7 +125,8 @@ class OffloadingDecisionEngine(ABC):
 
             while True:
 
-                cand_n, values = cls.offloading_decision (task, metrics, timestamp, app_name, qos)
+                cand_n, values = cls.offloading_decision (task, metrics, timestamp, app_name, \
+                    constr, qos)
 
                 cls._off_dist_hist[cand_n.get_n_id ()] = \
                     cls._off_dist_hist[cand_n.get_n_id ()] + 1
