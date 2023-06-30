@@ -4,11 +4,11 @@ Node: Edge Regular Server, id:f260d2cdbc3f5faee391a9fbdfc9d76c, avail: 100.0%, i
 Node: Cloud Data Center, id:b77683751fe903fd3fdd3f5c5ca62f80, avail: 100.0%, intervals: 1
 Node: Mobile Device, id:b77683751fe903fd3fdd3f5c5ca62f80, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 9.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 49.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 1.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 1.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 41.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 6.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 53.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 1.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 40.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
 Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 41.18}
-Average constraint violation rate (percentage) is 8.235
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 45.0}
+Average constraint violation rate (percentage) is 9.0
 
 Node: Edge Database Server, id:b21716a8105a9257b26628fb4cc4e1a9, avail: 12.53%, intervals: 57
 Node: Edge Computational Server, id:56d2edb54a2206d976d8be757ce5625d, avail: 77.9%, intervals: 9
@@ -16,11 +16,11 @@ Node: Edge Regular Server, id:81a4625f21658cb00210b85d2d336794, avail: 89.82%, i
 Node: Cloud Data Center, id:ddc6fdb04549b110508bec392dbdce37, avail: 99.06%, intervals: 2
 Node: Mobile Device, id:a72cc49accf5dfb80f89e0937c2a6c19, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 7.000000000000001, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 44.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 2.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 47.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
-Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 28.79}
-Average constraint violation rate (percentage) is 5.758
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 5.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 32.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 18.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 4.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 41.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 21.76, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 3.56, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
+Average task failure rate (percentage) is 5.214
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 6.88, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 15.44, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 46.98}
+Average constraint violation rate (percentage) is 13.46
 
 Node: Edge Database Server, id:f81fb4424fa068a2e918790c86896c30, avail: 85.76%, intervals: 4
 Node: Edge Computational Server, id:8ce1c619ecb64740210fb9b4a302e6b1, avail: 65.05%, intervals: 10
@@ -28,11 +28,11 @@ Node: Edge Regular Server, id:78b0ab611a2fc06e38710c715fcfc0a0, avail: 60.84%, i
 Node: Cloud Data Center, id:b57b9ffc75f00a55c5750c51f40b56bd, avail: 99.7%, intervals: 7
 Node: Mobile Device, id:0efd3e2b98628554e0067d3acbc1a7e7, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 49.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 6.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 46.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
-Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 3.53}
-Average constraint violation rate (percentage) is 0.706
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 31.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 17.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 10.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 2.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 40.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 1.17, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 2.85, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 4.47, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
+Average task failure rate (percentage) is 2.337
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 19.61, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 25.88}
+Average constraint violation rate (percentage) is 8.312
 
 Node: Edge Database Server, id:1da3c1339ef12cbe7b7ca51731cf62f2, avail: 100.0%, intervals: 1
 Node: Edge Computational Server, id:eba909d6833889e9d3ad470e47176d2a, avail: 84.49%, intervals: 9
@@ -40,11 +40,11 @@ Node: Edge Regular Server, id:71b99ade327e9f02d44bfa062a84a9ce, avail: 12.65%, i
 Node: Cloud Data Center, id:af79f51f760e54151db78b8b375f1f77, avail: 99.68%, intervals: 4
 Node: Mobile Device, id:769e4b43ad4d62f23a457fffe6ed22c8, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 60.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 40.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 35.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 23.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 1.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 40.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
 Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
-Average constraint violation rate (percentage) is 0.0
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 20.82}
+Average constraint violation rate (percentage) is 4.165
 
 Node: Edge Database Server, id:cb6ae4673e4fb789d8d2d9c5444d231d, avail: 71.98%, intervals: 4
 Node: Edge Computational Server, id:3d23eb7cf9c255e77e90546b29383abd, avail: 33.23%, intervals: 34
@@ -52,21 +52,33 @@ Node: Edge Regular Server, id:0436c8571aa23d3277876da596b71865, avail: 9.33%, in
 Node: Cloud Data Center, id:a72cc49accf5dfb80f89e0937c2a6c19, avail: 100.0%, intervals: 1
 Node: Mobile Device, id:bada42c42bbea7b3adf3d67bc718e33a, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 43.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 4.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 2.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 50.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
-Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 4.76}
-Average constraint violation rate (percentage) is 0.952
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 36.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 14.000000000000002, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 2.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 6.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 42.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 5.57, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 14.63, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 71.48, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
+Average task failure rate (percentage) is 17.496
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 11.79, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 28.91, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 15.83}
+Average constraint violation rate (percentage) is 11.298
 
-After 100 samples, average is 30.36 s
-After 100 samples, average is 22.39 J
-After 100 samples, average is 128.74 monetary units
-After 100 samples, average is 97.76 % of energy remains
-After 100 samples, average is 32.14 QoS violations
+Node: Edge Database Server, id:dd52cabf6738a69917a649c34c5b26d5, avail: 100.0%, intervals: 1
+Node: Edge Computational Server, id:8b45b1d4ecf0323c4a43baef33d13c8d, avail: 79.94%, intervals: 2
+Node: Edge Regular Server, id:adc9ef8cbde4f174ab85d1128091aed2, avail: 100.0%, intervals: 1
+Node: Cloud Data Center, id:0efd3e2b98628554e0067d3acbc1a7e7, avail: 100.0%, intervals: 1
+Node: Mobile Device, id:cd09f9ac9c679badb0d2449cb7eedd79, avail: 100.0%, intervals: 1
 
-Offloading distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 40.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 14.000000000000002, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 1.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 46.0}
-Offloading failure distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 0.0}
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 23.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 20.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 17.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 40.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
 Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'EDd94e9410-0202-4d4b-8a98-d9704be768e5': 0.0, 'EC7b6f271a-6268-4121-a37f-4bdbd5c83c5c': 0.0, 'ER2b583abe-7ce0-49ce-929a-d84d5151e607': 0.0, 'CDf5bb739a-354d-4c7a-8500-e312a840b987': 0.0, 'MD25fffd8a-3a3c-4336-92a9-19ba4d4b7249': 9.69}
-Average constraint violation rate (percentage) is 1.872
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 0.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 35.78}
+Average constraint violation rate (percentage) is 7.157
+
+After 100 samples, average is 50.57 s
+After 100 samples, average is 38.37 J
+After 100 samples, average is 123.41 monetary units
+After 100 samples, average is 96.16 % of energy remains
+After 100 samples, average is 8.47 QoS violations
+
+Offloading distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 26.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 21.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 10.0, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 2.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 41.0}
+Offloading failure distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 2.67, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 3.51, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 4.68, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 0.0, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 0.0}
+Average task failure rate (percentage) is 5.01
+Constraint violation distribution (percentage): {'ED0c7d5705-8917-4549-aeec-d8031b3dd79e': 0.0, 'EC30a28669-9830-4762-830b-7d1f605ab86c': 0.0, 'ER3903eb55-7d48-4c72-a799-11cd5e6625ff': 3.23, 'CD42137cef-cb15-4a37-ad1d-765e50bd8414': 23.05, 'MD3e63da03-6d42-4baa-a0ae-2c076f8fd1e3': 28.94}
+Average constraint violation rate (percentage) is 8.882
 
