@@ -78,6 +78,10 @@ def plot_objective (regex_exp, y_axis_title, show):
 	plt.ylabel(y_axis_title)
 	#plt.title('Average response time')
 	plt.xticks(x, app_names, fontsize = 16)
+
+	if y_axis_title == "Battery lifetime (%)":
+
+		ax.set_ylim (90, 100)
 	
 	# showing legend on the figure or not
 	if show:
@@ -203,7 +207,7 @@ def plot_offloading_distribution():
 			result[ode_names[2]][app]["EC"], result[ode_names[3]][app]["EC"]))
 
 		series_labels = ['MD', 'ER', 'ED', 'CD', 'EC']
-		color_labels = ['y', 'mediumslateblue', 'pink', 'lightyellow', 'slateblue']
+		color_labels = ['lightgreen', 'lightblue', 'lightpink', 'yellow', 'lavender']
 
 		fig = plt.figure(figsize = (8, 6))
 		ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
@@ -216,7 +220,7 @@ def plot_offloading_distribution():
 					value_format = "{:.2f}",
 					y_label = "Quantity (units)") 
 
-		ax.set_title (app + " application")
+		# ax.set_title (app + " application")
 		ax.set_xlabel('Offloading decision engines', fontsize = 16)
 		ax.set_ylabel('Distribution (%)', fontsize = 16)
 		ax.set_ylim(0, 102)
@@ -292,33 +296,15 @@ def plot_average_deviations (regex, title):
 		for app in app_n:
 
 			f = open("results/sim_traces_" + ode_n + "_" + app + '.txt')
-			
-			# reset the flag when reading a next file
-			summary_flag = False
 
 			for line in f.readlines ():
 
-				if not summary_flag:
+				matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", \
+					line)
 
-					matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+				if matched:
 
-					if matched:
-						
-						summary_flag = True
-
-					if app == MobApps.NAVIAR and matched:
-
-						result[ode_n].append (float (matched.group (1)))
-
-				else:
-
-					matched = re.search(regex, line)
-					
-					if matched and app != MobApps.NAVIAR:
-						
-						# casting parsed string into float
-						result[ode_n].append (float (matched.group (1)))
-
+					result[ode_n].append (float (matched.group (1)))
 
 	plt.rcParams.update({'font.size': 16})
 	ax = plt.subplot(111)
@@ -395,17 +381,14 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 	
 	plt.show()
 
-# # overhead_plot ()
-plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# overhead_plot ()
+# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', \
+# 	True)
+plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", \
+	False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", \
+# 	False)
 # print_constraint_violation_distribution ()
-plot_offloading_distribution ()
-# plot_dropping_rates ()
-# regex = "Average task failure rate \(percentage\) is (\d+\.\d+)"
-# plot_average_deviations (regex, "Task failure rate")
+# plot_offloading_distribution ()
 regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
-plot_average_deviations (regex, "Violation rate (percentage)")
-# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-# plot_objective_with_mal ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+plot_average_deviations (regex, "Deadline violation rate (%)")

@@ -49,6 +49,11 @@
             "id": "9f12258055ce1b139f9da185eedd9134",
             "avail": 94.26,
             "ints": 6
+        },
+        {
+            "id": "85fb0c1a530a0f810f5415932df384f2", 
+            "avail": 61.0, 
+            "ints": 39
         }
     ],
     "ED": [
@@ -100,6 +105,11 @@
         {
             "id": "ce2a303e72f64dfb929d7f6609fc76ff",
             "avail": 98.22,
+            "ints": 8
+        },
+        {
+            "id": "3682cc3a3dcdee026d89a042904934a1", 
+            "avail": 57.0, 
             "ints": 8
         }
     ],
@@ -153,6 +163,11 @@
             "id": "504c072d330a2873b8139acf8d13d62b",
             "avail": 36.1,
             "ints": 21
+        },
+        {
+            "id": "caf78495f82342f73fb947d8cf2f4cbc", 
+            "avail": 39.0, 
+            "ints": 12
         }
     ],
     "CD": [
@@ -205,6 +220,11 @@
             "id": "d76692c91fe7b8f87044d9486852ead2",
             "avail": 99.48,
             "ints": 8
+        },
+        {   
+            "id": "bcb9ff0f8604c4f94629ecfcd162b68f", 
+            "avail": 99.0, 
+            "ints": 8
         }
     ],
     "MD": [
@@ -256,6 +276,11 @@
         {
             "id": "7a9207ff669bbcde97bf0ccff184a1bf",
             "avail": 100.0,
+            "ints": 1
+        },
+        {
+            "id": "8f46832951c15840d16f4bc2e5b2457a", 
+            "avail": 100.0, 
             "ints": 1
         }
     ]

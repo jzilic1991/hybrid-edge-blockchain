@@ -63,7 +63,7 @@
 	},
 	"MOBIAR": {
 		"qos": {
-			"rt": 0.5
+			"rt": 0.45
 		},
 		"tasks": {
 			"UPLOAD": {

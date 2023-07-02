@@ -17,15 +17,15 @@ for d in data:
 
 	if d == NodePrototypes.CD:
 
-		nodes = LoadedData.get_nodes_above_thr (99.0, 10)
+		nodes = LoadedData.get_nodes_above_thr (99.0, 11)
 
 	elif d == NodePrototypes.MD:
 
-		nodes = LoadedData.get_nodes_above_thr (100.0, 10)
+		nodes = LoadedData.get_nodes_above_thr (100.0, 11)
 
 	else:
 
-		nodes = LoadedData.get_random_dataset_nodes (10)
+		nodes = LoadedData.get_random_dataset_nodes (11)
 
 	for n in nodes:
 
