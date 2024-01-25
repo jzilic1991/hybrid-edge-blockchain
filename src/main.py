@@ -124,7 +124,7 @@ cached_trx = list ()
 update_thread = False
 req_q, rsp_q = Queue (), Queue ()
 
-chain = ChainHandler (Testnets.TRUFFLE)
+chain = ChainHandler (Testnets.GANACHE)
 chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':

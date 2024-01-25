@@ -10,6 +10,7 @@ class OffloadingSite:
 
     def __init__(self, p_id, data):
 
+        
         self._name_id = p_id + str (uuid.uuid4 ())
         self._p_id = p_id
         self._mips = data['mips']

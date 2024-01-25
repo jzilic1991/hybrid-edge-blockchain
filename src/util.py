@@ -39,7 +39,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     EXECUTIONS = 100
-    SAMPLES = 100
+    SAMPLES = 1
     NUM_LOCS = 10
 
 
@@ -53,7 +53,7 @@ class PrivateKeys:
 
 	TRUFFLE, GANACHE = \
 		('73da343c609ec75ba846091a38970e4e57566beae9f328f375c67a90a308edbf', \
-			'0x389496993f10af5a7c4b0af6310b09877894f5b26556b4016aafd3b345fe8f18')
+      '0x5c7a050c7b0e3a6896e9667a6dff3a6b389c665aaed218c352071890c05520ee')
 
 
 class ExeErrCode:

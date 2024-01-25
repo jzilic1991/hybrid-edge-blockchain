@@ -177,7 +177,7 @@ class SmtOde (OffloadingDecisionEngine):
 
         min_score = math.inf
         site = None
-
+        
         for key, value in metrics.items ():
 
             if value['score'] < min_score and key.avail_or_not (timestamp):
