@@ -4,6 +4,7 @@ import random
 from off_site import OffloadingSite
 from util import NodeTypes, Util, NodePrototypes, AvailabilityModes
 from dataset import LoadedData
+from edge_queue import EdgeQueue
 
 
 class ResourceMonitor:
@@ -21,6 +22,12 @@ class ResourceMonitor:
         self._curr_cell = ""
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
+        self._task_off_queue = EdgeQueue (1000)
+
+
+    def get_task_off_queue (cls):
+
+      return cls._task_off_queue
 
 
     def get_topology (cls):

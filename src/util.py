@@ -45,14 +45,14 @@ class Settings:
 
 class Testnets:
 
-	KOVAN, ROPSTEN, RINKEBY, GOERLI, TRUFFLE, GANACHE = \
-		('kovan', 'ropsten', 'rinkeby', 'goerli', 'truffle', 'ganache')
+  KOVAN, ROPSTEN, RINKEBY, GOERLI, TRUFFLE, GANACHE = \
+    ('kovan', 'ropsten', 'rinkeby', 'goerli', 'truffle', 'ganache')
 
 
 class PrivateKeys:
 
-	TRUFFLE, GANACHE = \
-		('73da343c609ec75ba846091a38970e4e57566beae9f328f375c67a90a308edbf', \
+  TRUFFLE, GANACHE = \
+    ('73da343c609ec75ba846091a38970e4e57566beae9f328f375c67a90a308edbf', \
       '0x5c7a050c7b0e3a6896e9667a6dff3a6b389c665aaed218c352071890c05520ee')
 
 
@@ -126,7 +126,7 @@ class AvailabilityModes:
 class Objective:
     
     def __init__ (self, execution, downlink, uplink, task_overall):
-        
+   
         self._execution = round (execution, 3)
         self._downlink = round (downlink, 3)
         self._uplink = round (uplink, 3)

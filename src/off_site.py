@@ -1,6 +1,7 @@
 import sys
 import random
 import uuid
+import numpy as np
 
 from util import Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps
 from task import Task
@@ -9,7 +10,6 @@ from task import Task
 class OffloadingSite:
 
     def __init__(self, p_id, data):
-
         
         self._name_id = p_id + str (uuid.uuid4 ())
         self._p_id = p_id
@@ -219,6 +219,25 @@ class OffloadingSite:
                     "Gb, data storage consumption: " + str(cls._stor_consum) + \
                     "Gb, both should be positive! Node: " + cls._name + ", task: " + \
                     task.get_name())
+
+    def gen_workload (cls, pois_rate, exp_rate):
+
+      # workload is generated only by mobile devices, otherwise workload is zero
+      if cls._node_type == NodeTypes.MOBILE:
+
+        return cls.__gen_task_size (exp_rate) * cls.__gen_numb_of_tasks (pois_rate)
+
+      return 0.0
+
+
+    def __gen_task_size (cls, exp_rate):
+
+      return random.expovariate (exp_rate)
+
+
+    def __gen_numb_of_tasks (cls, pois_rate):
+
+      return np.random.poisson (lam = pois_rate)
 
 
 class Constraints:

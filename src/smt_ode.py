@@ -85,7 +85,6 @@ class SmtOde (OffloadingDecisionEngine):
         # append tuple (Bool, OffloadingSite) to list
         # b_sites.append ((Bool (site.get_n_id ()), site) for site in sites)
         # print ([metrics[b[1]]['score'] for b in b_sites])
-
         s.add (Or ([b[0] for b in b_sites]))
         s.add ([Implies (b[0] == True, \
                 And (metrics[b[1]]['rt'] <= qos['rt'], \
