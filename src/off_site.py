@@ -220,14 +220,10 @@ class OffloadingSite:
                     "Gb, both should be positive! Node: " + cls._name + ", task: " + \
                     task.get_name())
 
+
     def gen_workload (cls, pois_rate, exp_rate):
 
-      # workload is generated only by mobile devices, otherwise workload is zero
-      if cls._node_type == NodeTypes.MOBILE:
-
-        return cls.__gen_task_size (exp_rate) * cls.__gen_numb_of_tasks (pois_rate)
-
-      return 0.0
+      return cls.__gen_task_size (exp_rate) * cls.__gen_numb_of_tasks (pois_rate)
 
 
     def __gen_task_size (cls, exp_rate):
