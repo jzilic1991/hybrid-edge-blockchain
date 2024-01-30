@@ -147,10 +147,15 @@ class Objective:
         
         return cls._uplink
 
-
     def get_overall (cls):
         
         return cls._task_overall
+
+    # addition operator override
+    def __add__ (cls, other):
+
+        return ResponseTime (cls._execution + other.get_execution (), cls._downlink + other.get_downlink (), \
+          cls._uplink + other.get_uplink (), cls._task_overall + other.get_overall ())
 
 
 class ResponseTime (Objective):
@@ -167,24 +172,40 @@ class EnergyConsum (Objective):
 class Util (object):
 
     @classmethod
+    def is_remote (cls, node_type):
+
+      if node_type != NodeTypes.MOBILE:
+
+        return True
+
+      return False
+
+
+    @classmethod
     def determine_name_and_action (cls, offloading_site_code):
     
         if offloading_site_code == OffloadingSiteCode.EDGE_DATABASE_SERVER:
+            
             return OffloadingActions.EDGE_DATABASE_SERVER
 
         elif offloading_site_code == OffloadingSiteCode.EDGE_COMPUTATIONAL_INTENSIVE_SERVER:
+            
             return OffloadingActions.EDGE_COMPUTATIONAL_INTENSIVE_SERVER
 
         elif offloading_site_code == OffloadingSiteCode.EDGE_REGULAR_SERVER:
+            
             return OffloadingActions.EDGE_REGULAR_SERVER
 
         elif offloading_site_code == OffloadingSiteCode.CLOUD_DATA_CENTER:
+            
             return OffloadingActions.CLOUD_DATA_CENTER
 
         elif offloading_site_code == OffloadingSiteCode.MOBILE_DEVICE:
+            
             return OffloadingActions.MOBILE_DEVICE
 
         else:
+            
             raise ValueError ("Offloading site code is invalid! (" + str(offloading_site_code) + ")")
 
     @classmethod

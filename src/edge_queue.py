@@ -1,9 +1,9 @@
 import math
 from abc import ABC, abstractmethod
 
-from util import ResponseTime, Settings
+from util import ResponseTime, Settings, Util
 
-
+# Template method pattern
 class EdgeQueue (ABC):
 
   def __init__ (self, total):
@@ -14,19 +14,33 @@ class EdgeQueue (ABC):
     self._latency = 0.0
 
 
-  def arrival (cls, mds, group):
+  def arrival (cls, sites, group):
 
     cls._workload = 0.0
     workloads = list ()
 
-    # compute complete workload of all mobile devices
-    for md in mds:
+    # remote nodes generate workloads for task execution or task delivery
+    if group:
+        
+      for site in sites:
 
-      workloads.append (md.gen_workload (2, 3))
+        if Util.is_remote (site.get_node_type ()):
+          
+          print ("Remote " + site.get_node_prototype ())
+          workloads.append (site.gen_workload (2, 3))
+    
+    # mobile workload generation
+    else:
+      
+      for site in sites:
 
+        if not Util.is_remote (site.get_node_type ()):
+
+          print ("Mobile " + site.get_node_prototype ())
+          workloads.append (site.gen_workload (2, 3))
+
+    # sum all workloads and compute current utlization factor 
     cls._workload = sum (workloads)
-
-    # compute utilization factor
     cls._est_util (workloads)
 
   

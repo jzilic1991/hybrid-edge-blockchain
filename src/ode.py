@@ -89,7 +89,8 @@ class OffloadingDecisionEngine(ABC):
         cls._curr_app_time = 0.0
 
 
-    def offload (cls, tasks, off_sites, topology, timestamp, app_name, qos, task_off_queue, task_del_queue):
+    def offload (cls, tasks, off_sites, topology, timestamp, app_name, qos, \
+      task_off_queue, task_del_queue):
 
         if cls._BL <= 0.0:
 
@@ -121,7 +122,7 @@ class OffloadingDecisionEngine(ABC):
             t_price = 0.0
 
             metrics = cls.__compute_metrics (task, off_sites, \
-                cls._curr_n, topology, task_off_queue)
+                cls._curr_n, topology, task_off_queue, task_del_queue)
 
             while True:
 
@@ -270,21 +271,22 @@ class OffloadingDecisionEngine(ABC):
         return (max_rsp_time, acc_e_consum, acc_price)
 
 
-    def __compute_metrics (cls, task, off_sites, curr_n, topology, task_off_queue):
+    def __compute_metrics (cls, task, off_sites, curr_n, topology, task_off_queue, task_del_queue):
         
         metrics = dict ()
 
         for cand_n in off_sites:
             
             (rsp_time, e_consum, price) = cls.__compute_objectives (task, off_sites, cand_n, \
-                curr_n, topology, task_off_queue)
+                curr_n, topology, task_off_queue, task_del_queue)
             metrics[cand_n] = {'rt': rsp_time, 'ec': e_consum, 'pr': price}
 
         # return cls.__compute_score (metrics)
         return metrics
 
 
-    def __compute_objectives (cls, task, off_sites, cand_n, curr_n, topology, task_off_queue, task_off_del_queue):
+    def __compute_objectives (cls, task, off_sites, cand_n, curr_n, topology, \
+      task_off_queue, task_del_queue):
         
         # t_rsp_time = Model.task_rsp_time (task, cand_n, curr_n, topology)
         # false flag is for mobile workload while true flag is for remote workload 
