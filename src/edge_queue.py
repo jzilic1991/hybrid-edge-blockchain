@@ -1,47 +1,20 @@
 import math
 from abc import ABC, abstractmethod
 
-from util import ResponseTime, Settings, Util
+from util import ResponseTime, Settings, Util, CommDirection
+
+
 
 # Template method pattern
 class EdgeQueue (ABC):
 
-  def __init__ (self, total):
+  def __init__ (self, total, direction):
 
     self._total = total
     self._util = 0.0
     self._workload = 0.0
     self._latency = 0.0
-
-
-  def arrival (cls, sites, group):
-
-    cls._workload = 0.0
-    workloads = list ()
-
-    # remote nodes generate workloads for task execution or task delivery
-    if group:
-        
-      for site in sites:
-
-        if Util.is_remote (site.get_node_type ()):
-          
-          print ("Remote " + site.get_node_prototype ())
-          workloads.append (site.gen_workload (2, 3))
-    
-    # mobile workload generation
-    else:
-      
-      for site in sites:
-
-        if not Util.is_remote (site.get_node_type ()):
-
-          print ("Mobile " + site.get_node_prototype ())
-          workloads.append (site.gen_workload (2, 3))
-
-    # sum all workloads and compute current utlization factor 
-    cls._workload = sum (workloads)
-    cls._est_util (workloads)
+    self._direction = direction
 
   
   def get_utilization (cls):
@@ -59,6 +32,17 @@ class EdgeQueue (ABC):
 
   def _est_util (cls, workloads):
 
+    util = 0.0
+
+    for w in workloads:
+
+      util += w / cls._total
+
+    cls._util = util
+
+  
+  def arrival (cls):
+
     pass
 
 
@@ -72,17 +56,32 @@ class EdgeQueue (ABC):
     pass
 
 
+
+
 class CommQueue (EdgeQueue):
   
-  def _est_util (cls, workloads):
+  def arrival (cls, infra):
 
-    util = 0.0
+    cls._workload = 0.0
+    workloads = list ()
 
-    for w in workloads:
+    for site in infra:
+        
+      # remote nodes generate workloads for task execution or task delivery
+      if cls._direction == CommDirection.DOWNLINK \
+        and Util.is_remote (site.get_node_type ()):
+          
+        workloads.append (site.gen_workload (2, 3))
 
-      util += w / cls._total
+        # mobile workload
+      elif cls._direction == CommDirection.UPLINK \
+        and not Util.is_remote (site.get_node_type ()):
+          
+        workloads.append (site.gen_workload (2, 3))
 
-    cls._util = util
+    # sum all workloads and compute current utlization factor 
+    cls._workload = sum (workloads)
+    cls._est_util (workloads)
 
 
   def _est_wait_time (cls):
@@ -95,3 +94,24 @@ class CommQueue (EdgeQueue):
     avail = cls._total - cls._util
 
     return task.get_data_in () / (avail * math.log (1 + Settings.SNR, 2))
+
+
+
+
+class CompQueue (EdgeQueue):
+
+  # infra should be only a single device
+  def arrival (cls, infra):
+
+    # argument be placed in a list
+    cls._est_util ([infra.gen_workload (2, 3)]) 
+
+
+  def _est_wait_time (cls):
+
+    return cls._workload / (1 - cls._util)
+
+
+  def _est_srv_time (cls, task):
+
+    return task.get_mi () / cls._total      

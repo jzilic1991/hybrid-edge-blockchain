@@ -2,7 +2,7 @@ import json
 import random
 
 from off_site import OffloadingSite
-from util import NodeTypes, Util, NodePrototypes, AvailabilityModes
+from util import NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection
 from dataset import LoadedData
 from edge_queue import CommQueue
 
@@ -22,8 +22,8 @@ class ResourceMonitor:
         self._curr_cell = ""
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
-        self._task_off_queue = CommQueue (1000)
-        self._task_del_queue = CommQueue (1000)
+        self._task_off_queue = CommQueue (1000, CommDirection.UPLINK)
+        self._task_del_queue = CommQueue (1000, CommDirection.DOWNLINK)
 
 
     def get_task_off_queue (cls):

@@ -5,6 +5,7 @@ import numpy as np
 
 from util import Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps
 from task import Task
+from edge_queue import CompQueue
 
 
 class OffloadingSite:
@@ -32,8 +33,19 @@ class OffloadingSite:
         self._off_action = Util.determine_name_and_action (self._off_site_code)
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
+        self._task_exe_queue = CompQueue (1000, None)
         
         # self.print_system_config()
+
+    def arrival (cls):
+
+      cls._task_exe_queue.arrival (cls) 
+
+
+    def est_latency (cls, task):
+
+      return cls._task_exe_queue.est_latency (task)
+
 
     def get_constr (cls, app_name):
 
@@ -194,6 +206,7 @@ class OffloadingSite:
                 
             raise ValueError("Task execution operation is not executed properly! Please check the code of execute() method in Task class!")
 
+        # consumption update
         cls._cpu_consum = cls._cpu_consum + (task.get_mi () / (cls._cores * cls._mips))
         cls._stor_consum = cls._stor_consum + \
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)

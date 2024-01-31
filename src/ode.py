@@ -271,7 +271,8 @@ class OffloadingDecisionEngine(ABC):
         return (max_rsp_time, acc_e_consum, acc_price)
 
 
-    def __compute_metrics (cls, task, off_sites, curr_n, topology, task_off_queue, task_del_queue):
+    def __compute_metrics (cls, task, off_sites, curr_n, topology, task_off_queue, \
+      task_del_queue):
         
         metrics = dict ()
 
@@ -289,10 +290,12 @@ class OffloadingDecisionEngine(ABC):
       task_off_queue, task_del_queue):
         
         # t_rsp_time = Model.task_rsp_time (task, cand_n, curr_n, topology)
-        # false flag is for mobile workload while true flag is for remote workload 
-        task_off_queue.arrival (off_sites, False)
-        task_del_queue.arrival (off_sites, True)
-        t_rsp_time = task_off_queue.est_latency (task) + task_del_queue.est_latency (task)
+        task_off_queue.arrival (off_sites)
+        task_del_queue.arrival (off_sites)
+        # task execution queue is within offloading site class instance
+        cand_n.arrival ()
+        t_rsp_time = task_off_queue.est_latency (task) + cand_n.est_latency (task) + \
+          task_del_queue.est_latency (task)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 

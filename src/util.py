@@ -21,6 +21,11 @@ class PowerConsum:
     IDLE = 0.3
 
 
+class CommDirection:
+  
+  DOWNLINK, UPLINK = range(2)
+
+
 class Prices:
 
     STOR_PER_GB = 0.023 # american dollars (Google Cloud Storage for Central Europe [Warsaw])

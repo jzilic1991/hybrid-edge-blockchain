@@ -155,7 +155,7 @@ if sys.argv[1] == 'intra':
     # edge_off.deploy_mdp_ode ()
     # edge_off.start ()
 
-    experiment_run ()
+    # experiment_run ()
 
 
 elif sys.argv[1] == 'mobiar':
