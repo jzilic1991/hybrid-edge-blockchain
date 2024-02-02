@@ -10,7 +10,7 @@ from edge_queue import CompQueue
 
 class OffloadingSite:
 
-    def __init__(self, p_id, data):
+    def __init__(self, p_id, data, arrival_rate, exp_rate):
         
         self._name_id = p_id + str (uuid.uuid4 ())
         self._p_id = p_id
@@ -33,18 +33,30 @@ class OffloadingSite:
         self._off_action = Util.determine_name_and_action (self._off_site_code)
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
+        self._arrival_rate = arrival_rate
+        self._exp_rate = exp_rate
         self._task_exe_queue = CompQueue (1000, None)
         
         # self.print_system_config()
 
-    def arrival (cls):
+    def get_arrival_rate (cls):
 
-      cls._task_exe_queue.arrival (cls) 
+      return cls._arrival_rate
 
 
-    def est_latency (cls, task):
+    def get_exp_rate (cls):
 
-      return cls._task_exe_queue.est_latency (task)
+      return cls._exp_rate
+
+
+    def est_lat (cls, task):
+
+      return cls._task_exe_queue.est_lat ([cls], task)
+
+
+    def act_lat (cls, task):
+
+      return cls._task_exe_queue.act_lat ([cls], task)
 
 
     def get_constr (cls, app_name):
@@ -211,6 +223,7 @@ class OffloadingSite:
         cls._stor_consum = cls._stor_consum + \
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
         cls._mem_consum = cls._mem_consum + task.get_memory()
+        
 
         return ExeErrCode.EXE_OK
 
@@ -234,9 +247,9 @@ class OffloadingSite:
                     task.get_name())
 
 
-    def gen_workload (cls, pois_rate, exp_rate):
+    def gen_workload (cls):
 
-      return cls.__gen_task_size (exp_rate) * cls.__gen_numb_of_tasks (pois_rate)
+      return cls.__gen_task_size (cls._exp_rate) * cls.__gen_numb_of_tasks (cls._arrival_rate)
 
 
     def __gen_task_size (cls, exp_rate):
@@ -244,9 +257,9 @@ class OffloadingSite:
       return random.expovariate (exp_rate)
 
 
-    def __gen_numb_of_tasks (cls, pois_rate):
+    def __gen_numb_of_tasks (cls, arrival_rate):
 
-      return np.random.poisson (lam = pois_rate)
+      return np.random.poisson (lam = arrival_rate)
 
 
 class Constraints:

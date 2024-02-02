@@ -1,7 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 
-from util import Settings, NodePrototypes
+from util import Settings, NodePrototypes, ResponseTime
 from stats import Stats
 from cell_stats import CellStats
 from logger import Logger
@@ -134,9 +134,11 @@ class OffloadingDecisionEngine(ABC):
 
                 if cand_n.execute (task, timestamp):
 
-                    t_rsp_time = t_rsp_time + values['rt']
-                    t_e_consum = t_e_consum + values['ec']
-                    t_price = t_price + values['pr']
+                    # t_rsp_time = t_rsp_time + values['rt']
+                    # t_e_consum = t_e_consum + values['ec']
+                    # t_price = t_price + values['pr']
+                    (t_rsp_time, t_e_consum, t_price) = cls.__runtime_objectives (task, off_sites, \
+                      cand_n, cls._curr_n, topology, task_off_queue, task_del_queue)
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
@@ -290,17 +292,33 @@ class OffloadingDecisionEngine(ABC):
       task_off_queue, task_del_queue):
         
         # t_rsp_time = Model.task_rsp_time (task, cand_n, curr_n, topology)
-        task_off_queue.arrival (off_sites)
-        task_del_queue.arrival (off_sites)
         # task execution queue is within offloading site class instance
-        cand_n.arrival ()
-        t_rsp_time = task_off_queue.est_latency (task) + cand_n.est_latency (task) + \
-          task_del_queue.est_latency (task)
+        task_off_lat = task_off_queue.est_lat (off_sites, task)
+        task_exe_lat = cand_n.est_lat (task)
+        task_del_lat = task_del_queue.est_lat (off_sites, task)
+        total_lat = task_off_lat + task_exe_lat + task_del_lat
+        t_rsp_time = ResponseTime (task_exe_lat, task_del_lat, task_off_lat, total_lat)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
         return (t_rsp_time.get_overall (), t_e_consum.get_overall (), \
             round (t_price, 3))
+
+
+    def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology, \
+      task_off_queue, task_del_queue):
+
+        task_off_lat = task_off_queue.act_lat (off_sites, task)
+        task_exe_lat = cand_n.act_lat (task)
+        task_del_lat = task_del_queue.act_lat (off_sites, task)
+        total_lat = task_off_lat + task_exe_lat + task_del_lat
+        t_rsp_time = ResponseTime (task_exe_lat, task_del_lat, task_off_lat, total_lat)
+        t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
+        t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
+
+        return (t_rsp_time.get_overall (), t_e_consum.get_overall (), \
+            round (t_price, 3))
+
 
 
     @abstractmethod

@@ -148,13 +148,13 @@ class ResourceMonitor:
 
             if p_id == NodePrototypes.MD:
 
-                off_sites.append (OffloadingSite (p_id, res))
+                off_sites.append (OffloadingSite (p_id, res, 3, 4))
 
             else:
                 
                 for i in range (cls._scala):
                     
-                    off_sites.append (OffloadingSite (p_id, res))
+                    off_sites.append (OffloadingSite (p_id, res, 2, 3))
 
         return off_sites
 
