@@ -35,7 +35,7 @@ class OffloadingSite:
         self._dataset_node = None
         self._arrival_rate = arrival_rate
         self._exp_rate = exp_rate
-        self._task_exe_queue = CompQueue (1000, None)
+        self._task_exe_queue = CompQueue (self._mips, self._node_type)
         
         # self.print_system_config()
 
@@ -246,20 +246,19 @@ class OffloadingSite:
                     "Gb, both should be positive! Node: " + cls._name + ", task: " + \
                     task.get_name())
 
+    # def gen_workload (cls):
 
-    def gen_workload (cls):
-
-      return cls.__gen_task_size (cls._exp_rate) * cls.__gen_numb_of_tasks (cls._arrival_rate)
-
-
-    def __gen_task_size (cls, exp_rate):
-
-      return random.expovariate (exp_rate)
+    #  return cls.__gen_task_size (cls._exp_rate) * cls.__gen_numb_of_tasks (cls._arrival_rate)
 
 
-    def __gen_numb_of_tasks (cls, arrival_rate):
+    def gen_task_size (cls):
 
-      return np.random.poisson (lam = arrival_rate)
+      return random.expovariate (cls._exp_rate)
+
+
+    def gen_numb_of_tasks (cls):
+
+      return np.random.poisson (lam = cls._arrival_rate)
 
 
 class Constraints:

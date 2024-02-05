@@ -7,4 +7,5 @@ package-lock.json
 src/__pycache__
 src/logs
 src/tags
+src/sim_exe_log.txt
 tags

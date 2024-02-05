@@ -23,7 +23,7 @@ class PowerConsum:
 
 class CommDirection:
   
-  DOWNLINK, UPLINK = range(2)
+  DOWNLINK, UPLINK = ('DOWNLINK', 'UPLINK')
 
 
 class Prices:
@@ -43,7 +43,7 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
-    EXECUTIONS = 100
+    EXECUTIONS = 10
     SAMPLES = 1
     NUM_LOCS = 10
 

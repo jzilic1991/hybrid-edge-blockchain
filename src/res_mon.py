@@ -22,8 +22,8 @@ class ResourceMonitor:
         self._curr_cell = ""
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
-        self._task_off_queue = CommQueue (1000, CommDirection.UPLINK)
-        self._task_del_queue = CommQueue (1000, CommDirection.DOWNLINK)
+        self._task_off_queue = CommQueue (1000, comm_direct = CommDirection.UPLINK)
+        self._task_del_queue = CommQueue (1000, comm_direct = CommDirection.DOWNLINK)
 
 
     def get_task_off_queue (cls):
@@ -139,6 +139,7 @@ class ResourceMonitor:
         return topology
 
 
+    # instantiating offloading sites
     def __init_off_sites (cls):
         
         off_sites = list ()
@@ -148,13 +149,19 @@ class ResourceMonitor:
 
             if p_id == NodePrototypes.MD:
 
-                off_sites.append (OffloadingSite (p_id, res, 3, 4))
+                off_sites.append (OffloadingSite (p_id, res, \
+                  random.randint (1, 3), random.uniform (0.1, 1)))
+                print (off_sites[-1].get_node_type () + " has estimated workload of " + \
+                  str (off_sites[-1].get_arrival_rate () * off_sites[-1].get_exp_rate ()))
 
             else:
                 
                 for i in range (cls._scala):
                     
-                    off_sites.append (OffloadingSite (p_id, res, 2, 3))
+                    off_sites.append (OffloadingSite (p_id, res, \
+                      random.randint (1, 3), random.uniform (0.1, 1)))
+                    print (off_sites[-1].get_node_type () + " has estimated workload of " + \
+                      str (off_sites[-1].get_arrival_rate () * off_sites[-1].get_exp_rate ()))
 
         return off_sites
 
@@ -164,7 +171,9 @@ class ResourceMonitor:
         nodes = list ()
 
         for off_site in cls._off_sites:
+            
             if off_site.get_node_type () == node_type:
-                nodes.append (off_site)
-        
+              
+              nodes.append (off_site)
+
         return nodes
