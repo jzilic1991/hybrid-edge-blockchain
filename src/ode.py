@@ -280,10 +280,10 @@ class OffloadingDecisionEngine(ABC):
 
         # estimations for offloading and delivery queueing latencies are the 
         # same because they are based on average rates which does not change
-        off_est_lat = task_off_queue.est_lat (off_sites, task)
-        del_est_lat = task_del_queue.est_lat (off_sites, task)
-        print ("Estimated offloading latency is " + str (off_est_lat))
-        print ("Estimated delivery latency is " + str (del_est_lat))
+        off_est_lat = task_off_queue.est_lat (task)
+        print ("ESTIMATED OFFLOADING LATENCY is " + str (off_est_lat))
+        del_est_lat = task_del_queue.est_lat (task)
+        print ("ESTIMATED DELIVERY LATENCY is " + str (del_est_lat))
 
         for cand_n in off_sites:
                
@@ -299,10 +299,9 @@ class OffloadingDecisionEngine(ABC):
       off_est_lat, del_est_lat):
         
         exe_est_lat = cand_n.est_lat (task)
+        print ("ESTIMATED EXECUTION LATENCY (" + cand_n.get_node_type () + ") is " + str (exe_est_lat))
         total_est_lat = off_est_lat + exe_est_lat + del_est_lat
-        
-        print ("Estimated execution latency (" + cand_n.get_node_type () + ") is " + str (exe_est_lat))
-        print ("Estimated total latency is " + str (total_est_lat))
+        print ("ESTIMATED TOTAL LATENCY is " + str (total_est_lat))
         
         t_rsp_time = ResponseTime (exe_est_lat, del_est_lat, off_est_lat, total_est_lat)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
@@ -315,9 +314,9 @@ class OffloadingDecisionEngine(ABC):
     def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology, \
       task_off_queue, task_del_queue):
 
-        off_act_lat = task_off_queue.act_lat (off_sites, task)
+        off_act_lat = task_off_queue.act_lat (task)
         exe_act_lat = cand_n.act_lat (task)
-        del_act_lat = task_del_queue.act_lat (off_sites, task)
+        del_act_lat = task_del_queue.act_lat (task)
         total_act_lat = off_act_lat + exe_act_lat + del_act_lat
         
         print ("Actual offloading latency is " + str (off_act_lat))

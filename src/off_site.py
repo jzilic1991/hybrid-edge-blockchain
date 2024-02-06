@@ -10,7 +10,7 @@ from edge_queue import CompQueue
 
 class OffloadingSite:
 
-    def __init__(self, p_id, data, arrival_rate, exp_rate):
+    def __init__(self, p_id, data):
         
         self._name_id = p_id + str (uuid.uuid4 ())
         self._p_id = p_id
@@ -33,30 +33,30 @@ class OffloadingSite:
         self._off_action = Util.determine_name_and_action (self._off_site_code)
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
-        self._arrival_rate = arrival_rate
-        self._exp_rate = exp_rate
-        self._task_exe_queue = CompQueue (self._mips, self._node_type)
+        self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (1, 3), \
+          task_size_rate = random.uniform(0.1, 1), site_name = self._node_type)
         
         # self.print_system_config()
-
-    def get_arrival_rate (cls):
-
-      return cls._arrival_rate
-
-
-    def get_exp_rate (cls):
-
-      return cls._exp_rate
 
 
     def est_lat (cls, task):
 
-      return cls._task_exe_queue.est_lat ([cls], task)
+      return cls._task_exe_queue.est_lat (task)
 
 
     def act_lat (cls, task):
 
-      return cls._task_exe_queue.act_lat ([cls], task)
+      return cls._task_exe_queue.act_lat (task)
+
+
+    def set_arrival_rate (cls, rate): 
+
+      return cls._task_exe_queue.set_arrival_rate (rate)
+
+
+    def set_task_size_rate (cls, rate):
+
+      return cls._task_exe_queue.set_task_size_rate (rate)
 
 
     def get_constr (cls, app_name):
@@ -249,16 +249,6 @@ class OffloadingSite:
     # def gen_workload (cls):
 
     #  return cls.__gen_task_size (cls._exp_rate) * cls.__gen_numb_of_tasks (cls._arrival_rate)
-
-
-    def gen_task_size (cls):
-
-      return random.expovariate (cls._exp_rate)
-
-
-    def gen_numb_of_tasks (cls):
-
-      return np.random.poisson (lam = cls._arrival_rate)
 
 
 class Constraints:

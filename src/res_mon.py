@@ -20,20 +20,22 @@ class ResourceMonitor:
         LoadedData.load_dataset ("data/SKYPE.avt")
         # cell name is updated after loading dataset node
         self._curr_cell = ""
+        self._task_off_queue = CommQueue (100, arrival_rate = random.randint (1, 3), \
+          task_size_rate = random.uniform (0.1, 1), comm_direct = CommDirection.UPLINK)
+        self._task_del_queue = CommQueue (100, arrival_rate = random.randint (1, 3), \
+          task_size_rate = random.uniform (0.1, 1), comm_direct = CommDirection.DOWNLINK)
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
-        self._task_off_queue = CommQueue (1000, comm_direct = CommDirection.UPLINK)
-        self._task_del_queue = CommQueue (1000, comm_direct = CommDirection.DOWNLINK)
 
 
     def get_task_off_queue (cls):
 
-      return cls._task_off_queue
+        return cls._task_off_queue
 
 
     def get_task_del_queue (cls):
 
-      return cls._task_del_queue
+        return cls._task_del_queue
 
 
     def get_topology (cls):
@@ -90,6 +92,7 @@ class ResourceMonitor:
 
     def load_datasets (cls, n):
 
+        # new datasets are loaded when mobile device is moved to a new cell
         for off_site in cls._off_sites:
 
             # dataset nodes are not mapped to mobile device since it is assumed to be failure-free
@@ -98,6 +101,15 @@ class ResourceMonitor:
 
         # update cell name when new dataset nodes are loaded
         cls._curr_cell = cls.__get_cell_name ()
+        # set new arrival and task size rates when moving to a new cell
+        cls._task_off_queue.set_arrival_rate (random.randint (1, 3))
+        cls._task_del_queue.set_task_size_rate (random.uniform (0.1, 1))
+
+        # set new arrival and task size rate for offloading sites in a new cell
+        for site in cls._off_sites:
+
+            site.set_arrival_rate (random.randint (1, 3))
+            site.set_task_size_rate (random.uniform (0.1, 1))
 
         return cls._off_sites
 
@@ -149,19 +161,13 @@ class ResourceMonitor:
 
             if p_id == NodePrototypes.MD:
 
-                off_sites.append (OffloadingSite (p_id, res, \
-                  random.randint (1, 3), random.uniform (0.1, 1)))
-                print (off_sites[-1].get_node_type () + " has estimated workload of " + \
-                  str (off_sites[-1].get_arrival_rate () * off_sites[-1].get_exp_rate ()))
+                off_sites.append (OffloadingSite (p_id, res))
 
             else:
                 
                 for i in range (cls._scala):
                     
-                    off_sites.append (OffloadingSite (p_id, res, \
-                      random.randint (1, 3), random.uniform (0.1, 1)))
-                    print (off_sites[-1].get_node_type () + " has estimated workload of " + \
-                      str (off_sites[-1].get_arrival_rate () * off_sites[-1].get_exp_rate ()))
+                    off_sites.append (OffloadingSite (p_id, res))
 
         return off_sites
 
