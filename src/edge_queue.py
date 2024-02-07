@@ -36,7 +36,7 @@ class EdgeQueue (ABC):
     util = cls._act_util (task)
     cls._print_act_workload ()
     total_lat = cls._act_wait_time (util) + cls._srv_time (task, util)
-    cls._workload.clear ()
+    cls._workload_residual ()
 
     return total_lat
 
@@ -51,10 +51,40 @@ class EdgeQueue (ABC):
     cls._task_size_rate = rate
 
 
-  def _est_util (cls, workload):
+  def _workload_residual (cls):
 
-    # estimated workload is a numeric scalar
-    return workload / cls._total
+    k = None
+
+    for i in range (len (cls._workload)):
+
+      if type (cls._workload[i]) == Task:
+
+        k = i
+        break
+
+    cls._workload = cls._workload[(k + 1):]
+
+
+  def _converting_workload (cls, workload):
+
+    conv_workload = list ()
+
+    for task in workload:
+      
+      if type (task) == Task:
+
+        conv_workload.append (task.get_mi ())
+        continue
+
+      conv_workload.append (task)
+
+    return conv_workload
+    
+
+  def _est_util (cls, workload):
+        
+    # estimated workload is a list of tasks
+    return sum (cls._converting_workload (workload)) / cls._total
 
 
   def _act_util (cls, task):
@@ -73,10 +103,22 @@ class EdgeQueue (ABC):
     
     return util
   
+  
+  def _est_wait_time (cls, workload, util):
+    
+    return sum (cls._converting_workload (workload)) / (cls._total - util)
 
+  
   def _est_arriv (cls):
 
-    return cls._arrival_rate * cls._task_size_rate
+    workload = list ()
+
+    workload.extend (cls._workload)
+    new_workload = [cls._task_size_rate for i in range (cls._arrival_rate)]
+    workload.extend (new_workload)
+    print ("Estimated workload: " + str (workload))
+
+    return workload
 
 
   def _act_arriv (cls, task):
@@ -124,11 +166,6 @@ class EdgeQueue (ABC):
     return np.random.poisson (lam = cls._arrival_rate)
 
 
-  def _est_wait_time (cls, workload, util):
-
-    pass
-
-
   def _act_wait_time (cls, util):
 
     pass
@@ -142,11 +179,6 @@ class EdgeQueue (ABC):
 
 
 class CommQueue (EdgeQueue):
-
-
-  def _est_wait_time (cls, workload, util):
-    
-    return workload / (cls._total - util)
 
 
   def _act_wait_time (cls, util):
@@ -175,11 +207,6 @@ class CommQueue (EdgeQueue):
 
 
 class CompQueue (EdgeQueue):
-
-
-  def _est_wait_time (cls, workload, util):
-   
-    return workload / (cls._total - util)
 
 
   def _act_wait_time (cls, util):

@@ -104,14 +104,16 @@ class ResourceMonitor:
         # update cell name when new dataset nodes are loaded
         cls._curr_cell = cls.__get_cell_name ()
         # set new arrival and task size rates when moving to a new cell
-        cls._task_off_queue.set_arrival_rate (random.randint (1, 3))
-        cls._task_del_queue.set_task_size_rate (random.uniform (0.1, 1))
+        cls._task_off_queue.set_arrival_rate (random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE))
+        cls._task_del_queue.set_arrival_rate (random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE))
+        cls._task_off_queue.set_task_size_rate (random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE))
+        cls._task_del_queue.set_task_size_rate (random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE))
 
         # set new arrival and task size rate for offloading sites in a new cell
         for site in cls._off_sites:
 
-            site.set_arrival_rate (random.randint (1, 3))
-            site.set_task_size_rate (random.uniform (0.1, 1))
+            site.set_arrival_rate (random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE))
+            site.set_task_size_rate (random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE))
 
         return cls._off_sites
 

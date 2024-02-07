@@ -34,7 +34,7 @@ class OffloadingSite:
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
         self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-          task_size_rate = random.uniform(ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
         
         # self.print_system_config()
 

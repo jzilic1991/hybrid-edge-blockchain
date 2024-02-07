@@ -118,6 +118,7 @@ def experiment_run ():
             break
 
 
+random.seed (42)
 # public variables
 reg_nodes = list ()
 cached_trx = list ()

@@ -125,12 +125,12 @@ class OffloadingActions:
 
 class PoissonRate:
 
-    MIN_RATE, MAX_RATE = (3, 8)
+    MIN_RATE, MAX_RATE = (8, 16)
 
 
 class ExpRate:
 
-    MIN_RATE, MAX_RATE = (0.1, 2)    
+    MIN_RATE, MAX_RATE = (2, 6)    
 
 
 class AvailabilityModes:
