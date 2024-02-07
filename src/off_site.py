@@ -3,7 +3,7 @@ import random
 import uuid
 import numpy as np
 
-from util import Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps
+from util import Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
 from task import Task
 from edge_queue import CompQueue
 
@@ -33,8 +33,8 @@ class OffloadingSite:
         self._off_action = Util.determine_name_and_action (self._off_site_code)
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
-        self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (1, 3), \
-          task_size_rate = random.uniform(0.1, 1), site_name = self._node_type)
+        self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform(ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
         
         # self.print_system_config()
 

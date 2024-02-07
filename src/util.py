@@ -123,6 +123,16 @@ class OffloadingActions:
         range(NUMBER_OF_OFFLOADING_ACTIONS)
 
 
+class PoissonRate:
+
+    MIN_RATE, MAX_RATE = (3, 8)
+
+
+class ExpRate:
+
+    MIN_RATE, MAX_RATE = (0.1, 2)    
+
+
 class AvailabilityModes:
     
     HA, MA, LA = ("HA", "MA", "LA")

@@ -54,8 +54,6 @@ class EdgeQueue (ABC):
   def _est_util (cls, workload):
 
     # estimated workload is a numeric scalar
-    print ("Estimating utilization - workload: " + str (workload) + ", total: " + str (cls._total))
-    print ("Estimated util = " + str (workload / cls._total))
     return workload / cls._total
 
 
@@ -148,10 +146,6 @@ class CommQueue (EdgeQueue):
 
   def _est_wait_time (cls, workload, util):
     
-    print ("CommQueue - Estimating waiting time: workload: " + str (workload) + \
-      ", total capacity: " + str (cls._total) + ", utilization: " + str (util))
-    print ("CommQueue Total - util = " + str (cls._total - util))
-    print ("CommQueue - Estimated waiting time is " + str (workload / (cls._total - util)))
     return workload / (cls._total - util)
 
 
@@ -162,10 +156,8 @@ class CommQueue (EdgeQueue):
       if type (cls._workload[i]) == Task:
         
         if i != 0:
-          print ("CommQueue Task index in workload list is " + str (i))
-          print ("CommQueue Total - util = " + str (cls._total - util))
-          print ("CommQueue Workload list until Task is " + str (cls._workload[:(i - 1)]))
-          return sum (cls._workload[:(i - 1)]) / (cls._total - util)
+          
+          return sum (cls._workload[:i]) / (cls._total - util)
 
         return 0.0
 
@@ -176,7 +168,6 @@ class CommQueue (EdgeQueue):
 
     avail = cls._total - util
     service_time = task.get_data_in () / (avail * math.log (1 + Settings.SNR, 2))
-    print ("CommQueue - Service time: " + str (service_time))
     
     return service_time
 
@@ -188,8 +179,6 @@ class CompQueue (EdgeQueue):
 
   def _est_wait_time (cls, workload, util):
    
-    print ("CompQueue Estimating waiting time: workload = " + str (workload) + ", util = " + str (util) + ", avail = " + str (1 - util))
-    print ("CompQueue Estimated waiting time (workload) / (cls._total - util) = " + str (workload / (cls._total - util)))
     return workload / (cls._total - util)
 
 
@@ -200,11 +189,8 @@ class CompQueue (EdgeQueue):
       if type (cls._workload[i]) == Task:
         
         if i != 0:
-          print ("CompQueue Task index in workload list is " + str (i))
-          print ("CompQueue Total - util = " + str (cls._total - util))
-          print ("CompQueue Workload list until Task is " + str (cls._workload[:(i - 1)]))
           
-          return sum (cls._workload[:(i - 1)]) / (cls.._total - util)
+          return sum (cls._workload[:i]) / (cls._total - util)
 
         return 0.0
 
@@ -213,5 +199,4 @@ class CompQueue (EdgeQueue):
 
   def _srv_time (cls, task, util):
 
-    print ("CompQueue - Available capacity: " + str (cls._total - util))
     return task.get_mi () / (cls._total - util)      

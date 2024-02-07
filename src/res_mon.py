@@ -2,7 +2,7 @@ import json
 import random
 
 from off_site import OffloadingSite
-from util import NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection
+from util import NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection, PoissonRate, ExpRate
 from dataset import LoadedData
 from edge_queue import CommQueue
 
@@ -20,10 +20,12 @@ class ResourceMonitor:
         LoadedData.load_dataset ("data/SKYPE.avt")
         # cell name is updated after loading dataset node
         self._curr_cell = ""
-        self._task_off_queue = CommQueue (100, arrival_rate = random.randint (1, 3), \
-          task_size_rate = random.uniform (0.1, 1), comm_direct = CommDirection.UPLINK)
-        self._task_del_queue = CommQueue (100, arrival_rate = random.randint (1, 3), \
-          task_size_rate = random.uniform (0.1, 1), comm_direct = CommDirection.DOWNLINK)
+        self._task_off_queue = CommQueue (100, arrival_rate = random.randint \
+          (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK)
+        self._task_del_queue = CommQueue (100, arrival_rate = random.randint \
+          (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK)
         # starting with first dataset node per node type
         self._off_sites = self.load_datasets (0)
 
