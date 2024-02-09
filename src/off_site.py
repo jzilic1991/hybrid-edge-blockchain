@@ -35,28 +35,56 @@ class OffloadingSite:
         self._dataset_node = None
         self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
           task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
+        self._task_off_queue = CommQueue (100, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK)
+        self._task_del_queue = CommQueue (100, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK)
         
         # self.print_system_config()
 
 
     def est_lat (cls, task):
+      
+      off_lat = cls._task_off_queue.est_lat (task)
+      exe_lat = cls._task_exe_queue.est_lat (task)
+      del_lat = cls._task_del_queue.est_lat (task)
+      total_lat = off_lat + exe_lat + del_lat
 
-      return cls._task_exe_queue.est_lat (task)
+      print (self._get_node_type () + " has ESTIMATED OFFLOADING LATENCY = " + str (off_lat))
+      print (self._get_node_type () + " has ESTIMATED EXECUTION LATENCY = " + str (exe_lat))
+      print (self._get_node_type () + " has ESTIMATED DELIVERY LATENCY = " + str (del_lat))
+      print (self._get_node_type () + " has ESTIMATED TOTAL LATENCY = " + str (total_lat))
+
+      return total_lat
 
 
     def act_lat (cls, task):
 
-      return cls._task_exe_queue.act_lat (task)
+      off_lat = cls._task_off_queue.act_lat (task)
+      exe_lat = cls._task_exe_queue.act_lat (task)
+      del_lat = cls._task_del_queue.act_lat (task)
+      total_lat = off_lat + exe_lat + del_lat
+      
+      print (self._get_node_type () + " has ACTUAL OFFLOADING LATENCY = " + str (off_lat))
+      print (self._get_node_type () + " has ACTUAL EXECUTION LATENCY = " + str (exe_lat))
+      print (self._get_node_type () + " has ACTUAL DELIVERY LATENCY = " + str (del_lat))
+      print (self._get_node_type () + " has ACTUAL TOTAL LATENCY = " + str (total_lat))
+
+      return total_lat
 
 
-    def set_arrival_rate (cls, rate): 
+    def set_arrival_rate (cls): 
 
-      return cls._task_exe_queue.set_arrival_rate (rate)
+      cls._task_off_queue.set_arrival_rate ()
+      cls._task_exe_queue.set_arrival_rate ()
+      cls._task_del_queue.set_arrival_rate ()
 
 
-    def set_task_size_rate (cls, rate):
+    def set_task_size_rate (cls):
 
-      return cls._task_exe_queue.set_task_size_rate (rate)
+      cls._task_off_queue.set_task_size_rate ()
+      cls._task_exe_queue.set_task_size_rate ()
+      cls._task_del_queue.set_task_size_rate ()
 
 
     def get_constr (cls, app_name):

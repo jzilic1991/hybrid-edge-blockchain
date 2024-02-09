@@ -47,14 +47,14 @@ class EdgeQueue (ABC):
     return total_lat
 
 
-  def set_arrival_rate (cls, rate):
+  def set_arrival_rate (cls):
 
-    cls._arrival_rate = rate
+    cls._arrival_rate = np.random.poisson ()
 
 
-  def set_task_size_rate (cls, rate):
+  def set_task_size_rate (cls):
 
-    cls._task_size_rate = rate
+    cls._task_size_rate = random.expovariate (lam = )
 
   
   def _arrival (cls, task):

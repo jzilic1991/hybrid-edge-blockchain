@@ -89,8 +89,7 @@ class OffloadingDecisionEngine(ABC):
         cls._curr_app_time = 0.0
 
 
-    def offload (cls, tasks, off_sites, topology, timestamp, app_name, qos, \
-      task_off_queue, task_del_queue):
+    def offload (cls, tasks, off_sites, topology, timestamp, app_name, qos):
 
         if cls._BL <= 0.0:
 
@@ -121,8 +120,7 @@ class OffloadingDecisionEngine(ABC):
             t_e_consum = 0.0
             t_price = 0.0
 
-            metrics = cls.__compute_metrics (task, off_sites, \
-                cls._curr_n, topology, task_off_queue, task_del_queue)
+            metrics = cls.__compute_metrics (task, off_sites, cls._curr_n, topology)
 
             while True:
 
@@ -273,17 +271,9 @@ class OffloadingDecisionEngine(ABC):
         return (max_rsp_time, acc_e_consum, acc_price)
 
 
-    def __compute_metrics (cls, task, off_sites, curr_n, topology, task_off_queue, \
-      task_del_queue):
+    def __compute_metrics (cls, task, off_sites, curr_n, topology):
         
         metrics = dict ()
-
-        # estimations for offloading and delivery queueing latencies are the 
-        # same because they are based on average rates which does not change
-        off_est_lat = task_off_queue.est_lat (task)
-        print ("ESTIMATED OFFLOADING LATENCY is " + str (off_est_lat))
-        del_est_lat = task_del_queue.est_lat (task)
-        print ("ESTIMATED DELIVERY LATENCY is " + str (del_est_lat))
 
         for cand_n in off_sites:
                
@@ -295,15 +285,9 @@ class OffloadingDecisionEngine(ABC):
         return metrics
 
     # objectives are estimated per candidate offloading site
-    def __compute_estimated_objectives (cls, task, off_sites, cand_n, curr_n, topology, \
-      off_est_lat, del_est_lat):
+    def __compute_estimated_objectives (cls, task, off_sites, cand_n, curr_n, topology):
         
-        exe_est_lat = cand_n.est_lat (task)
-        print ("ESTIMATED EXECUTION LATENCY (" + cand_n.get_node_type () + ") is " + str (exe_est_lat))
-        total_est_lat = off_est_lat + exe_est_lat + del_est_lat
-        print ("ESTIMATED TOTAL LATENCY is " + str (total_est_lat))
-        
-        t_rsp_time = ResponseTime (exe_est_lat, del_est_lat, off_est_lat, total_est_lat)
+        t_rsp_time = cand_n.est_lat (task)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
@@ -311,20 +295,9 @@ class OffloadingDecisionEngine(ABC):
             round (t_price, 3))
 
 
-    def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology, \
-      task_off_queue, task_del_queue):
+    def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology):
 
-        off_act_lat = task_off_queue.act_lat (task)
-        exe_act_lat = cand_n.act_lat (task)
-        del_act_lat = task_del_queue.act_lat (task)
-        total_act_lat = off_act_lat + exe_act_lat + del_act_lat
-        
-        print ("Actual offloading latency is " + str (off_act_lat))
-        print ("Actual delivery latency is " + str (del_act_lat))
-        print ("Actual execution latency (" + cand_n.get_node_type () + ") is " + str (exe_act_lat))
-        print ("Actual total latency is " + str (total_act_lat))
-
-        t_rsp_time = ResponseTime (exe_act_lat, del_act_lat, off_act_lat, total_act_lat)
+        t_rsp_time = cand_n.act_lat (task)
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
