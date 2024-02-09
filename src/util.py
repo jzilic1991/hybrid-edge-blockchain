@@ -130,7 +130,7 @@ class PoissonRate:
 
 class ExpRate:
 
-    MIN_RATE, MAX_RATE = (2, 6)    
+    MIN_RATE, MAX_RATE = (0.5, 3)    
 
 
 class AvailabilityModes:
@@ -270,55 +270,55 @@ class Util (object):
     @classmethod
     def generate_di_cpu_cycles(cls):
 
-        return random.randint(15, 35)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.randint(150, 250)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_random_cpu_cycles(cls):
 
-        return random.randint(15, 35)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_di_input_data(cls):
 
-        return random.randint(4 * 50, 4 * 75)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_random_input_data(cls):
 
-        return random.randint(4, 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_ci_input_data(cls):
 
-        return random.randint(2, 4)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_di_output_data(cls):
 
-        return random.randint(4 * 25, 4 * 30)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_random_output_data(cls):
 
-        return random.randint(4, 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
     def generate_ci_output_data(cls):
 
-        return random.randint(4, 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
