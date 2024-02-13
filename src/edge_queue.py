@@ -49,12 +49,12 @@ class EdgeQueue (ABC):
 
   def set_arrival_rate (cls):
 
-    cls._arrival_rate = np.random.poisson ()
+    cls._arrival_rate = np.random.poisson (lam = cls._arrival_rate)
 
 
   def set_task_size_rate (cls):
 
-    cls._task_size_rate = random.expovariate (lam = )
+    cls._task_size_rate = random.expovariate (cls._task_size_rate)
 
   
   def _arrival (cls, task):

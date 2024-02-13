@@ -136,7 +136,7 @@ class OffloadingDecisionEngine(ABC):
                     # t_e_consum = t_e_consum + values['ec']
                     # t_price = t_price + values['pr']
                     (t_rsp_time, t_e_consum, t_price) = cls.__runtime_objectives (task, off_sites, \
-                      cand_n, cls._curr_n, topology, task_off_queue, task_del_queue)
+                      cand_n, cls._curr_n, topology)
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
@@ -278,7 +278,7 @@ class OffloadingDecisionEngine(ABC):
         for cand_n in off_sites:
                
             (rsp_time, e_consum, price) = cls.__compute_estimated_objectives (task, off_sites, cand_n, \
-                curr_n, topology, off_est_lat, del_est_lat)
+                curr_n, topology)
             metrics[cand_n] = {'rt': rsp_time, 'ec': e_consum, 'pr': price}
 
         # return cls.__compute_score (metrics)

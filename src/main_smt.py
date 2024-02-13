@@ -179,8 +179,7 @@ class EdgeOffloading (Thread):
 				task_n_delay = tasks[0].get_name ()
 			
 			# off_sites = cls.__update_behav (off_sites, exe_cnt)
-			trxs = cls._s_ode.offload (tasks, off_sites, topology, timestamp, \
-				app.get_name (), app.get_qos (), cls._r_mon.get_task_off_queue (), cls._r_mon.get_task_del_queue ())
+			trxs = cls._s_ode.offload (tasks, off_sites, topology, timestamp, app.get_name, app.get_qos ())
 
 			off_transactions += trxs
 

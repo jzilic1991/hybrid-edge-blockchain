@@ -112,15 +112,16 @@ class ResourceMonitor:
         
         topology = dict ()
         i = 0
+        md_update_bw_flag = False
 
         for key, val in data['topology'].items ():
-            f_peer = None
-            s_peer = None
+            f_peer = None # first peer
+            s_peer = None # second peer
                         
             for f in cls._off_sites:
                 for s in cls._off_sites:
                     if f.get_p_id () == val['peers'][0] and \
-                        s.get_p_id () == val['peers'][1]:
+                      s.get_p_id () == val['peers'][1]:
                         f_peer = f
                         s_peer = s
                         # break
@@ -129,6 +130,18 @@ class ResourceMonitor:
                             {'bw': val['bw'], 'lat': Util.get_lat (f_peer, s_peer), \
                              'type': val['type']}
                         i += 1
+                        
+                        # if mobile device is a second peer node then the bandwidth of 
+                        # first peer site will be taken as a communication queue length
+                        # of both offloading and delivery queues
+                        print ("Second peer " + str (s_peer) + ", node type: " + str (s_peer.get_node_prototype ()))
+                        if s_peer.get_node_prototype () == NodePrototypes.MD:
+                          
+                          f_peer.set_bandwidth (val['bw'])
+
+                          if not md_update_bw_flag:
+
+                            s_peer.set_bandwidth (235)
 
         return topology
 

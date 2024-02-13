@@ -23,7 +23,7 @@ class PowerConsum:
 
 class CommDirection:
   
-  DOWNLINK, UPLINK = ('DOWNLINK', 'UPLINK')
+    DOWNLINK, UPLINK = ('DOWNLINK', 'UPLINK')
 
 
 class Prices:
@@ -276,7 +276,7 @@ class Util (object):
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
+        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
 
 
     @classmethod
@@ -288,7 +288,7 @@ class Util (object):
     @classmethod
     def generate_di_input_data(cls):
 
-        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
+        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
 
 
     @classmethod
@@ -306,7 +306,7 @@ class Util (object):
     @classmethod
     def generate_di_output_data(cls):
 
-        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
+        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
 
 
     @classmethod
