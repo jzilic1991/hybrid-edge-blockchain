@@ -30,7 +30,7 @@ class EdgeQueue (ABC):
 
       workload.append (ele)
 
-    workload.extend (cls._arrival (task))
+    workload.extend (cls._arrival (task = task))
     util = cls._utilization_factor (workload, task)
     
     return cls._waiting_time (workload, util) + cls._service_time (task, util)
@@ -38,13 +38,27 @@ class EdgeQueue (ABC):
 
   def act_lat (cls, task):
 
-    cls._workload.extend (cls._arrival (task))
+    cls._workload.extend (cls._arrival (task = task))
     util = cls._utilization_factor (cls._workload, task)
     cls._print_workload (cls._workload)
     total_lat = cls._waiting_time (cls._workload, util) + cls._service_time (task, util)
     cls._workload = cls._residual_workload (cls._workload)
 
     return total_lat
+
+
+  def workload_update (cls, task):
+
+    print ("---Current workload after update---")
+    cls._workload.extend (cls._arrival ())
+    cls._print_workload (cls._workload)
+    print ("---Workload after service completion---")
+    cls._workload = cls._residual_workload (cls._workload)
+
+
+  def enough_resources (cls, task):
+
+    return cls._utilization_factor (workload, task) < 1
 
 
   def set_arrival_rate (cls):
@@ -57,7 +71,7 @@ class EdgeQueue (ABC):
     cls._task_size_rate = random.expovariate (cls._task_size_rate)
 
   
-  def _arrival (cls, task):
+  def _arrival (cls, task = None):
 
     workload = list ()
 
@@ -68,7 +82,10 @@ class EdgeQueue (ABC):
           
       workload.append (cls._gen_task_size ())
 
-    workload.append (task)
+    if task != None:
+        
+       workload.append (task)
+    
     random.shuffle (workload)
 
     return workload

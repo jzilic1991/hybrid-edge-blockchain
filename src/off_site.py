@@ -92,7 +92,15 @@ class OffloadingSite:
         task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK)
       cls._task_del_queue = CommQueue (bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
         task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK)
-      
+     
+
+    def workload_update (cls):
+
+      print (cls._node_type + " workload update!")
+      cls._task_off_queue.workload_update ()
+      cls._task_exe_queue.workload_update ()
+      cls._task_del_queue.workload_update ()
+
 
     def get_constr (cls, app_name):
 
