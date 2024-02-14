@@ -73,7 +73,6 @@ class OffloadingSite:
 
     def set_arrival_rate (cls): 
 
-      print (str (cls))
       cls._task_off_queue.set_arrival_rate ()
       cls._task_exe_queue.set_arrival_rate ()
       cls._task_del_queue.set_arrival_rate ()

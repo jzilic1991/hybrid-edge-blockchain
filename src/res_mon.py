@@ -134,14 +134,15 @@ class ResourceMonitor:
                         # if mobile device is a second peer node then the bandwidth of 
                         # first peer site will be taken as a communication queue length
                         # of both offloading and delivery queues
-                        print ("Second peer " + str (s_peer) + ", node type: " + str (s_peer.get_node_prototype ()))
                         if s_peer.get_node_prototype () == NodePrototypes.MD:
                           
                           f_peer.set_bandwidth (val['bw'])
 
+                          # set bandwidth for mobile device just once
                           if not md_update_bw_flag:
 
                             s_peer.set_bandwidth (235)
+                            md_update_bw_flag = True
 
         return topology
 

@@ -82,8 +82,7 @@ class MobApps:
     PROBS = {INTRASAFED: 0.25, MOBIAR: 0.4, NAVIAR: 0.35}
 
 
-class NodeTypes:
-    
+class NodeTypes: 
     MOBILE, E_DATABASE, E_COMP, E_REG, CLOUD = ('Mobile Device', \
             'Edge Database Server', 'Edge Computational Server', \
             'Edge Regular Server', 'Cloud Data Center')
@@ -243,7 +242,7 @@ class Util (object):
 
         elif node_type == NodeTypes.MOBILE:
             return OffloadingSiteCode.MOBILE_DEVICE
-
+        
         else:
             return OffloadingSiteCode.UNKNOWN
 
@@ -276,7 +275,7 @@ class Util (object):
     @classmethod
     def generate_ci_cpu_cycles(cls):
 
-        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
@@ -288,7 +287,7 @@ class Util (object):
     @classmethod
     def generate_di_input_data(cls):
 
-        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
@@ -306,7 +305,7 @@ class Util (object):
     @classmethod
     def generate_di_output_data(cls):
 
-        return random.uniform (ExpRate.MIN_RATE + 8, ExpRate.MAX_RATE + 8)
+        return random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
 
     @classmethod
