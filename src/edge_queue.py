@@ -38,7 +38,9 @@ class EdgeQueue (ABC):
 
   def act_lat (cls, task):
 
-    cls._workload.extend (cls._arrival (task = task))
+    generated_workload = cls._arrival (task = task)
+    print ("Generated workload: " + str (generated_workload))
+    cls._workload.extend (generated_workload)
     util = cls._utilization_factor (cls._workload, task)
     cls._print_workload (cls._workload)
     total_lat = cls._waiting_time (cls._workload, util) + cls._service_time (task, util)
@@ -47,13 +49,14 @@ class EdgeQueue (ABC):
     return total_lat
 
 
-  def workload_update (cls, task):
+  def workload_update (cls, time_passed):
 
-    print ("---Current workload after update---")
+    print ("---Current workload---")
     cls._workload.extend (cls._arrival ())
     cls._print_workload (cls._workload)
-    print ("---Workload after service completion---")
-    cls._workload = cls._residual_workload (cls._workload)
+    print ("---Workload update---")
+    cls._workload = cls._residual_workload (cls._workload, time_passed = time_passed)
+    cls._print_workload (cls._workload)
 
 
   def enough_resources (cls, task):
@@ -103,7 +106,9 @@ class EdgeQueue (ABC):
         util += w / cls._total
         continue
 
-      util += task.get_mi () / cls._total
+      if task != None:
+        
+        util += task.get_mi () / cls._total
     
     return util
 
@@ -132,13 +137,14 @@ class EdgeQueue (ABC):
         
         conv_workload.append (ele)
         continue
-
+      
       conv_workload.append (ele.get_mi ())
 
-    print ("Task " + str (queue_type) + " queue has an actual sum of workload: " + str (sum (conv_workload)) + ", workload: " + str (conv_workload))
+    print ("Task " + str (queue_type) + " queue has an actual sum of workload: " + \
+      str (sum (conv_workload)) + ", workload: " + str (conv_workload))
 
   
-  def _residual_workload (cls, workload):
+  def _residual_workload (cls, workload, time_passed = None):
 
     k = None
 
@@ -149,7 +155,16 @@ class EdgeQueue (ABC):
         k = i
         break
 
-    workload = workload[(k + 1):]
+    # if task is not found, it means the site which owns this queue has to update its 
+    # queue state to remove those tasks that are executed within time passed
+    # the case applies to sites which did not receive task class object
+    if k == None:
+
+      workload = cls._elapsed_workload (workload, time_passed, cls._utilization_factor (workload, None)) 
+       
+    else:
+      
+      workload = workload[(k + 1):]
 
     return workload
 
@@ -163,6 +178,11 @@ class EdgeQueue (ABC):
 
     return np.random.poisson (lam = cls._arrival_rate)
 
+  
+  def _elapsed_workload (cls, workload, time_passed, util):
+    
+    pass
+
 
   def _waiting_time (cls, workload, util):
 
@@ -175,10 +195,42 @@ class EdgeQueue (ABC):
 
 
 
-
 class CommQueue (EdgeQueue):
 
 
+  def _elapsed_workload (cls, workload, time_passed, util):
+
+    elapsed_time_accumulated = 0.0
+    new_update_task_size = 0.0
+    avail = cls._total - util
+
+    print ("Time passed: " + str (time_passed))
+
+    for i in range (len (workload)):
+
+      elapsed_time = workload[i] / (avail * math.log (1 + Settings.SNR, 2))
+      elapsed_time_accumulated += elapsed_time
+      print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
+
+      if elapsed_time_accumulated > time_passed:
+        
+        print ("Accumulated time has surpassed time passed!")
+        new_update_task_size = (elapsed_time_accumulated - time_passed) * \
+          (avail * math.log (1 + Settings.SNR, 2))
+        print ("New update task size: " + str (new_update_task_size))
+        break
+    
+    if len (workload) == 0 or new_update_task_size == 0.0:
+      # empty list
+      print ("Workload is fully completed or empty!")
+      return [] 
+    
+    print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
+    workload[i] = new_update_task_size
+
+    return workload[i:]
+
+  
   def _waiting_time (cls, workload, util):
 
     for i in range (len (workload)):
@@ -203,8 +255,40 @@ class CommQueue (EdgeQueue):
 
 
 
-
 class CompQueue (EdgeQueue):
+
+
+  def _elapsed_workload (cls, workload, time_passed, util):
+
+    elapsed_time_accumulated = 0.0
+    new_update_task_size = 0.0
+    avail = cls._total - util
+
+    print ("Time passed: " + str (time_passed))
+
+    for i in range (len (workload)):
+
+      elapsed_time = workload[i] / avail
+      elapsed_time_accumulated += elapsed_time
+      print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
+
+      if elapsed_time_accumulated > time_passed:
+
+        print ("Accumulated time has surpassed time passed!")
+        new_update_task_size = (elapsed_time_accumulated - time_passed) * \
+          (avail * math.log (1 + Settings.SNR, 2))
+        print ("New update task: " + str (new_update_task_size))
+        break
+    
+    if len (workload) == 0 or new_update_task_size == 0.0:
+      # empty list
+      print ("Workload is fully completed or empty!")
+      return [] 
+
+    print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
+    workload[i] = new_update_task_size
+
+    return workload[i:]
 
 
   def _waiting_time (cls, workload, util):

@@ -115,7 +115,7 @@ class EdgeOffloading (Thread):
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
 
-          print ("Cell move")
+          # print ("Cell move")
           period_cnt = 0
 
           # summarize cell statistics
@@ -183,9 +183,12 @@ class EdgeOffloading (Thread):
       off_transactions += trxs
 
       # update workload after task offloading
+      curr_n = cls._s_ode.get_curr_node ()
       for site in off_sites:
 
-          site.workload_update ()
+          if site != curr_n:
+            
+              site.workload_update (cls._s_ode.get_last_rsp_time ())
 
       if not off_transactions:
 

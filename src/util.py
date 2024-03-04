@@ -129,7 +129,7 @@ class PoissonRate:
 
 class ExpRate:
 
-    MIN_RATE, MAX_RATE = (0.5, 3)    
+    MIN_RATE, MAX_RATE = (0.5, 1)    
 
 
 class AvailabilityModes:

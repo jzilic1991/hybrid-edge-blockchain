@@ -224,6 +224,16 @@ class OffloadingDecisionEngine(ABC):
         return cls._log
 
 
+    def get_last_rsp_time (cls):
+
+        return cls._rsp_time_hist[-1]
+
+
+    def get_curr_node (cls):
+
+        return cls._curr_n
+
+
     def __evaluate_constraint_violations (cls, off_site, rt, app_name):
 
         constr = off_site.get_constr (app_name)
