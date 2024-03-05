@@ -31,7 +31,7 @@ class EdgeQueue (ABC):
       workload.append (ele)
 
     workload.extend (cls._arrival (task = task))
-    util = cls._utilization_factor (workload, task)
+    util = cls._utilization_factor (workload, task = task)
     
     return cls._waiting_time (workload, util) + cls._service_time (task, util)
 
@@ -43,8 +43,8 @@ class EdgeQueue (ABC):
     #  ", task size rate: " + str (cls._task_size_rate) + "): " + \
     #  str (generated_workload))
     cls._workload.extend (generated_workload)
-    util = cls._utilization_factor (cls._workload, task)
-    cls._print_workload (cls._workload)
+    util = cls._utilization_factor (cls._workload, task = task)
+    cls._print_workload (cls._workload, util)
     total_lat = cls._waiting_time (cls._workload, util) + cls._service_time (task, util)
     cls._workload = cls._residual_workload (cls._workload)
 
@@ -53,17 +53,19 @@ class EdgeQueue (ABC):
 
   def workload_update (cls, time_passed):
 
-    # print ("---Current workload---")
+    # print ("--- Before update " + cls._site_name + " ---")
     cls._workload.extend (cls._arrival ())
-    cls._print_workload (cls._workload)
-    # print ("---Workload update---")
+    util = cls._utilization_factor (cls._workload)
+    # cls._print_workload (cls._workload, util)
+    # print ("--- After update " + cls._site_name + " ---")
     cls._workload = cls._residual_workload (cls._workload, time_passed = time_passed)
-    cls._print_workload (cls._workload)
+    util = cls._utilization_factor (cls._workload)
+    cls._print_workload (cls._workload, util)
 
 
   def enough_resources (cls, task):
 
-    return cls._utilization_factor (workload, task) < 1
+    return cls._utilization_factor (workload, task = task) < 1
 
 
   def set_arrival_rate (cls):
@@ -96,7 +98,7 @@ class EdgeQueue (ABC):
     return workload
 
 
-  def _utilization_factor (cls, workload, task):
+  def _utilization_factor (cls, workload, task = None):
 
     util = 0.0
     
@@ -115,7 +117,7 @@ class EdgeQueue (ABC):
     return util
 
 
-  def _print_workload (cls, workload):
+  def _print_workload (cls, workload, util):
 
     queue_type = None
     
@@ -141,9 +143,10 @@ class EdgeQueue (ABC):
         continue
       
       conv_workload.append (ele.get_mi ())
-
-    print ("Task " + str (queue_type) + " queue has an actual sum of workload: " + \
-      str (sum (conv_workload)) + ", workload: " + str (conv_workload))
+    
+    print ("Task " + str (queue_type) + " queue has a util = " + \
+      str (round (util * 100, 3)) + " %") #+ ", workload: " + str (conv_workload))
+      #str (round (sum (conv_workload), 3)) + " / " + str (cls._total) + " = " + \
 
   
   def _residual_workload (cls, workload, time_passed = None):
@@ -162,7 +165,7 @@ class EdgeQueue (ABC):
     # the case applies to sites which did not receive task class object
     if k == None:
 
-      workload = cls._elapsed_workload (workload, time_passed, cls._utilization_factor (workload, None)) 
+      workload = cls._elapsed_workload (workload, time_passed, cls._utilization_factor (workload)) 
        
     else:
       

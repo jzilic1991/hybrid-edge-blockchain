@@ -41,32 +41,44 @@ class OffloadingSite:
         # self.print_system_config()
 
 
-    def est_lat (cls, task):
-      
-      off_lat = cls._task_off_queue.est_lat (task)
+    def est_lat (cls, task, curr_n_id):
+
+      off_lat = 0.0
+      del_lat = 0.0
+
+      if curr_n_id != cls._name_id:
+
+        off_lat = cls._task_off_queue.est_lat (task)
+        del_lat = cls._task_del_queue.est_lat (task)
+
       exe_lat = cls._task_exe_queue.est_lat (task)
-      del_lat = cls._task_del_queue.est_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
 
-      print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY = " + str (off_lat))
-      print (cls._node_type + " has ESTIMATED EXECUTION LATENCY = " + str (exe_lat))
-      print (cls._node_type + " has ESTIMATED DELIVERY LATENCY = " + str (del_lat))
-      print (cls._node_type + " has ESTIMATED TOTAL LATENCY = " + str (total_lat.get_overall ()))
+      # print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY (" + task.get_name () + ") = "+ str (off_lat))
+      # print (cls._node_type + " has ESTIMATED EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
+      # print (cls._node_type + " has ESTIMATED DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
+      print (cls._node_type + " has ESTIMATED TOTAL LATENCY (" + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
 
-    def act_lat (cls, task):
+    def act_lat (cls, task, curr_n_id):
 
-      off_lat = cls._task_off_queue.act_lat (task)
+      off_lat = 0.0
+      del_lat = 0.0
+
+      if curr_n_id != cls._name_id:
+
+        off_lat = cls._task_off_queue.act_lat (task)
+        del_lat = cls._task_del_queue.act_lat (task)
+      
       exe_lat = cls._task_exe_queue.act_lat (task)
-      del_lat = cls._task_del_queue.act_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
       
-      print (cls._node_type + " has ACTUAL OFFLOADING LATENCY = " + str (off_lat))
-      print (cls._node_type + " has ACTUAL EXECUTION LATENCY = " + str (exe_lat))
-      print (cls._node_type + " has ACTUAL DELIVERY LATENCY = " + str (del_lat))
-      print (cls._node_type + " has ACTUAL TOTAL LATENCY = " + str (total_lat.get_overall ()))
+      # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
+      # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
+      # print (cls._node_type + " has ACTUAL DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
+      print (cls._node_type + " has ACTUAL TOTAL LATENCY (" + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
@@ -89,15 +101,18 @@ class OffloadingSite:
 
       print (cls._node_prototype + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))
       cls._task_off_queue = CommQueue (bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK)
+        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK, \
+        site_name = cls._node_type)
       cls._task_del_queue = CommQueue (bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK)
+        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
+        site_name = cls._node_type)
      
 
     def workload_update (cls, time_passed):
 
-      print (cls._node_type + " workload update!")
-      print ("Time passed: " + str (time_passed))
+      #print (cls._node_type + " workload update!")
+      #print ("Time passed: " + str (time_passed))
+      print ("*** " + cls._node_type  + " queue state updates ***")
       cls._task_off_queue.workload_update (time_passed)
       cls._task_exe_queue.workload_update (time_passed)
       cls._task_del_queue.workload_update (time_passed)

@@ -170,6 +170,7 @@ class OffloadingDecisionEngine(ABC):
         (max_rsp_time, acc_e_consum, acc_price) = cls.__get_total_objs (t_rsp_time_arr, \
             t_e_consum_arr, t_price_arr)
         cls._BL = round (cls._BL - acc_e_consum, 3)
+        print ("Offloading transition: " + cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id ())
         cls._curr_n = cand_n
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
@@ -297,7 +298,7 @@ class OffloadingDecisionEngine(ABC):
     # objectives are estimated per candidate offloading site
     def __compute_estimated_objectives (cls, task, off_sites, cand_n, curr_n, topology):
         
-        t_rsp_time = cand_n.est_lat (task)
+        t_rsp_time = cand_n.est_lat (task, curr_n.get_n_id ())
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
@@ -307,7 +308,7 @@ class OffloadingDecisionEngine(ABC):
 
     def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology):
 
-        t_rsp_time = cand_n.act_lat (task)
+        t_rsp_time = cand_n.act_lat (task, curr_n.get_n_id ())
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
