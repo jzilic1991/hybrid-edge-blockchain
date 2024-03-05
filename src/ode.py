@@ -298,7 +298,7 @@ class OffloadingDecisionEngine(ABC):
     # objectives are estimated per candidate offloading site
     def __compute_estimated_objectives (cls, task, off_sites, cand_n, curr_n, topology):
         
-        t_rsp_time = cand_n.est_lat (task, curr_n.get_n_id ())
+        t_rsp_time = cand_n.est_lat (task, curr_n.get_n_id (), curr_n.get_node_prototype ())
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 
@@ -308,7 +308,7 @@ class OffloadingDecisionEngine(ABC):
 
     def __runtime_objectives (cls, task, off_sites, cand_n, curr_n, topology):
 
-        t_rsp_time = cand_n.act_lat (task, curr_n.get_n_id ())
+        t_rsp_time = cand_n.act_lat (task, curr_n.get_n_id (), curr_n.get_node_prototype ())
         t_e_consum = Model.task_e_consum (t_rsp_time, cand_n, curr_n)
         t_price = Model.price (task, off_sites, cand_n, curr_n, topology)
 

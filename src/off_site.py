@@ -3,7 +3,7 @@ import random
 import uuid
 import numpy as np
 
-from util import ResponseTime, CommDirection, Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
+from util import NodePrototypes, ResponseTime, CommDirection, Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
 from task import Task
 from edge_queue import CompQueue, CommQueue
 
@@ -41,7 +41,7 @@ class OffloadingSite:
         # self.print_system_config()
 
 
-    def est_lat (cls, task, curr_n_id):
+    def est_lat (cls, task, curr_n_id, curr_n_proto):
 
       off_lat = 0.0
       del_lat = 0.0
@@ -50,6 +50,11 @@ class OffloadingSite:
 
         off_lat = cls._task_off_queue.est_lat (task)
         del_lat = cls._task_del_queue.est_lat (task)
+          
+        if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
+          
+          off_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
+          # del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
 
       exe_lat = cls._task_exe_queue.est_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
@@ -62,7 +67,7 @@ class OffloadingSite:
       return total_lat
 
 
-    def act_lat (cls, task, curr_n_id):
+    def act_lat (cls, task, curr_n_id, curr_n_proto):
 
       off_lat = 0.0
       del_lat = 0.0
@@ -71,6 +76,11 @@ class OffloadingSite:
 
         off_lat = cls._task_off_queue.act_lat (task)
         del_lat = cls._task_del_queue.act_lat (task)
+        
+        if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
+          
+          off_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
+          # del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
       
       exe_lat = cls._task_exe_queue.act_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
