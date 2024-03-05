@@ -3,7 +3,7 @@ import random
 import numpy as np
 from abc import ABC, abstractmethod
 
-from util import ResponseTime, Settings, Util, CommDirection
+from util import ResponseTime, Settings, Util, CommDirection, ExpRate, PoissonRate
 from task import Task
 
 
@@ -39,7 +39,9 @@ class EdgeQueue (ABC):
   def act_lat (cls, task):
 
     generated_workload = cls._arrival (task = task)
-    print ("Generated workload: " + str (generated_workload))
+    # print ("Generated workload (arrival rate: " + str (cls._arrival_rate) + \
+    #  ", task size rate: " + str (cls._task_size_rate) + "): " + \
+    #  str (generated_workload))
     cls._workload.extend (generated_workload)
     util = cls._utilization_factor (cls._workload, task)
     cls._print_workload (cls._workload)
@@ -51,10 +53,10 @@ class EdgeQueue (ABC):
 
   def workload_update (cls, time_passed):
 
-    print ("---Current workload---")
+    # print ("---Current workload---")
     cls._workload.extend (cls._arrival ())
     cls._print_workload (cls._workload)
-    print ("---Workload update---")
+    # print ("---Workload update---")
     cls._workload = cls._residual_workload (cls._workload, time_passed = time_passed)
     cls._print_workload (cls._workload)
 
@@ -66,12 +68,12 @@ class EdgeQueue (ABC):
 
   def set_arrival_rate (cls):
 
-    cls._arrival_rate = np.random.poisson (lam = cls._arrival_rate)
+    cls._arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE)
 
 
   def set_task_size_rate (cls):
 
-    cls._task_size_rate = random.expovariate (cls._task_size_rate)
+    cls._task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 
   
   def _arrival (cls, task = None):
@@ -204,28 +206,28 @@ class CommQueue (EdgeQueue):
     new_update_task_size = 0.0
     avail = cls._total - util
 
-    print ("Time passed: " + str (time_passed))
+    # print ("Time passed: " + str (time_passed))
 
     for i in range (len (workload)):
 
       elapsed_time = workload[i] / (avail * math.log (1 + Settings.SNR, 2))
       elapsed_time_accumulated += elapsed_time
-      print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
+      # print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
 
       if elapsed_time_accumulated > time_passed:
         
-        print ("Accumulated time has surpassed time passed!")
+        # print ("Accumulated time has surpassed time passed!")
         new_update_task_size = (elapsed_time_accumulated - time_passed) * \
           (avail * math.log (1 + Settings.SNR, 2))
-        print ("New update task size: " + str (new_update_task_size))
+        # print ("New update task size: " + str (new_update_task_size))
         break
     
     if len (workload) == 0 or new_update_task_size == 0.0:
       # empty list
-      print ("Workload is fully completed or empty!")
+      # print ("Workload is fully completed or empty!")
       return [] 
     
-    print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
+    # print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
     workload[i] = new_update_task_size
 
     return workload[i:]
@@ -264,28 +266,28 @@ class CompQueue (EdgeQueue):
     new_update_task_size = 0.0
     avail = cls._total - util
 
-    print ("Time passed: " + str (time_passed))
+    # print ("Time passed: " + str (time_passed))
 
     for i in range (len (workload)):
 
       elapsed_time = workload[i] / avail
       elapsed_time_accumulated += elapsed_time
-      print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
+      # print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
 
       if elapsed_time_accumulated > time_passed:
 
-        print ("Accumulated time has surpassed time passed!")
+        # print ("Accumulated time has surpassed time passed!")
         new_update_task_size = (elapsed_time_accumulated - time_passed) * \
           (avail * math.log (1 + Settings.SNR, 2))
-        print ("New update task: " + str (new_update_task_size))
+        # print ("New update task: " + str (new_update_task_size))
         break
     
     if len (workload) == 0 or new_update_task_size == 0.0:
       # empty list
-      print ("Workload is fully completed or empty!")
+      # print ("Workload is fully completed or empty!")
       return [] 
 
-    print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
+    # print ("Instead of " + str (workload[i]) + ", it will be " + str (new_update_task_size))
     workload[i] = new_update_task_size
 
     return workload[i:]
