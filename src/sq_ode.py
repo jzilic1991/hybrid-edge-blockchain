@@ -10,10 +10,10 @@ from models import Model
 
 class SqOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay, scala):
+    def __init__(self, name, curr_n, md, app_name, con_delay):
 
         self._k = Settings.K
-        super().__init__(name, curr_n, md, app_name, con_delay, scala)
+        super().__init__(name, curr_n, md, app_name, con_delay)
 
 
     def offloading_decision(cls, task, metrics, timestamp, app_name, constr, qos):

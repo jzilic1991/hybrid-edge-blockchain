@@ -11,9 +11,9 @@ from util import NodeTypes, Settings, MobApps, NodePrototypes
 class SmtOde (OffloadingDecisionEngine):
 
 
-    def __init__(self, name, curr_n, md, app_name, activate, con_delay, scala):
+    def __init__(self, name, curr_n, md, app_name, activate, con_delay):
 
-        super().__init__(name, curr_n, md, app_name, con_delay, scala)
+        super().__init__(name, curr_n, md, app_name, con_delay)
         self._activate = activate
         self._k = 4
 

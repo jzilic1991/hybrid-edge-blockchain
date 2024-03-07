@@ -25,7 +25,6 @@ class EdgeOffloading (Thread):
     self._samp = samp
     self._app_name = app_name
     self._con_delay = con_delay
-    self._scala = scala
     self._log = None
 
     # user moves to another cell location after certain number of applications excutions
@@ -36,25 +35,25 @@ class EdgeOffloading (Thread):
   def deploy_rep_smt_ode (cls):
 
     cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-      cls._app_name, True, cls._con_delay, cls._scala)
+      cls._app_name, True, cls._con_delay)
 
 
   def deploy_smt_ode (cls):
 
     cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-      cls._app_name, False, cls._con_delay, cls._scala)
+      cls._app_name, False, cls._con_delay)
 
 
   def deploy_sq_ode (cls):
 
     cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
-      cls._con_delay, cls._scala)
+      cls._con_delay)
 
 
   def deploy_mdp_ode (cls):
 
     cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (), cls._r_mon.get_md (), \
-      cls._app_name, cls._con_delay, cls._r_mon.get_off_sites (), cls._scala)
+      cls._app_name, cls._con_delay, cls._r_mon.get_off_sites ())
 
 
   def run (cls):

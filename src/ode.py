@@ -10,7 +10,7 @@ from models import Model
 
 class OffloadingDecisionEngine(ABC):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay, scala):
+    def __init__(self, name, curr_n, md, app_name, con_delay):
             
         self._name = name
         self._curr_n = curr_n
