@@ -20,6 +20,9 @@ def plot_topology (data, labels):
     plt.grid(True)
     plt.show()
 
+
 parsed_data = parse_topology_file ('data/232.csv')
-data, labels = cluster_cells (parsed_data, num_clusters=30)
-plot_topology (data, labels)
+data, labels = cluster_cells (parsed_data, num_clusters = 30)
+# plot_topology (data, labels)
+print ("Labels: " + str (labels))
+# print ("Data: " + str (data))

@@ -1,3 +1,4 @@
+import numpy as np
 import csv
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
@@ -34,30 +35,7 @@ def cluster_cells(parsed_data, num_clusters=3):
         longitude = float(values["longitude"])
         data.append([latitude, longitude])    
     
-    kmeans = KMeans(n_clusters=num_clusters)
+    np.random.seed(42)
+    kmeans = KMeans(n_init = 10, n_clusters = num_clusters)
     kmeans.fit(data)
     return data, kmeans.labels_
-
-
-def plot_topology (data, labels):
-
-    lats = list ()
-    longs = list ()
-    
-    for gps_coord in parsed_data.values ():
-
-        lats.append (gps_coord ["latitude"])
-        longs.append (gps_coord ["longitude"])
-
-    plt.figure(figsize = (10, 6))
-    plt.scatter(longs, lats, c=labels, cmap='viridis', alpha=0.5)
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title('Clustered Cells')
-    plt.grid(True)
-    plt.show()
-
-
-parsed_data = parse_topology_file ('data/232.csv')
-data, labels = cluster_cells (parsed_data, num_clusters=30)
-plot_topology (data, labels)
