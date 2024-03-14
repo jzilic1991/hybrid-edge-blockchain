@@ -3,6 +3,7 @@
 		"ED": {
 			"type": "Edge Database Server",
 			"mips": 2800,
+      "bw": 123500,
 			"cores": 8,
 			"mem": 8,
 			"stor": 500,
@@ -17,6 +18,7 @@
 		"EC": {
 			"type": "Edge Computational Server",
 			"mips": 3200,
+      "bw": 12500,
 			"cores": 16,
 			"mem": 16,
 			"stor": 150,
@@ -31,6 +33,7 @@
 		"ER": {
 			"type": "Edge Regular Server",
 			"mips": 2100,
+      "bw": 12500,
 			"cores": 4,
 			"mem": 8,
 			"stor": 64,
@@ -45,6 +48,7 @@
 		"CD": {
 			"type": "Cloud Data Center",
 			"mips": 2400,
+      "bw": 123500,
 			"cores": 64,
 			"mem": 128,
 			"stor": 1000,
@@ -59,6 +63,7 @@
 		"MD": {
 			"type": "Mobile Device",
 			"mips": 1000,
+      "bw": 687.5,
 			"cores": 1,
 			"mem": 8,
 			"stor": 16,

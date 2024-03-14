@@ -2,9 +2,10 @@ import json
 import random
 
 from off_site import OffloadingSite
-from util import NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection, PoissonRate, ExpRate
+from util import Settings, NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection, PoissonRate, ExpRate
 from dataset import LoadedData
 from edge_queue import CommQueue
+from infra import Infrastructure
 
 
 class ResourceMonitor:
@@ -12,16 +13,17 @@ class ResourceMonitor:
     def __init__ (self, scala):
 
         self._scala = scala
-        self._off_sites = self.__init_off_sites ()
-        self._topology = self.__create_topology (json.load \
-            (open ('data/topology.json')))
+        self._clustered_cells = Infrastructure.get_clustered_cells ("data/AT-Cell.csv", \
+          Settings.NUM_LOCS, json.load (open ("data/off-sites.json"))) 
+        # self._off_sites = self.__init_off_sites ()
+        #self._topology = self.__create_topology (json.load \
+        #    (open ('data/topology.json')))
         self._json_datasets = json.load (open ('data/mapping.json'))
-
         LoadedData.load_dataset ("data/SKYPE.avt")
         # cell name is updated after loading dataset node
         self._curr_cell = ""
         # starting with first dataset node per node type
-        self._off_sites = self.load_datasets (0)
+        # self._off_sites = self.load_datasets (0)
 
 
     def get_topology (cls):
@@ -34,29 +36,29 @@ class ResourceMonitor:
         return cls._curr_cell
 
 
-    def get_edge_regs (cls):
+    def get_edge_regs (cls, n):
         
-        return cls.__get_off_site (NodeTypes.E_REG)
+        return cls.__get_off_site (NodeTypes.E_REG, n)
 
 
-    def get_edge_dats (cls):
+    def get_edge_dats (cls, n):
         
-        return cls.__get_off_site (NodeTypes.E_DAT)
+        return cls.__get_off_site (NodeTypes.E_DAT, n)
 
 
-    def get_edge_comps (cls):
+    def get_edge_comps (cls, n):
         
-        return cls.__get_off_site (NodeTypes.E_COMP)
+        return cls.__get_off_site (NodeTypes.E_COMP, n)
 
 
-    def get_cloud_dc (cls):
+    def get_cloud_dc (cls, n):
         
-        return cls.__get_off_site (NodeTypes.CLOUD)
+        return cls.__get_off_site (NodeTypes.CLOUD, n)
 
 
-    def get_md(cls):
+    def get_md (cls, n):
         
-        return cls.__get_off_site (NodeTypes.MOBILE)[0]
+        return cls.__get_off_site (NodeTypes.MOBILE, n)[0]
 
 
     def get_bw (cls, f_peer, s_peer):
@@ -76,24 +78,25 @@ class ResourceMonitor:
         return cls._off_sites
 
 
-    def load_datasets (cls, n):
+    def get_cell (cls, n):
 
+        off_sites = cls._clustered_cells[n]
+        
         # new datasets are loaded when mobile device is moved to a new cell
-        for off_site in cls._off_sites:
+        for site in off_sites:
 
             # dataset nodes are not mapped to mobile device since it is assumed to be failure-free
-            id_ = cls._json_datasets[off_site.get_node_prototype ()][n]['id']
-            off_site.load_data (LoadedData.get_dataset_node (id_))
+            id_ = cls._json_datasets[site.get_node_prototype ()][n]['id']
+            site.load_data (LoadedData.get_dataset_node (id_))
 
         # update cell name when new dataset nodes are loaded
-        cls._curr_cell = cls.__get_cell_name ()
-        
-        for site in cls._off_sites:
+        cls._curr_cell = n
+        for site in off_sites:
 
-            site.set_arrival_rate ()
-            site.set_task_size_rate ()
+            site.update_arrival_rate ()
+            site.update_task_size_rate ()
 
-        return cls._off_sites
+        return off_sites
 
 
     # cell name is a concatination of all dataset node ids
@@ -168,11 +171,11 @@ class ResourceMonitor:
         return off_sites
 
 
-    def __get_off_site (cls, node_type):
+    def __get_off_site (cls, node_type, n):
 
         nodes = list ()
-
-        for off_site in cls._off_sites:
+        
+        for off_site in cls._clustered_cells[n]:
             
             if off_site.get_node_type () == node_type:
               

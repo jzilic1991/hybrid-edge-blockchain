@@ -1,4 +1,5 @@
-from util import Settings
+from util import Settings, NodePrototypes
+from off_site import OffloadingSite
 
 import numpy as np
 import csv
@@ -11,11 +12,13 @@ class Infrastructure:
 
 
   @ classmethod
-  def init_infra (cls, file_path, num_clusters, topology_dict, off_site_dict):
+  def get_clustered_cells (cls, file_path, num_clusters, off_site_dict):
 
     parsed_data = cls.__parse_topology_file (file_path)
     cluster_labels = cls.__clustering_cells (parsed_data, num_clusters)
-    cls._clustered_nodes = cls.__create_cluster_nodes (cluster_labels, topology_dict, off_site_dict)
+    cls._clustered_nodes = cls.__create_cluster_nodes (cluster_labels, off_site_dict)
+
+    return cls._clustered_nodes
   
   
   @classmethod
@@ -45,69 +48,88 @@ class Infrastructure:
         latitude = float (values["latitude"])
         longitude = float (values["longitude"])
         data += ((latitude, longitude), )
+   
+    # remove duplicates
+    tmp = set (data)
+    data_wo_duplicates = tuple (tmp)
     
+    # seeding to ensure same clustering
     np.random.seed (42)
     kmeans = KMeans (n_init = 10, n_clusters = num_clusters)
-    kmeans.fit (data)
+    kmeans.fit (data_wo_duplicates)
     
     return kmeans.labels_
 
 
   @classmethod
-  def __create_cluster_nodes (cls, labels, topology_dict, off_site_dict):
+  def __create_cluster_nodes (cls, labels, off_site_dict):
 
-    cluster_nodes = dict ()
     cluster_node_cnt = dict ()
-    node_prototypes = [NodePrototypes.ER, NodePrototypes.ED, NodePrototypes.EC, NodePrototypes.CD]
+    node_prototypes = [NodePrototypes.ER, NodePrototypes.ED, NodePrototypes.EC]
 
     for i in range (len (labels)):
 
-        if not labels[i] in cluster_nodes:
+        if not labels[i] in cluster_node_cnt:
             
-            cluster_node_cnt[labels[i]] = 0
+            cluster_node_cnt[labels[i]] = 1
         
         cluster_node_cnt[labels[i]] += 1
 
-    for label in cluster_node:
+    mobile_device = OffloadingSite (NodePrototypes.MD, off_site_dict['off-sites'][NodePrototypes.MD])
+    cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, mobile_device, \
+      off_site_dict)
 
-      category_sizes = cls.__label_node_types (cluster_node_cnt[label])
+    for label in cluster_nodes:
 
-      for size in category_sizes:
+      print (str (label) + ": " + str (len (cluster_nodes[label])))
+    
+    return cluster_nodes
 
-        for i in range (size):
+ 
+  @classmethod
+  def __label_cluster_nodes (cls, cluster_node_cnt, node_prototypes, mobile_device, \
+    off_site_dict):
+    
+    cluster_nodes = dict ()
+
+    for label in cluster_node_cnt:
+      
+      category_sizes = cls.__determine_node_prototype_sizes (cluster_node_cnt[label], len (node_prototypes))
+
+      for i in range (len (category_sizes)):
+
+        for j in range (category_sizes[i]):
 
           if not label in cluster_nodes:
 
-            cluster_nodes = list ()
+            cluster_nodes[label] = list ()
           
-          cluster_nodes[labels[i]].append (OffloadingSite (off_site_dict, topology_dict))
+          cluster_nodes[label].append (OffloadingSite (node_prototypes[i], off_site_dict['off-sites'][node_prototypes[i]]))
+
+      cluster_nodes[label].append (OffloadingSite (NodePrototypes.CD, off_site_dict['off-sites'][NodePrototypes.CD]))
+      cluster_nodes[label].append (mobile_device)
 
     return cluster_nodes
 
-
+  
   @classmethod
-  def __label_node_types (cls, num_items, num_categories = 4):
-    
-    # Initialize an empty list to store the sizes of each category
-    category_sizes = [0] * num_categories
-    
-    # Calculate the base size of each category
-    base_size = num_items // num_categories
-    
-    # Calculate the number of categories that will have one more item
-    num_categories_with_extra_item = num_items % num_categories
-    
-    # Distribute the items into categories
-    for i in range(num_items):
-        # Find the category index to place the current item
-        category_index = i % num_categories
-        
-        # Increment the size of the category
-        category_sizes[category_index] += 1
-        
-        # Check if the current category already has an extra item
-        if category_index < num_categories_with_extra_item:
-            # If so, increment the base size of this category
-            category_sizes[category_index] += 1
-    
-    return category_sizes
+  def __determine_node_prototype_sizes (cls, num_items, num_categories):
+      # Initialize an empty list to store the sizes of each category
+      category_sizes = [0] * num_categories
+
+      # Calculate the base size of each category
+      base_size = num_items // num_categories
+
+      # Calculate the number of categories that will have one more item
+      num_categories_with_extra_item = num_items % num_categories
+
+      # Distribute the items into categories
+      for i in range(num_items):
+          # Find the category index to place the current item
+          category_index = i % num_categories
+
+          # Increment the size of the category
+          category_sizes[category_index] += 1
+
+
+      return category_sizes

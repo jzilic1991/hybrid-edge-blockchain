@@ -68,12 +68,12 @@ class EdgeQueue (ABC):
     return cls._utilization_factor (workload, task = task) < 1
 
 
-  def set_arrival_rate (cls):
+  def update_arrival_rate (cls):
 
     cls._arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE)
 
 
-  def set_task_size_rate (cls):
+  def update_task_size_rate (cls):
 
     cls._task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
 

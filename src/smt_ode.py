@@ -90,7 +90,7 @@ class SmtOde (OffloadingDecisionEngine):
                 And (metrics[b[1]]['rt'] <= qos['rt'], \
                     metrics[b[1]]['rt'] <= (constr.get_proc () + constr.get_lat ()),\
                     metrics[b[1]]['ec'] <= task.get_ec (), \
-                    metrics[b[1]]['pr'] <= task.get_pr (), \
+                    # metrics[b[1]]['pr'] <= task.get_pr (), \
                     b[1].avail_or_not (timestamp) == True)) \
                     for b in b_sites])
         s.add ([Implies (b[0] == True, \
@@ -152,12 +152,12 @@ class SmtOde (OffloadingDecisionEngine):
 
         rt = cls.__compute_local_optimum (metrics, 'rt')
         ec = cls.__compute_local_optimum (metrics, 'ec')
-        pr = cls.__compute_local_optimum (metrics, 'pr')
+        # pr = cls.__compute_local_optimum (metrics, 'pr')
 
         for site, val in metrics.items ():
 
             metrics[site]['score'] = Settings.W_RT * abs (val['rt'] - rt) + \
-                Settings.W_EC * abs (val['ec'] - ec) + Settings.W_PR * abs (val['pr'] - pr)
+                Settings.W_EC * abs (val['ec'] - ec)# + Settings.W_PR * abs (val['pr'] - pr)
 
             if metrics[site]['score'] == math.inf:
 
@@ -178,7 +178,8 @@ class SmtOde (OffloadingDecisionEngine):
         site = None
         
         for key, value in metrics.items ():
-
+            
+            print ("Avail: " + str (key.avail_or_not (timestamp)))
             if value['score'] < min_score and key.avail_or_not (timestamp):
 
                 min_score = value['score']

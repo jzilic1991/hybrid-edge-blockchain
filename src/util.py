@@ -45,7 +45,10 @@ class Settings:
     K = 3
     EXECUTIONS = 10
     SAMPLES = 1
-    NUM_LOCS = 10
+    NUM_LOCS = 100
+    # constants
+    SCALABILITY = 1
+    CONSENSUS_DELAY = 0
 
 
 class Testnets:

@@ -16,6 +16,7 @@ class OffloadingSite:
         self._p_id = p_id
         self._mips = data['mips']
         self._cores = data['cores']
+        self._bw = data['bw']
         self._mem = data['mem']
         self._stor = data['stor']
         self._intra_constr = IntraConstraints (data['proc-intra'], data['lat-intra'])
@@ -36,8 +37,12 @@ class OffloadingSite:
         self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
           task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
         # comm queues are initialized when bandwidth is set
-        self._task_off_queue = None
-        self._task_del_queue = None
+        self._task_off_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK, \
+          site_name = self._node_type)
+        self._task_del_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
+          site_name = self._node_type)
         # self.print_system_config()
 
 
@@ -62,7 +67,7 @@ class OffloadingSite:
       # print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY (" + task.get_name () + ") = "+ str (off_lat))
       # print (cls._node_type + " has ESTIMATED EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ESTIMATED DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
-      print (cls._node_type + " has ESTIMATED TOTAL LATENCY (" + task.get_name () + ") = " + str (total_lat.get_overall ()))
+      print (cls._name_id + " has ESTIMATED TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
@@ -88,34 +93,28 @@ class OffloadingSite:
       # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
       # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ACTUAL DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
-      print (cls._node_type + " has ACTUAL TOTAL LATENCY (" + task.get_name () + ") = " + str (total_lat.get_overall ()))
+      print (cls._name_id + " has ACTUAL TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
 
-    def set_arrival_rate (cls): 
+    def update_arrival_rate (cls): 
 
-      cls._task_off_queue.set_arrival_rate ()
-      cls._task_exe_queue.set_arrival_rate ()
-      cls._task_del_queue.set_arrival_rate ()
+      cls._task_off_queue.update_arrival_rate ()
+      cls._task_exe_queue.update_arrival_rate ()
+      cls._task_del_queue.update_arrival_rate ()
 
 
-    def set_task_size_rate (cls):
+    def update_task_size_rate (cls):
 
-      cls._task_off_queue.set_task_size_rate ()
-      cls._task_exe_queue.set_task_size_rate ()
-      cls._task_del_queue.set_task_size_rate ()
+      cls._task_off_queue.update_task_size_rate ()
+      cls._task_exe_queue.update_task_size_rate ()
+      cls._task_del_queue.update_task_size_rate ()
 
 
     def set_bandwidth (cls, bw):
 
-      print (cls._node_prototype + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))
-      cls._task_off_queue = CommQueue (bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK, \
-        site_name = cls._node_type)
-      cls._task_del_queue = CommQueue (bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-        task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
-        site_name = cls._node_type)
+      print (cls._name_id + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))
      
 
     def workload_update (cls, time_passed):

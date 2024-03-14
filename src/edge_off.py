@@ -26,6 +26,7 @@ class EdgeOffloading (Thread):
     self._app_name = app_name
     self._con_delay = con_delay
     self._log = None
+    self._cell_number = 0
 
     # user moves to another cell location after certain number of applications excutions
     self._user_move = self._exe / locs
@@ -34,38 +35,39 @@ class EdgeOffloading (Thread):
 
   def deploy_rep_smt_ode (cls):
 
-    cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+    cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, True, cls._con_delay)
 
 
   def deploy_smt_ode (cls):
 
-    cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+    cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, False, cls._con_delay)
 
 
   def deploy_sq_ode (cls):
 
-    cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (), cls._r_mon.get_md (), cls._app_name, \
+    cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
       cls._con_delay)
 
 
   def deploy_mdp_ode (cls):
 
-    cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (), cls._r_mon.get_md (), \
+    cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, cls._con_delay, cls._r_mon.get_off_sites ())
 
 
   def run (cls):
 
     cls._log = cls._s_ode.get_logger ()
-    off_sites = cls._r_mon.get_off_sites ()
-    topology = cls._r_mon.get_topology ()
+    off_sites = cls._r_mon.get_cell (cls._cell_number)
+    off_sites = cls.__register_nodes (off_sites)
+    
+    # topology = cls._r_mon.get_topology ()
     app = cls._m_app_prof.dep_app (cls._app_name)
     app.run ()
 
     # cls.__print_setup (off_sites, topology, app)
-    off_sites = cls.__register_nodes (off_sites)
 
     # setting cell statistics (this is updated after each loading dataset nodes into off sites)
     cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
@@ -114,20 +116,23 @@ class EdgeOffloading (Thread):
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
 
-          # print ("Cell move")
+          print ("Cell move")
+          exit ()
           period_cnt = 0
 
           # summarize cell statistics
           cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
 
           # load dataset by number of changed cell locations
-          off_sites = cls._r_mon.load_datasets (int (exe_cnt / cls._user_move))
+          cls._cell_number = int (exe_cnt / cls._user_move)
+          off_sites = cls._r_mon.get_cell (cls._cell_number)
 
           # reset reputation when moved to a new cell location
-          off_sites = cls.__reset_reputation (off_sites)
+          # off_sites = cls.__reset_reputation (off_sites)
+          off_sites = cls.__register_nodes (off_sites)
 
           # when new datasets are loaded then cell location is changed for statistics
-          cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
+          cls._s_ode.set_cell_stats (cls._cell_number)
 
         # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
         continue
@@ -178,7 +183,7 @@ class EdgeOffloading (Thread):
         task_n_delay = tasks[0].get_name ()
 
       # off_sites = cls.__update_behav (off_sites, exe_cnt)
-      trxs = cls._s_ode.offload (tasks, off_sites, topology, timestamp, app.get_name (), app.get_qos ())
+      trxs = cls._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos ())
       off_transactions += trxs
 
       # update workload after task offloading
@@ -217,7 +222,9 @@ class EdgeOffloading (Thread):
   def __register_nodes (cls, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
+    print ("Registration")
     cls._req_q.put (('reg', names))
+    print ("Waiting for registration")
     reg_nodes = cls._rsp_q.get ()
   
     if reg_nodes[0] == 'reg_rsp':
@@ -229,6 +236,7 @@ class EdgeOffloading (Thread):
           if ele['name'] == site.get_n_id ():
 
             site.set_sc_id (ele['id'])
+            print ("SC ID is a " + str (ele['id']))
             break
 
     return off_sites
@@ -254,9 +262,8 @@ class EdgeOffloading (Thread):
     return off_sites
 
 
-  def __print_setup (cls, off_sites, topology, app):
+  def __print_setup (cls, off_sites, app):
 
-    print (topology)
     app.print_entire_config ()
 
     for off_site in off_sites:
