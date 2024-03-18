@@ -45,8 +45,8 @@ class SmtOde (OffloadingDecisionEngine):
             #site = random.choice (list (metrics.items ()))
             if cls._activate:
                 
-                site, metric = cls.__get_site_min_score (metrics, timestamp)
-                return (site, metric)
+                site, metrics = cls.__get_site_min_score (metrics, timestamp)
+                return (site, metrics)
             
             else:
 
@@ -179,7 +179,6 @@ class SmtOde (OffloadingDecisionEngine):
         
         for key, value in metrics.items ():
             
-            print ("Avail: " + str (key.avail_or_not (timestamp)))
             if value['score'] < min_score and key.avail_or_not (timestamp):
 
                 min_score = value['score']

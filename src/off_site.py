@@ -143,8 +143,12 @@ class OffloadingSite:
 
 
     def avail_or_not (cls, t):
+        
+        if cls._node_type != NodeTypes.MOBILE:
+        
+          return cls._dataset_node.is_avail_or_not (t)
 
-        return cls._dataset_node.is_avail_or_not (t)
+        return True
 
 
     def get_avail (cls):
@@ -278,7 +282,7 @@ class OffloadingSite:
         # print ("Offloadable: " + str(task.is_offloadable()) + ", node type: " + str(cls._node_type) + \
         #  ", avail: " + str(cls._dataset_node.is_avail_or_not (t)))
         if (not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE) or \
-            not cls._dataset_node.is_avail_or_not (t):
+            (not cls._dataset_node.is_avail_or_not (t) and cls._node_type != NodeTypes.MOBILE):
                 
             return ExeErrCode.EXE_NOK
         

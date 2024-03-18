@@ -98,7 +98,10 @@ class EdgeOffloading (Thread):
       tasks = app.get_ready_tasks ()
       timestamp = round (time_period * period_cnt, 3)
 
-      # when all application tasks are completed
+      # when all application tasks are completeid
+      # print ("User move: " + str (cls._user_move))
+      # print ("Execution count: " + str (exe_cnt))
+      # print (str (len (tasks)) + " to offload!")
       if len (tasks) == 0:
 
         app = cls._m_app_prof.dep_app (cls._app_name)
@@ -116,8 +119,7 @@ class EdgeOffloading (Thread):
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
 
-          print ("Cell move")
-          exit ()
+          # print ("Cell move")
           period_cnt = 0
 
           # summarize cell statistics

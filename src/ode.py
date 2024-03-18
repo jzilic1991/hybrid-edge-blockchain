@@ -152,7 +152,7 @@ class OffloadingDecisionEngine(ABC):
 
                 else:
 
-                    # cls._log.w ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    print ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
                     # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \

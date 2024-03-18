@@ -108,6 +108,10 @@ class Stats:
 
                     off_fail.append (0.0)
 
+        if len (off_fail) == 0:
+
+          return "Average task failure rate (percentage) is 0.0%"
+
         return "Average task failure rate (percentage) is " + \
             str (round (sum (off_fail) / len (off_fail), 3))
 
@@ -148,6 +152,10 @@ class Stats:
                 else:
 
                     constr_viol.append (0.0)
+
+        if len (constr_viol) == 0:
+          
+          return "Average constraint violation rate (precentage) is 0.0 %"
 
         return "Average constraint violation rate (percentage) is " + \
             str (round (sum (constr_viol) / len (constr_viol), 3))
