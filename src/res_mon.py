@@ -2,7 +2,7 @@ import json
 import random
 
 from off_site import OffloadingSite
-from util import Settings, NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection, PoissonRate, ExpRate
+from util import NodeTypes, Util, NodePrototypes, AvailabilityModes, CommDirection, PoissonRate, ExpRate
 from dataset import LoadedData
 from edge_queue import CommQueue
 from infra import Infrastructure
@@ -14,7 +14,7 @@ class ResourceMonitor:
 
         self._scala = scala
         self._clustered_cells = Infrastructure.get_clustered_cells ("data/AT-Cell.csv", \
-          Settings.NUM_LOCS, json.load (open ("data/off-sites.json"))) 
+          json.load (open ("data/off-sites.json"))) 
         # self._off_sites = self.__init_off_sites ()
         #self._topology = self.__create_topology (json.load \
         #    (open ('data/topology.json')))
@@ -53,7 +53,7 @@ class ResourceMonitor:
 
     def get_cloud_dc (cls, n):
         
-        return cls.__get_off_site (NodeTypes.CLOUD, n)
+        return cls.__get_off_site (NodeTypes.CLOUD, n)[0]
 
 
     def get_md (cls, n):

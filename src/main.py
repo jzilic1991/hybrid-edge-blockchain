@@ -55,23 +55,23 @@ def experiment_run ():
 
     global chain, req_q, rsp_q, cached_trx, update_thread
 
-    # node registration
-    msg = req_q.get ()
-    if msg[0] == 'reg':
-
-        for name in msg[1]:
-
-            result = chain.register_node (name)
-            # print ('Node is registered: ' + str (result))
-            reg_nodes.append (result)
-
-    rsp_q.put (('reg_rsp', reg_nodes))
 
     while True:
-
+    
+        # node registration
         msg = req_q.get ()
+        if msg[0] == 'reg':
 
-        if msg[0] == 'update':
+            for name in msg[1]:
+
+                result = chain.register_node (name)
+                # print ('Node is registered: ' + str (result))
+                reg_nodes.append (result)
+
+            rsp_q.put (('reg_rsp', reg_nodes))
+
+        # offloading transactions
+        elif msg[0] == 'update':
 
             if update_thread:
 
@@ -83,7 +83,8 @@ def experiment_run ():
 
                 cached_trx += [trx for trx in msg[1]]
                 submit_cached_trx ()
-
+        
+        # get reputation per offloading site
         elif msg[0] == 'get':
 
             site_rep = []
@@ -92,7 +93,8 @@ def experiment_run ():
                 site_rep.append((n_id, chain.get_reputation (n_id)))
 
             rsp_q.put (('get_rsp', site_rep))
-
+        
+        # reset reputation
         elif msg[0] == 'reset':
 
             while True:
@@ -101,7 +103,8 @@ def experiment_run ():
 
                     rsp_q.put (('reset_rsp', chain.reset_reputation (msg[1])))
                     break
-
+        
+        # unregister node
         elif msg[0] == 'close':
 
             for nodeId in msg[1]:
@@ -117,6 +120,11 @@ def experiment_run ():
             
             rsp_q.put ('confirm')
             break
+        
+        # wrong or unknown message is received
+        else:
+
+          raise ValueError ("Wrong message received from offloading thread: " + str (msg[0]))
 
 
 random.seed (42)
@@ -131,33 +139,33 @@ chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':
 
-    edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_rep_smt_ode ()
     edge_off.start ()
 
     experiment_run ()
 
-    #edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
-    #    MobApps.INTRASAFED, 0, 1, Settings.NUM_LOCS)
-    #edge_off.deploy_smt_ode ()
-    #edge_off.start ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_smt_ode ()
+    edge_off.start ()
 
-    #experiment_run ()
+    experiment_run ()
     
-    # edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
-    #    MobApps.INTRASAFED,0, 1, Settings.NUM_LOCS)
-    # edge_off.deploy_sq_ode ()
-    # edge_off.start ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+       MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_sq_ode ()
+    edge_off.start ()
 
-    # experiment_run ()
+    experiment_run ()
 
-    # edge_off = EdgeOffloading (req_q, rsp_q, Settings.EXECUTIONS, Settings.SAMPLES, \
-    #    MobApps.INTRASAFED, 0, 1, Settings.NUM_LOCS)
-    # edge_off.deploy_mdp_ode ()
-    # edge_off.start ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_mdp_ode ()
+    edge_off.start ()
 
-    # experiment_run ()
+    experiment_run ()
 
 
 elif sys.argv[1] == 'mobiar':

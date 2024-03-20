@@ -60,7 +60,7 @@ class EdgeQueue (ABC):
     # print ("--- After update " + cls._site_name + " ---")
     cls._workload = cls._residual_workload (cls._workload, time_passed = time_passed)
     util = cls._utilization_factor (cls._workload)
-    cls._print_workload (cls._workload, util)
+    # cls._print_workload (cls._workload, util)
 
 
   def enough_resources (cls, task):

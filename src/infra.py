@@ -11,8 +11,8 @@ class Infrastructure:
   _clustered_nodes = tuple ()
 
 
-  @ classmethod
-  def get_clustered_cells (cls, file_path, num_clusters, off_site_dict):
+  @classmethod
+  def get_clustered_cells (cls, file_path, off_site_dict, num_clusters = 100):
 
     parsed_data = cls.__parse_topology_file (file_path)
     cluster_labels = cls.__clustering_cells (parsed_data, num_clusters)
@@ -75,7 +75,6 @@ class Infrastructure:
         
         cluster_node_cnt[labels[i]] += 1
 
-    mobile_device = OffloadingSite (NodePrototypes.MD, off_site_dict['off-sites'][NodePrototypes.MD])
     cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, mobile_device, \
       off_site_dict)
 
@@ -107,7 +106,7 @@ class Infrastructure:
           cluster_nodes[label].append (OffloadingSite (node_prototypes[i], off_site_dict['off-sites'][node_prototypes[i]]))
 
       cluster_nodes[label].append (OffloadingSite (NodePrototypes.CD, off_site_dict['off-sites'][NodePrototypes.CD]))
-      cluster_nodes[label].append (mobile_device)
+      cluster_nodes[label].append (OffloadingSite (NodePrototypes.MD, off_site_dict['off-sites'][NodePrototypes.MD]))
 
     return cluster_nodes
 

@@ -67,7 +67,7 @@ class OffloadingSite:
       # print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY (" + task.get_name () + ") = "+ str (off_lat))
       # print (cls._node_type + " has ESTIMATED EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ESTIMATED DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
-      print (cls._name_id + " has ESTIMATED TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
+      # print (cls._name_id + " has ESTIMATED TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
@@ -121,7 +121,7 @@ class OffloadingSite:
 
       #print (cls._node_type + " workload update!")
       #print ("Time passed: " + str (time_passed))
-      print ("*** " + cls._node_type  + " queue state updates ***")
+      # print ("*** " + cls._name_id  + " queue state updates ***")
       cls._task_off_queue.workload_update (time_passed)
       cls._task_exe_queue.workload_update (time_passed)
       cls._task_del_queue.workload_update (time_passed)
@@ -172,8 +172,9 @@ class OffloadingSite:
 
 
     def set_reputation (cls, reput):
-
+        
         cls._reput = reput
+        print ("SC ID " + str (cls._sc_id) + " has a reputation " + str (cls._reput))
 
 
     def get_node_prototype (cls):

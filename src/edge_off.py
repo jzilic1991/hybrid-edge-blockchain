@@ -29,6 +29,8 @@ class EdgeOffloading (Thread):
     self._cell_number = 0
 
     # user moves to another cell location after certain number of applications excutions
+    # it only works when number of executions is higher than number of locations
+    # the division result should be a integer
     self._user_move = self._exe / locs
     # print ("User move: " + str (self._user_move))
 
@@ -54,7 +56,7 @@ class EdgeOffloading (Thread):
   def deploy_mdp_ode (cls):
 
     cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
-      cls._app_name, cls._con_delay, cls._r_mon.get_off_sites ())
+      cls._app_name, cls._con_delay)
 
 
   def run (cls):
@@ -104,23 +106,30 @@ class EdgeOffloading (Thread):
       # print (str (len (tasks)) + " to offload!")
       if len (tasks) == 0:
 
+        # deploy and run mobile application
         app = cls._m_app_prof.dep_app (cls._app_name)
         app.run ()
+        
+        # execution counter
         exe_cnt = exe_cnt + 1
+        
+        # loading new QoS constraints
         cls._s_ode.app_exc_done (app.get_qos ())
 
-        # update reputation after each application execution and reset transaction list
-        cls._req_q.put (('update', off_transactions))
-        off_transactions = list ()
         # print ("Execution:" + str (exe_cnt))
+
+        # cell mover flag for indicating is cell location has changed
+        # if yes then reputation update is not needed
+        cell_mover = False
 
         # when certain number of application executions are completed 
         # then mobile device moves to another cell location and 
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
 
-          # print ("Cell move")
+          # print ("############################## Cell move ###################################")
           period_cnt = 0
+          cell_mover = True
 
           # summarize cell statistics
           cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
@@ -137,6 +146,13 @@ class EdgeOffloading (Thread):
           cls._s_ode.set_cell_stats (cls._cell_number)
 
         # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+        
+        if not cell_mover:
+          
+          # update reputation after each application execution and reset transaction list
+          cls._req_q.put (('update', off_transactions))
+          off_transactions = list ()
+        
         continue
 
       # consensus delay
@@ -224,7 +240,7 @@ class EdgeOffloading (Thread):
   def __register_nodes (cls, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    print ("Registration")
+    print ("Registration of  " + str (len (names)) + " nodes")
     cls._req_q.put (('reg', names))
     print ("Waiting for registration")
     reg_nodes = cls._rsp_q.get ()
@@ -238,7 +254,7 @@ class EdgeOffloading (Thread):
           if ele['name'] == site.get_n_id ():
 
             site.set_sc_id (ele['id'])
-            print ("SC ID is a " + str (ele['id']))
+            # print ("SC ID is a " + str (ele['id']))
             break
 
     return off_sites
