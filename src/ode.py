@@ -235,6 +235,13 @@ class OffloadingDecisionEngine(ABC):
         return cls._curr_n
 
 
+    # when switching cells then current site of task execution has to be updated
+    # current site of task execution has to be from current cell
+    def set_curr_node (cls, site):
+
+        cls._curr_n = site
+
+
     def __evaluate_constraint_violations (cls, off_site, rt, app_name):
 
         constr = off_site.get_constr (app_name)

@@ -7,7 +7,7 @@ from sq_ode import SqOde
 from mdp_ode import MdpOde
 from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
-from util import Settings
+from util import Util, Settings
 
 
 class EdgeOffloading (Thread):
@@ -126,6 +126,7 @@ class EdgeOffloading (Thread):
 
         # cell mover flag for indicating is cell location has changed
         # if yes then reputation update is not needed
+        # it is a fix solution for sending a new offloading transaction when previous offloading transaction is still pending 
         cell_mover = False
 
         # when certain number of application executions are completed 
@@ -133,7 +134,6 @@ class EdgeOffloading (Thread):
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
 
-          # print ("############################## Cell move ###################################")
           period_cnt = 0
           cell_mover = True
 
@@ -145,7 +145,6 @@ class EdgeOffloading (Thread):
           off_sites = cls._r_mon.get_cell (cls._cell_number)
 
           # reset reputation when moved to a new cell location
-          # off_sites = cls.__reset_reputation (off_sites)
           off_sites = cls.__register_nodes (off_sites)
           
           # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
@@ -155,6 +154,9 @@ class EdgeOffloading (Thread):
 
           # when new datasets are loaded then cell location is changed for statistics
           cls._s_ode.set_cell_stats (cls._cell_number)
+
+          # update current site of task exeuction when switching cells
+          cls._s_ode.set_curr_node (Util.get_mob_site (off_sites))
 
         # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
         

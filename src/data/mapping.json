@@ -1,286 +1,1261 @@
 {
     "EC": [
         {
-            "id": "0941856d93e085e46e0092513a1a3e64",
-            "avail": 98.59,
-            "ints": 12
-        },
-        {
-            "id": "56d2edb54a2206d976d8be757ce5625d",
-            "avail": 77.9,
+            "id": "c9ae19d1d6d94e2c6622272e7c2a3cf8",
+            "avail": 0.98,
             "ints": 9
         },
         {
-            "id": "8ce1c619ecb64740210fb9b4a302e6b1",
-            "avail": 65.05,
+            "id": "3476552e7cbff59a28574c845e1b75d7",
+            "avail": 0.25,
             "ints": 10
         },
         {
-            "id": "eba909d6833889e9d3ad470e47176d2a",
-            "avail": 84.49,
+            "id": "6bb1ae3098bbe14434d6826e651f3b04",
+            "avail": 0.97,
+            "ints": 6
+        },
+        {
+            "id": "3ef3cfb0b7e578611f8d4792e6470740",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "3352bd703d99c52b8399d6d387a80727",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "23179fab1e83a98f12b92e5b3d27f619",
+            "avail": 0.35,
+            "ints": 62
+        },
+        {
+            "id": "9ad6029d6a6df00cebeac94d6f989456",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "d99399929d3d7bb92705c686bda7418f",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "f13c25ee140f95da74cf078b1795ce80",
+            "avail": 0.89,
             "ints": 9
         },
         {
-            "id": "3d23eb7cf9c255e77e90546b29383abd",
-            "avail": 33.23,
-            "ints": 34
+            "id": "734dd822336f4134a19e99a37229270b",
+            "avail": 0.38,
+            "ints": 19
         },
         {
-            "id": "8b45b1d4ecf0323c4a43baef33d13c8d",
-            "avail": 79.94,
-            "ints": 2
+            "id": "84576fe584a8db8b2594906e5777d497",
+            "avail": 0.48,
+            "ints": 49
         },
         {
-            "id": "ce98fc0d85b3a7bafa45869fe6e22ebc",
-            "avail": 99.33,
-            "ints": 11
+            "id": "03b5181325bdfd9fd4f1e13f6ff10740",
+            "avail": 0.31,
+            "ints": 25
         },
         {
-            "id": "7f1a99ec55ff1f0dfd4bc7f078eefd62",
-            "avail": 42.4,
-            "ints": 2
+            "id": "fe69668c35ebc4d42f85d177736da87d",
+            "avail": 0.18,
+            "ints": 24
         },
         {
-            "id": "eec5bbd0608872d121319f13d2a6ee0a",
-            "avail": 95.71,
+            "id": "947557c669d10b20d9c94bc91d9dd96d",
+            "avail": 0.35,
             "ints": 6
         },
         {
-            "id": "9f12258055ce1b139f9da185eedd9134",
-            "avail": 94.26,
+            "id": "ff10fd310e5ef24d72b72eb824ca8f5b",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "91c3d68dfbf40ffd3fc8b1bc62370cf8",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "dfe09591c0b5be9275b7665be35e0e66",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "a0fab6203fd1c729e907d778833d8691",
+            "avail": 0.95,
+            "ints": 8
+        },
+        {
+            "id": "322e0ddc133763fe25001cf2387fbc69",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "f9cf3893a66fa4ee4c2ab74f30317662",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "9a254d5961e3d353ef17f119d1872eb8",
+            "avail": 0.82,
+            "ints": 9
+        },
+        {
+            "id": "0719b1c7ac3659c8057ff1236f25b370",
+            "avail": 0.24,
+            "ints": 52
+        },
+        {
+            "id": "58a9ea77b955b71eda547132ccabc5d2",
+            "avail": 0.52,
+            "ints": 35
+        },
+        {
+            "id": "b32dbb1c999eb7fb335c462da3b4ed42",
+            "avail": 0.82,
+            "ints": 5
+        },
+        {
+            "id": "391e14d8d0a285f59045c86cbb8e95ad",
+            "avail": 0.25,
+            "ints": 22
+        },
+        {
+            "id": "3c5cb8d57374fcb827fc8009ee534962",
+            "avail": 0.25,
+            "ints": 14
+        },
+        {
+            "id": "22c6d88ab2c105be8aa420fc88a99f80",
+            "avail": 0.99,
+            "ints": 4
+        },
+        {
+            "id": "606bf674da174b7da571dd99097f44a3",
+            "avail": 0.21,
+            "ints": 61
+        },
+        {
+            "id": "6137931170919d6bb7eda503c12ba53c",
+            "avail": 0.64,
+            "ints": 15
+        },
+        {
+            "id": "a79657761b723d1dca03a8efea075e06",
+            "avail": 0.01,
+            "ints": 4
+        },
+        {
+            "id": "13a0087d92ff138b3472bf7bf9e67445",
+            "avail": 0.38,
+            "ints": 9
+        },
+        {
+            "id": "bc859b9fcdc0b1de5f368386ff598a11",
+            "avail": 1.0,
+            "ints": 4
+        },
+        {
+            "id": "e6b8be0a8ead970e0eb4091dd77b28ee",
+            "avail": 0.05,
             "ints": 6
         },
         {
-            "id": "85fb0c1a530a0f810f5415932df384f2", 
-            "avail": 61.0, 
-            "ints": 39
+            "id": "37c7263ab49451787c51c3e4af27bff6",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "cec280729d9bace3a8fda8fc2496e7f4",
+            "avail": 0.41,
+            "ints": 86
+        },
+        {
+            "id": "ceff6e6834084c15346e15f4cbfd354f",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "3d4408582cb212706e10ec207adc2152",
+            "avail": 0.99,
+            "ints": 10
+        },
+        {
+            "id": "94c66015d1b061142ef2554d2ea7e872",
+            "avail": 0.87,
+            "ints": 10
+        },
+        {
+            "id": "996532609880dceef3217e093a948e60",
+            "avail": 0.61,
+            "ints": 32
+        },
+        {
+            "id": "2e03b3acfe7e29f8857b05bfc0b36901",
+            "avail": 0.62,
+            "ints": 30
+        },
+        {
+            "id": "222966897958d4abb05ad2ac26b13b25",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "6cbeae13eea697d81c77f8653fab0eab",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "bd5b1c49c613510171d2f68d4e629659",
+            "avail": 0.3,
+            "ints": 45
+        },
+        {
+            "id": "bfcb2978949992bfdb25a31fb3b15661",
+            "avail": 0.73,
+            "ints": 22
+        },
+        {
+            "id": "56b42b8a6ddb70aa56b85fa741796146",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "c752a06a876ab2b6530a62c0e58d09d4",
+            "avail": 0.06,
+            "ints": 4
+        },
+        {
+            "id": "e0222fae67c840ea41c4bc5a7ea8f44a",
+            "avail": 0.23,
+            "ints": 2
+        },
+        {
+            "id": "02e0724730a585019ee9489b01987d91",
+            "avail": 0.12,
+            "ints": 9
+        },
+        {
+            "id": "a4f8f8656e70898fd282780b69eca5c7",
+            "avail": 0.59,
+            "ints": 17
+        },
+        {
+            "id": "3c18bb899d3b304dc7491d355f3b1a43",
+            "avail": 0.25,
+            "ints": 16
         }
     ],
     "ED": [
         {
+            "id": "a2ded16cc625ee0ec615842ab10406fe",
+            "avail": 0.76,
+            "ints": 20
+        },
+        {
             "id": "6190fffd4516e900a2b1b5be4df4450d",
-            "avail": 16.6,
+            "avail": 0.17,
+            "ints": 12
+        },
+        {
+            "id": "7dc5ee45877093fafd06d354af98ec11",
+            "avail": 0.24,
+            "ints": 35
+        },
+        {
+            "id": "d35222a321a7f00fe8e1577a46af21b1",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "aafccd2fbd7b1e0b0dbfe2d2fe6e5dd8",
+            "avail": 0.62,
+            "ints": 10
+        },
+        {
+            "id": "280485dbf6964054fc54c59496ab95c9",
+            "avail": 0.95,
+            "ints": 4
+        },
+        {
+            "id": "30af8de7f98087a6fa0aa64c2c255878",
+            "avail": 0.1,
+            "ints": 13
+        },
+        {
+            "id": "76a922d169e5264381ab594ce555deda",
+            "avail": 0.2,
+            "ints": 32
+        },
+        {
+            "id": "ad1baa6ebd1a20c1e6e0221df8f01264",
+            "avail": 0.84,
+            "ints": 12
+        },
+        {
+            "id": "996af9f469c8691c3734c19505d63f0b",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "05a43c2f17cd76d39b0a55d175a0043c",
+            "avail": 0.45,
+            "ints": 17
+        },
+        {
+            "id": "119a89661365b6e92f404b934f482283",
+            "avail": 1.0,
+            "ints": 2
+        },
+        {
+            "id": "4776faf5b3a656aababd88bed3347f47",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "ec698c164820ea79abcbd236ba51414d",
+            "avail": 0.53,
+            "ints": 30
+        },
+        {
+            "id": "eea5fa4f20aaeeae3c879ba1c9e8d263",
+            "avail": 0.49,
+            "ints": 20
+        },
+        {
+            "id": "5a99b1614ae775702a13d4dc20537f37",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "9afec8277baa38aaa7406c7dba02f834",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "e9b84cc288000a4ba3e3b9af16c4854c",
+            "avail": 0.8,
+            "ints": 23
+        },
+        {
+            "id": "fad4c00910c5ab56e5fa455f3aec2ca7",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "f0bc21ca17afb56dd92089c7cbb6dfa5",
+            "avail": 0.33,
+            "ints": 41
+        },
+        {
+            "id": "6f18eab1f344a5a070b03097a36a45ff",
+            "avail": 0.7,
+            "ints": 2
+        },
+        {
+            "id": "cec280729d9bace3a8fda8fc2496e7f4",
+            "avail": 0.41,
+            "ints": 86
+        },
+        {
+            "id": "1a4c116aec3ad00f0f3b22df2ecff0f3",
+            "avail": 0.95,
+            "ints": 2
+        },
+        {
+            "id": "bef2789a7de37e3491fefd5bc8245930",
+            "avail": 0.25,
+            "ints": 24
+        },
+        {
+            "id": "83d635b731b006782c10b5b4c97249ca",
+            "avail": 0.12,
+            "ints": 5
+        },
+        {
+            "id": "75b56e934ee322b5300fdc2756c8e84d",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "82c24cbb8a186f1f03a736dd8974d3bf",
+            "avail": 0.51,
+            "ints": 12
+        },
+        {
+            "id": "43eac6273f8a855a90ea80efb6c5b555",
+            "avail": 0.96,
             "ints": 12
         },
         {
             "id": "b21716a8105a9257b26628fb4cc4e1a9",
-            "avail": 12.53,
+            "avail": 0.13,
             "ints": 57
         },
         {
-            "id": "f81fb4424fa068a2e918790c86896c30",
-            "avail": 85.76,
-            "ints": 4
+            "id": "cbcaddfa0ad1fa2d2d1a6d5e09b09541",
+            "avail": 0.38,
+            "ints": 34
         },
         {
-            "id": "1da3c1339ef12cbe7b7ca51731cf62f2",
-            "avail": 100.0,
+            "id": "a48e9d50f7d68d65cea597562959176d",
+            "avail": 1.0,
             "ints": 1
         },
         {
-            "id": "cb6ae4673e4fb789d8d2d9c5444d231d",
-            "avail": 71.98,
-            "ints": 4
+            "id": "b0bee44d181fb70fa61e9205eeb91452",
+            "avail": 0.39,
+            "ints": 3
         },
         {
-            "id": "dd52cabf6738a69917a649c34c5b26d5",
-            "avail": 100.0,
+            "id": "b9449e93868e178cb29d8bfbff4f6644",
+            "avail": 0.27,
+            "ints": 31
+        },
+        {
+            "id": "908a439c051e9c7d17ca17cebf307471",
+            "avail": 0.06,
+            "ints": 22
+        },
+        {
+            "id": "996532609880dceef3217e093a948e60",
+            "avail": 0.61,
+            "ints": 32
+        },
+        {
+            "id": "e46dba4f01bc4a88685b465ce98210e3",
+            "avail": 0.35,
+            "ints": 15
+        },
+        {
+            "id": "a3171453f91697c248fe123d5be29e84",
+            "avail": 0.81,
+            "ints": 14
+        },
+        {
+            "id": "fa6871bc2e52c935fc26a52fba4fe219",
+            "avail": 1.0,
             "ints": 1
         },
         {
-            "id": "eff0ae9422387649640f2780c4d63647",
-            "avail": 5.95,
-            "ints": 6
-        },
-        {
-            "id": "372e400335f4a70ad04d566bc9ef773b",
-            "avail": 21.63,
+            "id": "28c884bfa7c681f258feec64e615e461",
+            "avail": 0.18,
             "ints": 19
         },
         {
-            "id": "8e2e2281699902a4f9deb084f3aa5a89",
-            "avail": 80.08,
-            "ints": 2
+            "id": "3128f3c2c2a1ac8cc6b18d5527bbfe8f",
+            "avail": 0.23,
+            "ints": 26
         },
         {
-            "id": "ce2a303e72f64dfb929d7f6609fc76ff",
-            "avail": 98.22,
-            "ints": 8
+            "id": "4ddce187fbc417bdb33c306092bfbc23",
+            "avail": 0.88,
+            "ints": 17
         },
         {
-            "id": "3682cc3a3dcdee026d89a042904934a1", 
-            "avail": 57.0, 
-            "ints": 8
+            "id": "c57afd37ea0ae3f21000e0d1a051ed73",
+            "avail": 0.9,
+            "ints": 24
+        },
+        {
+            "id": "56d2edb54a2206d976d8be757ce5625d",
+            "avail": 0.78,
+            "ints": 9
+        },
+        {
+            "id": "2fc0438cbd37cdfb523bb2afa645ed08",
+            "avail": 0.16,
+            "ints": 14
+        },
+        {
+            "id": "eb745c2ea8a205b27362493e66f7c049",
+            "avail": 0.76,
+            "ints": 26
+        },
+        {
+            "id": "b99b208b2ffa4c1205cd51a43031aae7",
+            "avail": 0.86,
+            "ints": 11
+        },
+        {
+            "id": "6bb1ae3098bbe14434d6826e651f3b04",
+            "avail": 0.97,
+            "ints": 6
+        },
+        {
+            "id": "4a5edde53c9dfc73caf4eb2e635e916d",
+            "avail": 0.77,
+            "ints": 60
+        },
+        {
+            "id": "8d8136d396b5b131df9cb001b06d376f",
+            "avail": 0.34,
+            "ints": 6
+        },
+        {
+            "id": "20ecb9a894ea418d3e4d6e483d0a298c",
+            "avail": 0.24,
+            "ints": 19
         }
     ],
     "ER": [
         {
-            "id": "f260d2cdbc3f5faee391a9fbdfc9d76c",
-            "avail": 100.0,
-            "ints": 1
-        },
-        {
-            "id": "81a4625f21658cb00210b85d2d336794",
-            "avail": 89.82,
+            "id": "27ac7bed1c9352be72371ab678d4a643",
+            "avail": 0.93,
             "ints": 7
         },
         {
-            "id": "78b0ab611a2fc06e38710c715fcfc0a0",
-            "avail": 60.84,
+            "id": "be0dcc6c9b6f3619679fe193a1c40ae9",
+            "avail": 0.34,
+            "ints": 109
+        },
+        {
+            "id": "9d2a76720c03085337ed6445191a98c3",
+            "avail": 0.38,
+            "ints": 35
+        },
+        {
+            "id": "27ac7bed1c9352be72371ab678d4a643",
+            "avail": 0.93,
+            "ints": 7
+        },
+        {
+            "id": "0adec579b12b9c779c209a3a9d949583",
+            "avail": 1.0,
+            "ints": 3
+        },
+        {
+            "id": "811571a2fbf56b3f4c4c4dc9acccc812",
+            "avail": 0.46,
+            "ints": 38
+        },
+        {
+            "id": "8086b06edff1a8644f2c59e7d1ce375a",
+            "avail": 0.48,
+            "ints": 13
+        },
+        {
+            "id": "80805fe14ab70d4f9c3c565f6a3ac293",
+            "avail": 0.9,
+            "ints": 29
+        },
+        {
+            "id": "34eb889f057878832f5b1a09f3b25a26",
+            "avail": 0.28,
+            "ints": 24
+        },
+        {
+            "id": "44a5b6fcf19de2c9574ede3740140966",
+            "avail": 0.01,
             "ints": 4
         },
         {
-            "id": "71b99ade327e9f02d44bfa062a84a9ce",
-            "avail": 12.65,
-            "ints": 14
-        },
-        {
-            "id": "0436c8571aa23d3277876da596b71865",
-            "avail": 9.33,
-            "ints": 12
-        },
-        {
-            "id": "adc9ef8cbde4f174ab85d1128091aed2",
-            "avail": 100.0,
+            "id": "74c7bd094a49e7cb19801e3d47c1ae94",
+            "avail": 1.0,
             "ints": 1
         },
         {
-            "id": "ff9d0ab20add6063f4898f688e2ba101",
-            "avail": 4.8,
-            "ints": 4
+            "id": "26cd95bc9b4e3539db16406892f976cf",
+            "avail": 0.28,
+            "ints": 7
         },
         {
-            "id": "2dcc6419a5a1891d1d69dd0b2842d059",
-            "avail": 100.0,
+            "id": "ca5d8ec178037cb855637cf52b1a58b6",
+            "avail": 1.0,
             "ints": 1
         },
         {
-            "id": "e3fa8ab5f27337bda83e7c9076a84ab3",
-            "avail": 38.31,
-            "ints": 58
+            "id": "284d59802563eed6ce4b254bc2be1f76",
+            "avail": 1.0,
+            "ints": 1
         },
         {
-            "id": "504c072d330a2873b8139acf8d13d62b",
-            "avail": 36.1,
-            "ints": 21
+            "id": "23678d09bd6fe7720832faf0dc7b5340",
+            "avail": 0.86,
+            "ints": 16
         },
         {
-            "id": "caf78495f82342f73fb947d8cf2f4cbc", 
-            "avail": 39.0, 
+            "id": "aead3303c173a249145473c73bf90540",
+            "avail": 0.14,
+            "ints": 3
+        },
+        {
+            "id": "829000a8a8a4c25fc6207fa369e8e892",
+            "avail": 0.93,
             "ints": 12
+        },
+        {
+            "id": "aa5a9064844b90bbc97955eed55c4f86",
+            "avail": 0.49,
+            "ints": 45
+        },
+        {
+            "id": "823bcae1b7bc07ef1147cc8048039c5c",
+            "avail": 0.97,
+            "ints": 6
+        },
+        {
+            "id": "9f2de9a2b51d8b535e1b363f35af75ae",
+            "avail": 0.47,
+            "ints": 44
+        },
+        {
+            "id": "4c20f8d982f9d53085565738822b40e9",
+            "avail": 0.82,
+            "ints": 20
+        },
+        {
+            "id": "fc4b05963b6a9d9d858579cdccc8cdab",
+            "avail": 0.62,
+            "ints": 7
+        },
+        {
+            "id": "5ed8fa6202daada9bcad8702a34534e7",
+            "avail": 0.34,
+            "ints": 25
+        },
+        {
+            "id": "f44825263355c97c836278c981fa2b82",
+            "avail": 0.13,
+            "ints": 28
+        },
+        {
+            "id": "2907729c0c054cf71c79b116d375ffd1",
+            "avail": 0.2,
+            "ints": 16
+        },
+        {
+            "id": "9e0458de391f964cf891981cb0b4326e",
+            "avail": 0.75,
+            "ints": 19
+        },
+        {
+            "id": "cc370a453ea29700e82913ddcdfed9e8",
+            "avail": 0.5,
+            "ints": 33
+        },
+        {
+            "id": "5921da21dc3f088fa37ff2620080e828",
+            "avail": 0.23,
+            "ints": 24
+        },
+        {
+            "id": "b8f1f43d312f4c4fe272c4ee294ac954",
+            "avail": 0.34,
+            "ints": 3
+        },
+        {
+            "id": "adbb74eb5fcb10c516dba8167373aa61",
+            "avail": 0.63,
+            "ints": 12
+        },
+        {
+            "id": "8f46832951c15840d16f4bc2e5b2457a",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "5f2e87f144d6640cdc9bb381b236a3ba",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "4f0f35dbb4aa0dc3471bfca93a53b9ab",
+            "avail": 0.61,
+            "ints": 25
+        },
+        {
+            "id": "16531c5955c5ad7ec8024d386271cc7a",
+            "avail": 0.05,
+            "ints": 16
+        },
+        {
+            "id": "fb8ba12511179224d9b612804799ce8e",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "baca1e4f76773ef09276c53afa7bb9d4",
+            "avail": 0.21,
+            "ints": 23
+        },
+        {
+            "id": "e7e7023fbda3521b825e06e87382c650",
+            "avail": 0.49,
+            "ints": 38
+        },
+        {
+            "id": "ae6a3f4d129b3b41acf06b782aa81730",
+            "avail": 0.96,
+            "ints": 8
+        },
+        {
+            "id": "c7f6a346a803ef98b2bbbb3b4d3b2e55",
+            "avail": 0.3,
+            "ints": 13
+        },
+        {
+            "id": "711358ee9c161531783a08f3e29b62a4",
+            "avail": 0.96,
+            "ints": 11
+        },
+        {
+            "id": "c69f23e4a6f0caa77cd7c47ba14039c6",
+            "avail": 0.19,
+            "ints": 18
+        },
+        {
+            "id": "d2f63654b4ca9863c82396da69419d25",
+            "avail": 0.32,
+            "ints": 13
+        },
+        {
+            "id": "75c2bb9715fe6aab887bb4f6aaa164a6",
+            "avail": 0.88,
+            "ints": 3
+        },
+        {
+            "id": "77a672015e7c67326986e41539fb6766",
+            "avail": 0.27,
+            "ints": 37
+        },
+        {
+            "id": "60d1c956cd404ff49db0879d653f1820",
+            "avail": 0.5,
+            "ints": 20
+        },
+        {
+            "id": "353273ad229707d04ab04d550e46bcde",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "5a3a3ee1f9dc577ba3e6acffecedf6b5",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "7a51035f56aee62558c6503e46b246f2",
+            "avail": 0.86,
+            "ints": 24
+        },
+        {
+            "id": "7a4aefee36cc2e1124f99f8ffd0e3855",
+            "avail": 0.07,
+            "ints": 15
+        },
+        {
+            "id": "b31e88a47722381438d3efbc73c432a5",
+            "avail": 0.75,
+            "ints": 8
         }
     ],
     "CD": [
         {
             "id": "b77683751fe903fd3fdd3f5c5ca62f80",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "ddc6fdb04549b110508bec392dbdce37",
-            "avail": 99.06,
+            "avail": 0.99,
             "ints": 2
         },
         {
             "id": "b57b9ffc75f00a55c5750c51f40b56bd",
-            "avail": 99.7,
+            "avail": 1.0,
             "ints": 7
         },
         {
             "id": "af79f51f760e54151db78b8b375f1f77",
-            "avail": 99.68,
+            "avail": 1.0,
             "ints": 4
         },
         {
             "id": "a72cc49accf5dfb80f89e0937c2a6c19",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "0efd3e2b98628554e0067d3acbc1a7e7",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "353fce5b49de3de0a9ee8547247cdc33",
-            "avail": 99.03,
+            "avail": 0.99,
             "ints": 2
         },
         {
+            "id": "455bc1fbf996794cdf431dbc15c44963",
+            "avail": 0.99,
+            "ints": 6
+        },
+        {
             "id": "c1c00d3ec52eb40bc4ae282f9980c3c0",
-            "avail": 99.03,
+            "avail": 0.99,
             "ints": 2
         },
         {
             "id": "769e4b43ad4d62f23a457fffe6ed22c8",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "d76692c91fe7b8f87044d9486852ead2",
-            "avail": 99.48,
+            "avail": 0.99,
             "ints": 8
         },
-        {   
-            "id": "bcb9ff0f8604c4f94629ecfcd162b68f", 
-            "avail": 99.0, 
+        {
+            "id": "b966a605656e232ba88d413e0e7eacd2",
+            "avail": 1.0,
+            "ints": 2
+        },
+        {
+            "id": "bada42c42bbea7b3adf3d67bc718e33a",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "cd09f9ac9c679badb0d2449cb7eedd79",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "07534ece881f3427efb9f7fbc667e76a",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "16cb530c14497cde20658cba684b3ec7",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "9afec8277baa38aaa7406c7dba02f834",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "ae903acccdf53d756ae0b59bf5cf396c",
+            "avail": 1.0,
+            "ints": 4
+        },
+        {
+            "id": "0a4d26715da2018c9252a71eebb71349",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "0486b657b5406c10ffd150a719494302",
+            "avail": 1.0,
+            "ints": 2
+        },
+        {
+            "id": "5395d3dd4126a3d75bab91ad43212fa7",
+            "avail": 0.99,
+            "ints": 11
+        },
+        {
+            "id": "26d56e446b5516c3a1d687924c16f68d",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "7a9207ff669bbcde97bf0ccff184a1bf",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "fb96516e11ad43c364ecb191b3fd42a1",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "36ef982bffefa2c379def80a197bd2b6",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "11a4327a38c2c1f99e4faf444dbcda71",
+            "avail": 0.99,
+            "ints": 12
+        },
+        {
+            "id": "c3d4c0f9dc40c5aab4d5bcdac2d04da2",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "745c75b4253740c88e1d927287f13b59",
+            "avail": 0.99,
+            "ints": 10
+        },
+        {
+            "id": "3ef347b3fd14ae4a3abfb246758215ad",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "4858399d2582bb02c9ba23c86a9e4742",
+            "avail": 0.99,
+            "ints": 7
+        },
+        {
+            "id": "74c7bd094a49e7cb19801e3d47c1ae94",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "e50df9adf7cccd4e62b3b95141a2c290",
+            "avail": 1.0,
+            "ints": 7
+        },
+        {
+            "id": "2ba55ff640950956ef454d5be7db723a",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2db7be1f1857524b78e699447a04e0d7",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "b35885db2c667be6971d1ad1ce4fd264",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "9153d4b9a51fba50403a6c6f97c6aa01",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "799319a034da10013d9bdc5cb7f475af",
+            "avail": 1.0,
+            "ints": 6
+        },
+        {
+            "id": "183d499b10e1ef383cdd501a65f1f3cc",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2cbd4de3622a06886a4865c8a74a0678",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "249a942f9b11cfeb3c306b7910c4df13",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "831be117005614e8224506737c6de348",
+            "avail": 0.99,
+            "ints": 7
+        },
+        {
+            "id": "be2477106e283a237cd34f0c94585d39",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "eef12e8afd96cad7f444c30898abe95d",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "f1b1f7a6923602e742281c002ce29d94",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "5cc26ac8718280928c510aef9815ad92",
+            "avail": 0.99,
             "ints": 8
+        },
+        {
+            "id": "9fa5f34531cbc3ecffa9496d6c64e97c",
+            "avail": 0.99,
+            "ints": 5
+        },
+        {
+            "id": "2a5e2a7ba0320b9e24692ac739b913ff",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "d65ace0f30a8e6e4038b67487b8f8dfb",
+            "avail": 0.99,
+            "ints": 2
+        },
+        {
+            "id": "99a32f851d18a43f791fd407a8dcea8f",
+            "avail": 1.0,
+            "ints": 3
+        },
+        {
+            "id": "e5bc31459bd4c70619e77f537277ab7a",
+            "avail": 1.0,
+            "ints": 1
         }
     ],
     "MD": [
         {
             "id": "b77683751fe903fd3fdd3f5c5ca62f80",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
+            "id": "b57b9ffc75f00a55c5750c51f40b56bd",
+            "avail": 1.0,
+            "ints": 7
+        },
+        {
+            "id": "af79f51f760e54151db78b8b375f1f77",
+            "avail": 1.0,
+            "ints": 4
+        },
+        {
             "id": "a72cc49accf5dfb80f89e0937c2a6c19",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "0efd3e2b98628554e0067d3acbc1a7e7",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "769e4b43ad4d62f23a457fffe6ed22c8",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
+            "id": "b966a605656e232ba88d413e0e7eacd2",
+            "avail": 1.0,
+            "ints": 2
+        },
+        {
             "id": "bada42c42bbea7b3adf3d67bc718e33a",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "cd09f9ac9c679badb0d2449cb7eedd79",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "16cb530c14497cde20658cba684b3ec7",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "9afec8277baa38aaa7406c7dba02f834",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
+            "id": "ae903acccdf53d756ae0b59bf5cf396c",
+            "avail": 1.0,
+            "ints": 4
+        },
+        {
+            "id": "0486b657b5406c10ffd150a719494302",
+            "avail": 1.0,
+            "ints": 2
+        },
+        {
             "id": "26d56e446b5516c3a1d687924c16f68d",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
             "id": "7a9207ff669bbcde97bf0ccff184a1bf",
-            "avail": 100.0,
+            "avail": 1.0,
             "ints": 1
         },
         {
-            "id": "8f46832951c15840d16f4bc2e5b2457a", 
-            "avail": 100.0, 
+            "id": "fb96516e11ad43c364ecb191b3fd42a1",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "c3d4c0f9dc40c5aab4d5bcdac2d04da2",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "3ef347b3fd14ae4a3abfb246758215ad",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "74c7bd094a49e7cb19801e3d47c1ae94",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "e50df9adf7cccd4e62b3b95141a2c290",
+            "avail": 1.0,
+            "ints": 7
+        },
+        {
+            "id": "2ba55ff640950956ef454d5be7db723a",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2db7be1f1857524b78e699447a04e0d7",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "b35885db2c667be6971d1ad1ce4fd264",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "9153d4b9a51fba50403a6c6f97c6aa01",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "799319a034da10013d9bdc5cb7f475af",
+            "avail": 1.0,
+            "ints": 6
+        },
+        {
+            "id": "183d499b10e1ef383cdd501a65f1f3cc",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2cbd4de3622a06886a4865c8a74a0678",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "249a942f9b11cfeb3c306b7910c4df13",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "be2477106e283a237cd34f0c94585d39",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "eef12e8afd96cad7f444c30898abe95d",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "f1b1f7a6923602e742281c002ce29d94",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2a5e2a7ba0320b9e24692ac739b913ff",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "99a32f851d18a43f791fd407a8dcea8f",
+            "avail": 1.0,
+            "ints": 3
+        },
+        {
+            "id": "e5bc31459bd4c70619e77f537277ab7a",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "bbb28f973e69d74a525b81946aa00a35",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "11d63712358fc6145e919a0110af34b6",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "86d49b054ad0fb24e91cd11d7b78fe52",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "fb62afd341d76e745bbbb2d443d9f4e8",
+            "avail": 1.0,
+            "ints": 3
+        },
+        {
+            "id": "a48e9d50f7d68d65cea597562959176d",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "0f3bad2e14fc463d4c07f4fd2308e625",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "33bf3a667e6191973d8705c5f9948d85",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "2ef30b4fad85905fa1813fb00a498689",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "7223ed64fbedd8c1f48657a0d1314b10",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "081af6df52cf2a18aebf15895829fec1",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "4ebe85f0d6274dd98f2ca7ce4ffc5596",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "996af9f469c8691c3734c19505d63f0b",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "59083d6dd286b97c2fb60f54d0dd74c8",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "672640cae3194a50c22e4776f36c7d08",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "3bd369276becab6515b8b997ae060577",
+            "avail": 1.0,
+            "ints": 1
+        },
+        {
+            "id": "56b42b8a6ddb70aa56b85fa741796146",
+            "avail": 1.0,
             "ints": 1
         }
     ]

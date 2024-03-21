@@ -2,8 +2,6 @@ import re
 import random
 
 
-
-
 class LoadedData (object):
 
 	_dataset = None
