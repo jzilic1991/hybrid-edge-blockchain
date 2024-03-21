@@ -215,9 +215,9 @@ class Model (object):
 
 
   @classmethod
-  def overall_task_rwd (cls, time_reward, energy_reward, price_reward):
+  def overall_task_rwd (cls, time_reward, energy_reward): #, price_reward):
 
-    return (0.33 * time_reward) + (0.33 * energy_reward) + (0.34 * price_reward)
+    return (0.5 * time_reward) + (0.5 * energy_reward) #+ (0.34 * price_reward)
 
 
   def __uplink_time (cls, task, cand_n, curr_n, topology):

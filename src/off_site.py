@@ -31,7 +31,7 @@ class OffloadingSite:
         self._reput = 1
         self._sc_id = 0
         self._off_site_code = Util.determine_off_site_code (self._node_type)
-        self._off_action = Util.determine_name_and_action (self._off_site_code)
+        self._off_action = None # offloading action index in MDP matrices
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
         self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
@@ -112,6 +112,11 @@ class OffloadingSite:
       cls._task_del_queue.update_task_size_rate ()
 
 
+    def set_off_action_index (cls, index):
+
+      cls._off_action = index        
+
+    
     def set_bandwidth (cls, bw):
 
       print (cls._name_id + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))

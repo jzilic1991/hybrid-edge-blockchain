@@ -75,8 +75,7 @@ class Infrastructure:
         
         cluster_node_cnt[labels[i]] += 1
 
-    cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, mobile_device, \
-      off_site_dict)
+    cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, off_site_dict)
 
     for label in cluster_nodes:
 
@@ -86,8 +85,7 @@ class Infrastructure:
 
  
   @classmethod
-  def __label_cluster_nodes (cls, cluster_node_cnt, node_prototypes, mobile_device, \
-    off_site_dict):
+  def __label_cluster_nodes (cls, cluster_node_cnt, node_prototypes, off_site_dict):
     
     cluster_nodes = dict ()
 

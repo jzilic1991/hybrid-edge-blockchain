@@ -61,17 +61,23 @@ class EdgeOffloading (Thread):
 
   def run (cls):
 
+    # logging
     cls._log = cls._s_ode.get_logger ()
+    
+    # get offloading sites associated with current cell location and register sites on smart contract 
     off_sites = cls._r_mon.get_cell (cls._cell_number)
     off_sites = cls.__register_nodes (off_sites)
+
+    # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
+    if isinstance (cls._s_ode, MdpOde):
+
+      cls._s_ode.update_matrices (off_sites)
     
-    # topology = cls._r_mon.get_topology ()
+    # deploy and run mobile application
     app = cls._m_app_prof.dep_app (cls._app_name)
     app.run ()
 
-    # cls.__print_setup (off_sites, topology, app)
-
-    # setting cell statistics (this is updated after each loading dataset nodes into off sites)
+    # setting cell statistics (this is updated after each cell move)
     cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
 
     epoch_cnt = 0 # counts task offloadings
@@ -141,6 +147,11 @@ class EdgeOffloading (Thread):
           # reset reputation when moved to a new cell location
           # off_sites = cls.__reset_reputation (off_sites)
           off_sites = cls.__register_nodes (off_sites)
+          
+          # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
+          if isinstance (cls._s_ode, MdpOde):
+
+            cls._s_ode.update_matrices (off_sites)
 
           # when new datasets are loaded then cell location is changed for statistics
           cls._s_ode.set_cell_stats (cls._cell_number)
