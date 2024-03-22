@@ -127,8 +127,7 @@ class OffloadingDecisionEngine(ABC):
                 cand_n, values = cls.offloading_decision (task, metrics, timestamp, app_name, \
                     constr, qos)
 
-                cls._off_dist_hist[cand_n.get_n_id ()] = \
-                    cls._off_dist_hist[cand_n.get_n_id ()] + 1
+                cls._off_dist_hist[cand_n.get_node_prototype ()] += 1
 
                 if cand_n.execute (task, timestamp):
 
@@ -161,8 +160,7 @@ class OffloadingDecisionEngine(ABC):
                     t_e_consum = t_e_consum + e_cost
                     del metrics[cand_n]
                     off_transactions.append ([cand_n.get_sc_id (), 0])
-                    cls._off_fail_hist[cand_n.get_n_id ()] = \
-                        cls._off_fail_hist[cand_n.get_n_id ()] + 1
+                    cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
                     continue
 
             cls.__evaluate_constraint_violations (cand_n, t_rsp_time, app_name)
@@ -248,7 +246,7 @@ class OffloadingDecisionEngine(ABC):
 
         if (constr.get_proc () + constr.get_lat ()) < rt:
 
-            cls._constr_viol_hist[off_site.get_n_id ()] += 1
+            cls._constr_viol_hist[off_site.get_node_prototype ()] += 1
             # cls._log.w (off_site.get_n_id () + " has constraint violation " + \
             #     str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
             #     str (rt))
@@ -258,11 +256,11 @@ class OffloadingDecisionEngine(ABC):
 
         for site in off_sites:
 
-            if not site.get_n_id () in cls._off_dist_hist.keys ():
+            if not site.get_node_prototype () in cls._off_dist_hist.keys ():
 
-                cls._off_dist_hist[site.get_n_id ()] = 0
-                cls._off_fail_hist[site.get_n_id ()] = 0
-                cls._constr_viol_hist[site.get_n_id ()] = 0
+                cls._off_dist_hist[site.get_node_prototype ()] = 0
+                cls._off_fail_hist[site.get_node_prototype ()] = 0
+                cls._constr_viol_hist[site.get_node_prototype ()] = 0
 
             # site.eval_avail (timestamp)
 

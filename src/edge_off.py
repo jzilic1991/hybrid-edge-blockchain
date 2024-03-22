@@ -138,13 +138,13 @@ class EdgeOffloading (Thread):
           cell_mover = True
 
           # summarize cell statistics
-          cls._s_ode.summarize_cell_stats (cls._r_mon.get_cell_name ())
+          cls._s_ode.summarize_cell_stats (cls._cell_number)
 
-          # load dataset by number of changed cell locations
+          # update cell number of new switched cell location and get offloading sites of new cell 
           cls._cell_number = int (exe_cnt / cls._user_move)
           off_sites = cls._r_mon.get_cell (cls._cell_number)
 
-          # reset reputation when moved to a new cell location
+          # register offloading sites of new switched cell location
           off_sites = cls.__register_nodes (off_sites)
           
           # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
@@ -152,7 +152,7 @@ class EdgeOffloading (Thread):
 
             cls._s_ode.update_matrices (off_sites)
 
-          # when new datasets are loaded then cell location is changed for statistics
+          # set new cell statistics for a new cell
           cls._s_ode.set_cell_stats (cls._cell_number)
 
           # update current site of task exeuction when switching cells

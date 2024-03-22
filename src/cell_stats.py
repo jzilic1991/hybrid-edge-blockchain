@@ -153,7 +153,8 @@ class CellStats:
 
   def get_all (cls):
 
-    return "Cell number " + str (cls._id) + "\n" + cls.get_avg_off_dist () + '\n' + cls.get_avg_off_fail_dist () + '\n' +\
+    return "########### CELL " + str (cls._id) + " #############\n" + cls.get_avg_off_dist () + '\n' + \
+      cls.get_avg_off_fail_dist () + '\n' + \
       cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + \
       cls.get_avg_constr_viol () + "\n"
 
@@ -161,37 +162,28 @@ class CellStats:
   def add_off_dist (cls, off_dist_samp):
 
     for key, val in off_dist_samp.items ():
-
       if key in cls._off_dist_samp.keys ():
-
         cls._off_dist_samp[key].append (val)
 
       else:
-
         cls._off_dist_samp[key] = [val]
 
 
   def add_off_fail (cls, off_fail_samp):
 
     for key, val in off_fail_samp.items ():
-
       if key in cls._off_fail_samp.keys ():
-
         cls._off_fail_samp[key].append (val)
 
       else:
-
         cls._off_fail_samp[key] = [val]
 
 
   def add_constr_viol (cls, constr_viol):
 
     for key, val in constr_viol.items ():
-
       if key in cls._constr_viol.keys ():
-
         cls._constr_viol[key].append (val)
 
       else:
-
         cls._constr_viol[key] = [val] 
