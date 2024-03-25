@@ -1,3 +1,4 @@
+import sys
 import re
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,7 +55,7 @@ def plot_objective (regex_exp, y_axis_title, show):
 
     for app_n in app_names:
 
-      f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
+      f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       for line in f.readlines ():
 
@@ -63,6 +64,7 @@ def plot_objective (regex_exp, y_axis_title, show):
 
           result[ode_n].append (float (matched.group (1)))
 
+  print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
   ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
@@ -151,7 +153,7 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
                              va = "center")
 
 
-def plot_offloading_distribution():
+def plot_offloading_distributions (samples):
 
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
@@ -176,10 +178,11 @@ def plot_offloading_distribution():
 
         if not summary_flag:
 
-          matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+          matched = re.search("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
           if matched:
 
             summary_flag = True
+        
         else:
 
           matched = re.search(regex_ex, line)
@@ -228,7 +231,7 @@ def plot_offloading_distribution():
     plt.show()
 
 
-def print_constraint_violation_distribution ():
+def print_constraint_violation_distribution (samples):
 
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
@@ -250,7 +253,7 @@ def print_constraint_violation_distribution ():
 
         if not summary_flag:
 
-          matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+          matched = re.search("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
           if matched:
 
             summary_flag = True
@@ -382,13 +385,13 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
   plt.show()
 
+
+samples = sys.argv[1]
 # overhead_plot ()
-# plot_objective ("After 100 samples, average is (\d+\.\d+) s", 'Response time (seconds)', \
-# 	True)
-plot_objective ("After 100 samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", \
-# 	False)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
 # print_constraint_violation_distribution ()
-# plot_offloading_distribution ()
+plot_offloading_distributions (samples)
 regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
 plot_average_deviations (regex, "Deadline violation rate (%)")
