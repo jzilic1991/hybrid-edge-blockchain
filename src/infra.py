@@ -77,9 +77,9 @@ class Infrastructure:
 
     cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, off_site_dict)
 
-    for label in cluster_nodes:
+    #for label in cluster_nodes:
 
-      print (str (label) + ": " + str (len (cluster_nodes[label])))
+    #  print (str (label) + ": " + str (len (cluster_nodes[label])))
     
     return cluster_nodes
 

@@ -93,7 +93,7 @@ class OffloadingSite:
       # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
       # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ACTUAL DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
-      print (cls._name_id + " has ACTUAL TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
+      # print (cls._name_id + " has ACTUAL TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
 
@@ -150,7 +150,6 @@ class OffloadingSite:
     def avail_or_not (cls, t):
         
         if cls._node_type != NodeTypes.MOBILE:
-        
           return cls._dataset_node.is_avail_or_not (t)
 
         return True
@@ -179,7 +178,7 @@ class OffloadingSite:
     def set_reputation (cls, reput):
         
         cls._reput = reput
-        print ("SC ID " + str (cls._sc_id) + " has a reputation " + str (cls._reput))
+        # print ("SC ID " + str (cls._sc_id) + " has a reputation " + str (cls._reput))
 
 
     def get_node_prototype (cls):
@@ -269,31 +268,26 @@ class OffloadingSite:
     def check_valid_deploy(cls, task):
         
         if not isinstance(task, Task):
-            
             return ExeErrCode.EXE_NOK
 
         # check that task resouce requirements fits offloading sites's resource capacity
         if cls._stor > (cls._stor_consum + ((task.get_data_in() + task.get_data_out()) / GIGABYTES)) and \
             cls._mem > (cls._mem_consum + task.get_memory()):
-            
             return ExeErrCode.EXE_OK
 
 
     def execute (cls, task, t):
             
         if not isinstance (task, Task):
-                
             raise ValueError("Task for execution on offloading site should be Task class instance!")
 
         # print ("Offloadable: " + str(task.is_offloadable()) + ", node type: " + str(cls._node_type) + \
         #  ", avail: " + str(cls._dataset_node.is_avail_or_not (t)))
         if (not task.is_offloadable() and cls._node_type != NodeTypes.MOBILE) or \
             (not cls._dataset_node.is_avail_or_not (t) and cls._node_type != NodeTypes.MOBILE):
-                
             return ExeErrCode.EXE_NOK
         
         if not task.execute():
-                
             raise ValueError("Task execution operation is not executed properly! Please check the code of execute() method in Task class!")
 
         # consumption update
@@ -301,7 +295,6 @@ class OffloadingSite:
         cls._stor_consum = cls._stor_consum + \
             ((task.get_data_in() + task.get_data_out()) / MeasureUnits.GIGABYTES)
         cls._mem_consum = cls._mem_consum + task.get_memory()
-        
 
         return ExeErrCode.EXE_OK
 

@@ -144,8 +144,8 @@ class EdgeQueue (ABC):
       
       conv_workload.append (ele.get_mi ())
     
-    print ("Task " + str (queue_type) + " queue has a util = " + \
-      str (round (util * 100, 3)) + " %") #+ ", workload: " + str (conv_workload))
+    #print ("Task " + str (queue_type) + " queue has a util = " + \
+    #  str (round (util * 100, 3)) + " %") #+ ", workload: " + str (conv_workload))
       #str (round (sum (conv_workload), 3)) + " / " + str (cls._total) + " = " + \
 
   

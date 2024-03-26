@@ -21,35 +21,30 @@ class SmtOde (OffloadingDecisionEngine):
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos):
 
         if task.is_offloadable ():
-
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
                 app_name, constr, qos)
             start = time.time ()
-
+            
+            # if solution has been found 
             if str(s.check ()) == 'sat':
-
                 end = time.time ()
                 # cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
                 sites_to_off = list ()
-
                 # print (s.model ())
 
                 for b in b_sites:
-
                     if is_true (s.model ()[b[0]]):
-
                         sites_to_off.append (b[1])
 
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
-            #site = random.choice (list (metrics.items ()))
+            # if solution has not been found then beest possible choice is selected by Rep-SMT
             if cls._activate:
-                
                 site, metrics = cls.__get_site_min_score (metrics, timestamp)
                 return (site, metrics)
-            
-            else:
 
+            # otherwise random site is picked by classical SMT solution 
+            else:
                 site = random.choice (list (metrics.items ()))
                 return (site[0], metrics[site[0]])
 
@@ -57,9 +52,7 @@ class SmtOde (OffloadingDecisionEngine):
             # raise ValueError ("SMT solver did not find solution! s = " + str(s))
 
         for key, values in metrics.items ():
-
             if key.get_node_type() == NodeTypes.MOBILE:
-
                 return (key, values)
 
         raise ValueError ("No mobile devices found!")

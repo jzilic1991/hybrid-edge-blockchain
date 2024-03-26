@@ -119,7 +119,7 @@ class EdgeOffloading (Thread):
         # execution counter
         exe_cnt = exe_cnt + 1
         
-        # loading new QoS constraints
+        # evaluate application response time against application QoS deadline
         cls._s_ode.app_exc_done (app.get_qos ())
 
         # print ("Execution:" + str (exe_cnt))
@@ -253,20 +253,16 @@ class EdgeOffloading (Thread):
   def __register_nodes (cls, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    print ("Registration of  " + str (len (names)) + " nodes")
+    print ("Registration of " + str (len (names)) + " nodes")
     cls._req_q.put (('reg', names))
-    print ("Waiting for registration")
     reg_nodes = cls._rsp_q.get ()
   
     if reg_nodes[0] == 'reg_rsp':
-
       for ele in reg_nodes[1]:
-
         for site in off_sites:
-
           if ele['name'] == site.get_n_id ():
-
             site.set_sc_id (ele['id'])
+            # print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
             # print ("SC ID is a " + str (ele['id']))
             break
 
@@ -280,13 +276,9 @@ class EdgeOffloading (Thread):
     get_msg = cls._rsp_q.get ()
 
     if get_msg[0] == 'get_rsp':
-
       for site_rep in get_msg[1]:
-
         for site in off_sites:
-
           if site_rep[0] == site.get_sc_id ():
-
             site.set_reputation (site_rep[1])
             # cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 

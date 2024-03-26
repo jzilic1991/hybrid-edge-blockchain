@@ -55,15 +55,11 @@ def experiment_run ():
 
     global chain, req_q, rsp_q, cached_trx, update_thread
 
-
     while True:
-    
         # node registration
         msg = req_q.get ()
         if msg[0] == 'reg':
-
             for name in msg[1]:
-
                 result = chain.register_node (name)
                 # print ('Node is registered: ' + str (result))
                 reg_nodes.append (result)
@@ -72,47 +68,33 @@ def experiment_run ():
 
         # offloading transactions
         elif msg[0] == 'update':
-
             if update_thread:
-
                 for trx in msg[1]:
-                    
                         cached_trx.append (trx)
-            
             else:
-
                 cached_trx += [trx for trx in msg[1]]
                 submit_cached_trx ()
         
         # get reputation per offloading site
         elif msg[0] == 'get':
-
             site_rep = []
             for n_id in msg[1]: 
-                
                 site_rep.append((n_id, chain.get_reputation (n_id)))
 
             rsp_q.put (('get_rsp', site_rep))
         
         # reset reputation
         elif msg[0] == 'reset':
-
             while True:
-
                 if not update_thread:
-
                     rsp_q.put (('reset_rsp', chain.reset_reputation (msg[1])))
                     break
         
         # unregister node
         elif msg[0] == 'close':
-
             for nodeId in msg[1]:
-
                 while True:
-
                     if not update_thread:
-
                         result = chain.unregister_node (nodeId)
                         break
                     
@@ -145,6 +127,7 @@ if sys.argv[1] == 'intra':
     edge_off.start ()
 
     experiment_run ()
+    exit()
 
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)

@@ -57,15 +57,12 @@ class OffloadingDecisionEngine(ABC):
         tmp = round ((deadline - metric['rt']) / deadline, 3) * 1000
 
         if tmp == math.inf or tmp == -math.inf:
-
             incentive = 0
 
         else:
-
             incentive = int (tmp)
 
         if incentive >= 0 and incentive <= 1000:
-
             return incentive
 
         return 0
@@ -74,16 +71,14 @@ class OffloadingDecisionEngine(ABC):
     def set_cell_stats (cls, cell_name):
 
         if not cell_name in cls._cell_stats:
-
             cls._cell_stats[cell_name] = CellStats (cell_name)
 
 
     def app_exc_done (cls, qos):
 
         if qos['rt'] < cls._curr_app_time:
-
-            # cls._log.w ("QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
-            #     str (qos['rt']) + "s")
+            print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
+              str (qos['rt']) + "s")
             cls._qos_viol_cnt += 1
 
         cls._curr_app_time = 0.0
@@ -92,7 +87,6 @@ class OffloadingDecisionEngine(ABC):
     def offload (cls, tasks, off_sites, timestamp, app_name, qos):
 
         if cls._BL <= 0.0:
-
             return []
 
         cand_n = None
@@ -103,11 +97,12 @@ class OffloadingDecisionEngine(ABC):
 
         # check does offloading site history statistics exists
         cls.__check_off_sites (off_sites)
+        # print infrastructure failures on offloading sites
+        # cls.__print_current_failures (off_sites, timestamp)
 
         # find edge site for timing deadine constraint
         constr = None
         for site in off_sites:
-
             if site.get_node_prototype () == NodePrototypes.ED or \
                 site.get_node_prototype () == NodePrototypes.EC or \
                 site.get_node_prototype () == NodePrototypes.ER:
@@ -151,7 +146,7 @@ class OffloadingDecisionEngine(ABC):
 
                 else:
 
-                    print ("OFFLOADING FAILURE on site " + cand_n.get_n_id ())
+                    print ("############# OFFLOADING FAILURE on site " + cand_n.get_n_id () + " ##############################")
                     # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                     (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
                     # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
@@ -168,7 +163,7 @@ class OffloadingDecisionEngine(ABC):
         (max_rsp_time, acc_e_consum) = cls.__get_total_objs (t_rsp_time_arr, \
             t_e_consum_arr)
         cls._BL = round (cls._BL - acc_e_consum, 3)
-        print ("Offloading transition: " + cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id ())
+        print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
         cls._curr_n = cand_n
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
@@ -240,16 +235,29 @@ class OffloadingDecisionEngine(ABC):
         cls._curr_n = site
 
 
+    def __print_current_failures (cls, off_sites, timestamp):
+
+        cnt_fail_sites = 0
+
+        # print ("####### CURRENT INFRASTRUCTURE FAILURES ######## ")
+        for site in off_sites:
+            if not site.avail_or_not (timestamp):
+              # print (site.get_n_id () + " has a FAILURE!")
+              cnt_fail_sites += 1
+
+        print ("Number of FAILED infrastructure sites: " + str (cnt_fail_sites) + " / " + str (len (off_sites)) + " = " + \
+          str (round (cnt_fail_sites / len (off_sites), 2)))
+
+
     def __evaluate_constraint_violations (cls, off_site, rt, app_name):
 
         constr = off_site.get_constr (app_name)
 
         if (constr.get_proc () + constr.get_lat ()) < rt:
-
             cls._constr_viol_hist[off_site.get_node_prototype ()] += 1
-            # cls._log.w (off_site.get_n_id () + " has constraint violation " + \
-            #     str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
-            #     str (rt))
+            print (off_site.get_n_id () + " has constraint violation " + \
+                str (constr.get_proc () + constr.get_lat ()) + "s with response time " + \
+                str (rt))
 
     
     def __check_off_sites (cls, off_sites):
