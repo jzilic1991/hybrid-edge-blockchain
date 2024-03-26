@@ -64,7 +64,6 @@ def plot_objective (regex_exp, y_axis_title, show):
 
           result[ode_n].append (float (matched.group (1)))
 
-  print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
   ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
@@ -162,8 +161,8 @@ def plot_offloading_distributions (samples):
   x = np.arange(len(app_names))
   ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
   result = dict ()
-  regex_ex = "Offloading distribution \(percentage\): {'(ED[^']*'): (\d+\.\d+), '(EC[^']*'): (\d+\.\d+)," + \
-    " '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
+  regex_ex = "Offloading distribution \(percentage\): {'(ER[^']*'): (\d+\.\d+), '(ED[^']*'): (\d+\.\d+)," + \
+    " '(EC[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
 
   for ode_n in ode_names:
 
@@ -171,7 +170,7 @@ def plot_offloading_distributions (samples):
     for app_n in app_names:
 
       result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
-      f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
+      f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
       summary_flag = False
 
       for line in f.readlines ():
@@ -247,7 +246,7 @@ def print_constraint_violation_distribution (samples):
     for app_n in app_names:
 
       result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
-      f = open("results/sim_traces_" + ode_n + "_" + app_n + '.txt')
+      f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
       summary_flag = False
       for line in f.readlines ():
 
@@ -284,15 +283,14 @@ def print_constraint_violation_distribution (samples):
     print ()
 
 
-def plot_average_deviations (regex, title):
+def plot_average_qos_viols (regex, title):
 
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
-  x = np.arange(len(app_n))
+  x = np.arange (len (app_n))
   ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
-  summary_flag = False
 
   for ode_n in ode_names:
 
@@ -300,16 +298,67 @@ def plot_average_deviations (regex, title):
 
     for app in app_n:
 
-      f = open("results/sim_traces_" + ode_n + "_" + app + '.txt')
+      f = open("logs/sim_traces_" + ode_n + "_" + app + '.txt')
 
       for line in f.readlines ():
 
-        matched = re.search("After 100 samples, average is (\d+\.\d+) QoS violations", line)
+        matched = re.search(regex, line)
 
         if matched:
 
           result[ode_n].append (float (matched.group (1)))
 
+  # print (result)
+  plt.rcParams.update({'font.size': 16})
+  ax = plt.subplot(111)
+  ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
+    align = 'center', label = 'Rep-SMT')
+  ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+    align = 'center', label = 'SMT')
+  ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
+    align = 'center', label = 'SQ')
+  ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+    align = 'center', label = 'MDP')
+
+  plt.ylabel(title)
+  plt.xlabel("Mobile applications")
+  plt.xticks(x, app_n, fontsize = 16)
+  plt.legend()
+  plt.show()
+
+
+def plot_average_constr_viols (regex, title, samples):
+
+  app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
+  x = np.arange (len (app_n))
+  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  result = dict ()
+  # flag to detect when final part of result log will be parsed 
+  # for summarizing overall task failure rate
+  
+  for ode_n in ode_names:
+
+    result [ode_n] = list ()
+
+    for app in app_n:
+      summary_flag = False
+      f = open("logs/sim_traces_" + ode_n + "_" + app + '.txt')
+
+      for line in f.readlines ():
+        if not summary_flag:
+
+          matched = re.search ("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
+          if matched:
+
+            summary_flag = True
+
+        else:
+          matched = re.search(regex, line)
+
+          if matched:
+            result[ode_n].append (float (matched.group (1)))
+
+  print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
   ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
@@ -394,4 +443,6 @@ plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energ
 # print_constraint_violation_distribution ()
 plot_offloading_distributions (samples)
 regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
-plot_average_deviations (regex, "Deadline violation rate (%)")
+plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
+regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations"
+plot_average_qos_viols (regex, "QoS violation rate (%)")
