@@ -5,7 +5,7 @@ key_file.pub
 package-lock.json
 .env
 src/__pycache__
-src/logs
+# src/logs
 src/tags
 src/sim_exe_log.txt
 src/log.txt
