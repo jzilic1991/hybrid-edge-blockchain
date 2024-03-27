@@ -61,18 +61,9 @@ class EdgeOffloading (Thread):
 
   def run (cls):
 
-    # logging
+    # logging but after ODE is deployed
     cls._log = cls._s_ode.get_logger ()
-    
-    # get offloading sites associated with current cell location and register sites on smart contract 
-    off_sites = cls._r_mon.get_cell (cls._cell_number)
-    off_sites = cls.__register_nodes (off_sites)
-
-    # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
-    if isinstance (cls._s_ode, MdpOde):
-
-      cls._s_ode.update_matrices (off_sites)
-    
+    off_sites = cls.__update_and_register_off_sites ()
     # deploy and run mobile application
     app = cls._m_app_prof.dep_app (cls._app_name)
     app.run ()
@@ -111,19 +102,14 @@ class EdgeOffloading (Thread):
       # print ("Execution count: " + str (exe_cnt))
       # print (str (len (tasks)) + " to offload!")
       if len (tasks) == 0:
-
         # deploy and run mobile application
         app = cls._m_app_prof.dep_app (cls._app_name)
         app.run ()
-        
-        # execution counter
         exe_cnt = exe_cnt + 1
         
         # evaluate application response time against application QoS deadline
         cls._s_ode.app_exc_done (app.get_qos ())
-
-        # print ("Execution:" + str (exe_cnt))
-
+        
         # cell mover flag for indicating is cell location has changed
         # if yes then reputation update is not needed
         # it is a fix solution for sending a new offloading transaction when previous offloading transaction is still pending 
@@ -141,27 +127,17 @@ class EdgeOffloading (Thread):
           cls._s_ode.summarize_cell_stats (cls._cell_number)
 
           # update cell number of new switched cell location and get offloading sites of new cell 
-          cls._cell_number = int (exe_cnt / cls._user_move)
-          off_sites = cls._r_mon.get_cell (cls._cell_number)
-
-          # register offloading sites of new switched cell location
-          off_sites = cls.__register_nodes (off_sites)
-          
-          # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
-          if isinstance (cls._s_ode, MdpOde):
-
-            cls._s_ode.update_matrices (off_sites)
-
+          # cls._cell_number = int (exe_cnt / cls._user_move)
+          cls._cell_number += 1
+          off_sites = cls.__update_and_register_off_sites ()
           # set new cell statistics for a new cell
           cls._s_ode.set_cell_stats (cls._cell_number)
-
           # update current site of task exeuction when switching cells
           cls._s_ode.set_curr_node (Util.get_mob_site (off_sites))
 
         # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
         
         if not cell_mover:
-          
           # update reputation after each application execution and reset transaction list
           cls._req_q.put (('update', off_transactions))
           off_transactions = list ()
@@ -170,7 +146,6 @@ class EdgeOffloading (Thread):
 
       # consensus delay
       if tasks[0].get_name == task_n_delay:
-
         con_delay = con_delay + 1
 
       # incrementing epoch (i.e. task offloading) and period counter (i.e. epochs within same time period)
@@ -180,19 +155,13 @@ class EdgeOffloading (Thread):
 
       # all executions are completed
       if exe_cnt >= cls._exe:
-
-        # summarize offloading results
         cls._s_ode.summarize ()
-
-        # count new sample
         samp_cnt = samp_cnt + 1
-
-        # reset execution counter
         exe_cnt = 0
+        cls._cell_number = 0
 
         # if all samples are completed, end the experiment via message queue close
         if samp_cnt == cls._samp: 
-
           cls._s_ode.log_stats ()
           # cls.__reset_reputation (off_sites)
           cls._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
@@ -208,7 +177,6 @@ class EdgeOffloading (Thread):
         continue
 
       if con_delay == cls._con_delay:
-
         off_sites = cls.__get_reputation (off_sites)
         con_delay = 0
         task_n_delay = tasks[0].get_name ()
@@ -220,15 +188,23 @@ class EdgeOffloading (Thread):
       # update workload after task offloading
       curr_n = cls._s_ode.get_curr_node ()
       for site in off_sites:
-
           if site != curr_n:
-            
               site.workload_update (cls._s_ode.get_last_rsp_time ())
 
       if not off_transactions:
-
         exe_cnt = cls._exe
         continue
+
+
+  def __update_and_register_off_sites (cls):
+    off_sites = cls._r_mon.get_cell (cls._cell_number)
+    # register offloading sites of new switched cell location
+    off_sites = cls.__register_nodes (off_sites)
+    # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
+    if isinstance (cls._s_ode, MdpOde):
+      cls._s_ode.update_matrices (off_sites)
+
+    return off_sites
 
 
   def __compute_time_period (cls, num_of_tasks):
@@ -253,7 +229,7 @@ class EdgeOffloading (Thread):
   def __register_nodes (cls, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    print ("Registration of " + str (len (names)) + " nodes")
+    print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (cls._cell_number) + ")")
     cls._req_q.put (('reg', names))
     reg_nodes = cls._rsp_q.get ()
   

@@ -1,5 +1,6 @@
 import numpy as np
 
+from util import Settings
 
 class Stats:
 
@@ -49,23 +50,18 @@ class Stats:
         off_dist_samp = dict ()
 
         for cell_name, cell in cells.items ():
-
             for site, samples in cell.get_off_dist_samp().items ():
-
                 if not site in off_dist_samp:
-
                     off_dist_samp[site] = list ()
                     
                 off_dist_samp[site] += samples
 
         for key, val in off_dist_samp.items ():
-            
             result[key] = round (sum (val) / len (val), 2)
 
         rel_result = dict ()
         all_offloads = sum (result.values ())
         for key, val in result.items ():
-
             rel_result[key] = round (val / all_offloads, 2) * 100
 
         return ("Offloading distribution (percentage): " + str (rel_result))
@@ -78,38 +74,27 @@ class Stats:
         off_dist_samp = dict ()
 
         for cell_name, cell in cells.items ():
-
             for site, samples in cell.get_off_fail_samp().items ():
-
                 if not site in off_fail_samp:
-
                     off_fail_samp[site] = list ()
                     
                 off_fail_samp[site] += samples
 
             for site, samples in cell.get_off_dist_samp().items ():
-
                 if not site in off_dist_samp:
-
                     off_dist_samp[site] = list ()
                     
                 off_dist_samp[site] += samples
 
         for key, _ in off_fail_samp.items ():
-            
             for i in range (len (off_fail_samp[key])):
-                
                 if off_dist_samp[key][i] != 0:
-                    
                     off_fail.append (round (off_fail_samp[key][i] / off_dist_samp[key][i] \
                         * 100, 3))
-
                 else:
-
                     off_fail.append (0.0)
 
         if len (off_fail) == 0:
-
           return "Average task failure rate (percentage) is 0.0%"
 
         return "Average task failure rate (percentage) is " + \
@@ -119,42 +104,23 @@ class Stats:
     def get_avg_constr_viol (cls, cells):
 
         constr_viol = list ()
-        constr_viol_samp = dict ()
-        off_dist_samp = dict ()
 
-        for cell_name, cell in cells.items ():
+        for i in range (Settings.SAMPLES):
+          off_dist_cnt = 0
+          constr_viol_cnt = 0
 
-            for site, samples in cell.get_constr_viol_samp().items ():
+          for cell_name, cell in cells.items ():
+            #print (cell.get_constr_viol_samp ())
+            #print (cell.get_off_dist_samp ())
 
-                if not site in constr_viol_samp:
+            for site_name, constr_viol_samp in cell.get_constr_viol_samp().items ():
+              off_dist_samp = cell.get_off_dist_samp ()
+              off_dist_cnt += off_dist_samp[site_name][i]
+              constr_viol_cnt += constr_viol_samp[i]
 
-                    constr_viol_samp[site] = list ()
-                    
-                constr_viol_samp[site] += samples
-
-            for site, samples in cell.get_off_dist_samp().items ():
-
-                if not site in off_dist_samp:
-
-                    off_dist_samp[site] = list ()
-                    
-                off_dist_samp[site] += samples
-
-        for key, _ in constr_viol_samp.items ():
-            
-            for i in range (len (constr_viol_samp[key])):
-                
-                if off_dist_samp[key][i] != 0:
-                    
-                    constr_viol.append (round (constr_viol_samp[key][i] / off_dist_samp[key][i] \
-                        * 100, 3))
-
-                else:
-
-                    constr_viol.append (0.0)
+          constr_viol.append (round (constr_viol_cnt / off_dist_cnt * 100, 3))
 
         if len (constr_viol) == 0:
-          
           return "Average constraint violation rate (precentage) is 0.0 %"
 
         return "Average constraint violation rate (percentage) is " + \

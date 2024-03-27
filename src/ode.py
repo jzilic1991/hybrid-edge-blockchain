@@ -158,12 +158,12 @@ class OffloadingDecisionEngine(ABC):
                     cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
                     continue
 
+            print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
             cls.__evaluate_constraint_violations (cand_n, t_rsp_time, app_name)
 
         (max_rsp_time, acc_e_consum) = cls.__get_total_objs (t_rsp_time_arr, \
             t_e_consum_arr)
         cls._BL = round (cls._BL - acc_e_consum, 3)
-        print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
         cls._curr_n = cand_n
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
@@ -197,7 +197,7 @@ class OffloadingDecisionEngine(ABC):
         cls._cell_stats[cell_name].add_off_fail (cls._off_fail_hist)
         cls._cell_stats[cell_name].add_constr_viol (cls._constr_viol_hist)
 
-        # reset failure and offloading distribution counters for next cell location
+        # reset failure, offloading distribution and constraint violation counters for next cell location
         cls._off_dist_hist = dict ()
         cls._off_fail_hist = dict ()
         cls._constr_viol_hist = dict ()
