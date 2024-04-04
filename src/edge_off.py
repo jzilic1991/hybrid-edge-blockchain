@@ -155,7 +155,7 @@ class EdgeOffloading (Thread):
 
       # all executions are completed
       if exe_cnt >= cls._exe:
-        cls._s_ode.summarize ()
+        cls._s_ode.summarize (exe_cnt)
         samp_cnt = samp_cnt + 1
         exe_cnt = 0
         cls._cell_number = 0

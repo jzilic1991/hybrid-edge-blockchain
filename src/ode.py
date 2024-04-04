@@ -77,8 +77,8 @@ class OffloadingDecisionEngine(ABC):
     def app_exc_done (cls, qos):
 
         if qos['rt'] < cls._curr_app_time:
-            print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + "s, QoS: " + \
-              str (qos['rt']) + "s")
+            print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + " s, QoS: " + \
+              str (qos['rt']) + " s")
             cls._qos_viol_cnt += 1
 
         cls._curr_app_time = 0.0
@@ -167,7 +167,7 @@ class OffloadingDecisionEngine(ABC):
         cls._curr_n = cand_n
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
-        cls._curr_app_time += max_rsp_time
+        cls._curr_app_time += round (max_rsp_time, 3)
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         # cls._res_pr_hist.append (acc_price)
@@ -175,13 +175,13 @@ class OffloadingDecisionEngine(ABC):
         return off_transactions
 
 
-    def summarize (cls):
+    def summarize (cls, exe_cnt):
 
         cls._stats.add_rsp_time (sum (cls._rsp_time_hist))
         cls._stats.add_e_consum (sum (cls._e_consum_hist))
         cls._stats.add_res_pr (sum (cls._res_pr_hist))
         cls._stats.add_bl (round (cls._BL / Settings.BATTERY_LF * 100, 3))
-        cls._stats.add_qos_viol (cls._qos_viol_cnt)
+        cls._stats.add_qos_viol (round (cls._qos_viol_cnt / exe_cnt * 100, 3))
 
         cls._rsp_time_hist = list ()
         cls._e_consum_hist = list ()

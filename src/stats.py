@@ -17,7 +17,7 @@ class Stats:
     def get_avg_qos_viol (cls):
 
         return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._qos_viol_samp), 2)) + " QoS violations")
+            str (round (np.mean(cls._qos_viol_samp), 2)) + " % QoS violation rate")
 
 
     def get_avg_rsp_time (cls): 
@@ -95,10 +95,10 @@ class Stats:
                     off_fail.append (0.0)
 
         if len (off_fail) == 0:
-          return "Average task failure rate (percentage) is 0.0%"
+          return "Average task failure rate is 0.0 %"
 
-        return "Average task failure rate (percentage) is " + \
-            str (round (sum (off_fail) / len (off_fail), 3))
+        return "Average task failure rate is " + \
+            str (round (sum (off_fail) / len (off_fail), 3)) + " %"
 
 
     def get_avg_constr_viol (cls, cells):
@@ -109,10 +109,12 @@ class Stats:
           off_dist_cnt = 0
           constr_viol_cnt = 0
 
+          # per cell
           for cell_name, cell in cells.items ():
             #print (cell.get_constr_viol_samp ())
             #print (cell.get_off_dist_samp ())
-
+            
+            # per offloading site
             for site_name, constr_viol_samp in cell.get_constr_viol_samp().items ():
               off_dist_samp = cell.get_off_dist_samp ()
               off_dist_cnt += off_dist_samp[site_name][i]
@@ -121,10 +123,10 @@ class Stats:
           constr_viol.append (round (constr_viol_cnt / off_dist_cnt * 100, 3))
 
         if len (constr_viol) == 0:
-          return "Average constraint violation rate (precentage) is 0.0 %"
+          return "Average constraint violation rate is 0.0 %"
 
-        return "Average constraint violation rate (percentage) is " + \
-            str (round (sum (constr_viol) / len (constr_viol), 3))
+        return "Average constraint violation rate is " + \
+            str (round (sum (constr_viol) / len (constr_viol), 3)) + " %"
 
 
     def get_avg_off_fail_dist (cls, cells):
@@ -180,42 +182,32 @@ class Stats:
         off_dist_samp = dict ()
 
         for cell_name, cell in cells.items ():
-
             for site, samples in cell.get_constr_viol_samp().items ():
-
                 if not site in constr_viol_samp:
-
                     constr_viol_samp[site] = list ()
                     
                 constr_viol_samp[site] += samples
 
             for site, samples in cell.get_off_dist_samp().items ():
-
                 if not site in off_dist_samp:
-
                     off_dist_samp[site] = list ()
                     
                 off_dist_samp[site] += samples
 
         constr_viol = dict ()
         for key, val in constr_viol_samp.items ():
-            
             constr_viol[key] = round (sum (val) / len (val), 3)
 
         off_dist = dict ()
         for key, val in off_dist_samp.items ():
-            
             off_dist[key] = round (sum (val) / len (val), 3)
 
         result = dict ()
         for key in constr_viol_samp.keys ():
-            
             if off_dist[key] != 0:
-
                 result[key] = round ((constr_viol[key] / off_dist[key]) * 100, 2)
 
             else:
-
                 result[key] = 0
 
         return ("Constraint violation distribution (percentage): " + str (result))
@@ -276,28 +268,18 @@ class Stats:
 
 
     # def add_off_dist (cls, off_dist_samp):
-        
     #     for key, val in off_dist_samp.items ():
-
     #         if key in cls._off_dist_samp.keys ():
-
     #             cls._off_dist_samp[key].append (val)
-
     #         else:
-
     #             cls._off_dist_samp[key] = [val]
 
 
     # def add_off_fail (cls, off_fail_samp):
-        
     #     for key, val in off_fail_samp.items ():
-
     #         if key in cls._off_fail_samp.keys ():
-
     #             cls._off_fail_samp[key].append (val)
-
     #         else:
-
     #             cls._off_fail_samp[key] = [val]
 
 

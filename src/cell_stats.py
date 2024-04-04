@@ -73,22 +73,22 @@ class CellStats:
   def get_avg_constr_viol (cls):
 
     constr_viol = list ()
+    off_attempts = list ()
 
-    for key, _ in cls._constr_viol.items ():
-      for i in range (len (cls._constr_viol[key])):
-        if cls._off_dist_samp[key][i] != 0:
-          constr_viol.append (round (cls._constr_viol[key][i] / cls._off_dist_samp[key][i] \
-            * 100, 3))
+    print ("Cell ID: " + str (cls._id))
+    for key, _ in cls._constr_viol.items (): # key is offloading site name
+      for i in range (len (cls._constr_viol[key])): # i index is number of sample
+        constr_viol.append (cls._constr_viol[key][i])
+        off_attempts.append (cls._off_dist_samp[key][i])
 
-        else:
-          constr_viol.append (0.0)
+    print ("Constraint violation list: " + str (constr_viol))
+    print ("Offloading attempts list: " + str (off_attempts))
+    
+    if not off_attempts:
+      return ("Average constraint violation rate 0.0 %")
 
-    if len (constr_viol) == 0:
-      return "Average constraint violation rate (percentage) is 0.0"
-
-    else:
-      return "Average constraint violation rate (percentage) is " + \
-        str (round (sum (constr_viol) / len (constr_viol), 3))
+    return "Average constraint violation rate is " + \
+      str (round (sum (constr_viol) / sum (off_attempts) * 100, 3)) + " %" 
 
 
   def get_avg_off_fail_dist (cls):
