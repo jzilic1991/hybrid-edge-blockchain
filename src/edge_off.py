@@ -123,8 +123,9 @@ class EdgeOffloading (Thread):
           period_cnt = 0
           cell_mover = True
 
-          # summarize cell statistics
-          cls._s_ode.summarize_cell_stats (cls._cell_number)
+          # summarize cell statistics (off distro, off fails, constr viols, avail distro) 
+          cls._s_ode.summarize_cell_stats (cls._cell_number, \
+            cls.__get_avail_distro (off_sites))
 
           # update cell number of new switched cell location and get offloading sites of new cell 
           # cls._cell_number = int (exe_cnt / cls._user_move)
@@ -194,6 +195,22 @@ class EdgeOffloading (Thread):
       if not off_transactions:
         exe_cnt = cls._exe
         continue
+
+
+  def __get_avail_distro (cls, off_sites):
+
+    avail_distro = dict ()
+  
+    for site in off_sites:
+      # avail distro is stored by node prototype key
+      node_proto = site.get_node_prototype ()
+      
+      if node_proto in avail_distro:
+        continue
+
+      avail_distro[node_proto] = site.get_avail ()
+
+    return avail_distro
 
 
   def __update_and_register_off_sites (cls):

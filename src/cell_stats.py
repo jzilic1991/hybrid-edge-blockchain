@@ -9,6 +9,7 @@ class CellStats:
     self._off_dist_samp = dict ()   # of dicts per offloading site key per sampling
     self._off_fail_samp = dict ()   # of scalars per sampling
     self._constr_viol = dict ()     # 
+    self._avail_distros = dict ()    # avaialability distribution per node prototype
 
 
   def get_off_dist_samp (cls):
@@ -24,6 +25,11 @@ class CellStats:
   def get_constr_viol_samp (cls):
 
     return cls._constr_viol
+
+
+  def get_avail_distro (cls):
+
+    return cls._avail_distro
 
 
   def get_avg_off_dist (cls):
@@ -49,23 +55,18 @@ class CellStats:
     off_fail = list ()
 
     for key, _ in cls._off_fail_samp.items ():
-
       for i in range (len (cls._off_fail_samp[key])):
-
         if cls._off_dist_samp[key][i] != 0:
-
           off_fail.append (round (cls._off_fail_samp[key][i] / cls._off_dist_samp[key][i] \
             * 100, 3))
 
         else:
-
           off_fail.append (0.0)
 
     if len (off_fail) == 0:
-
       return "Average task failure rate (percentage) is 0.0"
+    
     else:
-
       return "Average task failure rate (percentage) is " + \
         str (round (sum (off_fail) / len (off_fail), 3))
 
@@ -143,9 +144,16 @@ class CellStats:
     return ("Constraint violation distribution (percentage): " + str (result))
 
 
+  def get_avail_distros (cls):
+
+    return ("Availability distributions (percentages): " + str (cls._avail_distros))
+
+
   def get_all (cls):
 
-    return "########### CELL " + str (cls._id) + " #############\n" + cls.get_avg_off_dist () + '\n' + \
+    return "########### CELL " + str (cls._id) + " #############\n" + \
+      cls.get_avail_distros () + "\n" + \
+      cls.get_avg_off_dist () + '\n' + \
       cls.get_avg_off_fail_dist () + '\n' + \
       cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + \
       cls.get_avg_constr_viol () + "\n"
@@ -178,4 +186,10 @@ class CellStats:
         cls._constr_viol[key].append (val)
 
       else:
-        cls._constr_viol[key] = [val] 
+        cls._constr_viol[key] = [val]
+
+  ### avail_distros - dictionary { key: node prototype => value: mean value 
+  ### of avail distro (float) } 
+  def set_avail_distros (cls, avail_distros):
+    
+    cls._avail_distros = avail_distros

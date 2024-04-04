@@ -190,12 +190,14 @@ class OffloadingDecisionEngine(ABC):
         cls._BL = Settings.BATTERY_LF
 
 
-    def summarize_cell_stats (cls, cell_name):
+    def summarize_cell_stats (cls, cell_name, avail_distros):
 
         # cell statistics
         cls._cell_stats[cell_name].add_off_dist (cls._off_dist_hist)
         cls._cell_stats[cell_name].add_off_fail (cls._off_fail_hist)
         cls._cell_stats[cell_name].add_constr_viol (cls._constr_viol_hist)
+        # setting avail distros stats but not adding new stats as previous three cell statistical attributes
+        cls._cell_stats[cell_name].set_avail_distros (avail_distros)
 
         # reset failure, offloading distribution and constraint violation counters for next cell location
         cls._off_dist_hist = dict ()
@@ -206,7 +208,6 @@ class OffloadingDecisionEngine(ABC):
     def log_stats (cls):
 
         for key in cls._cell_stats:
-
             cls._log.w (cls._cell_stats[key].get_all ())
         
         cls._log.w (cls._stats.get_all ())
