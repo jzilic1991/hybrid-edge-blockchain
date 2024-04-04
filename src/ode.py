@@ -158,7 +158,7 @@ class OffloadingDecisionEngine(ABC):
                     cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
                     continue
 
-            print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
+            # print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
             cls.__evaluate_constraint_violations (cand_n, t_rsp_time, app_name)
 
         (max_rsp_time, acc_e_consum) = cls.__get_total_objs (t_rsp_time_arr, \

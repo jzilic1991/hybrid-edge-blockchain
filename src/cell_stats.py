@@ -76,14 +76,14 @@ class CellStats:
     constr_viol = list ()
     off_attempts = list ()
 
-    print ("Cell ID: " + str (cls._id))
+    # print ("Cell ID: " + str (cls._id))
     for key, _ in cls._constr_viol.items (): # key is offloading site name
       for i in range (len (cls._constr_viol[key])): # i index is number of sample
         constr_viol.append (cls._constr_viol[key][i])
         off_attempts.append (cls._off_dist_samp[key][i])
 
-    print ("Constraint violation list: " + str (constr_viol))
-    print ("Offloading attempts list: " + str (off_attempts))
+    # print ("Constraint violation list: " + str (constr_viol))
+    # print ("Offloading attempts list: " + str (off_attempts))
     
     if not off_attempts:
       return ("Average constraint violation rate 0.0 %")
@@ -96,23 +96,19 @@ class CellStats:
 
     off_fail = dict ()
     for key, val in cls._off_fail_samp.items ():
-
       off_fail[key] = round (sum (val) / len (val), 3)
 
     off_dist = dict ()
     for key, val in cls._off_dist_samp.items ():
-
       off_dist[key] = round (sum (val) / len (val), 3)
 
     result = dict ()
     for key in cls._off_fail_samp.keys ():
 
       if off_dist[key] != 0:
-
         result[key] = round ((off_fail[key] / off_dist[key]) * 100, 2)
 
       else:
-
         result[key] = 0
 
     return ("Offloading failure distribution (percentage): " + str (result))
@@ -146,7 +142,7 @@ class CellStats:
 
   def get_avail_distros (cls):
 
-    return ("Availability distributions (percentages): " + str (cls._avail_distros))
+    return ("Availability distributions (statistically): " + str (cls._avail_distros))
 
 
   def get_all (cls):

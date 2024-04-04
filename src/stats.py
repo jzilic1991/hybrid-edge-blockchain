@@ -120,6 +120,11 @@ class Stats:
               off_dist_cnt += off_dist_samp[site_name][i]
               constr_viol_cnt += constr_viol_samp[i]
 
+          # if no offloading attempts in the cell (e.g. last cell in the app execution sample)
+          if off_dist_cnt == 0:
+            constr_viol.append (0.0)
+            continue
+
           constr_viol.append (round (constr_viol_cnt / off_dist_cnt * 100, 3))
 
         if len (constr_viol) == 0:
