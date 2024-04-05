@@ -86,8 +86,8 @@ class EdgeOffloading (Thread):
     # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
     # cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
-    print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
-    print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
+    #print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
+    #print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
 
     while True:
 
@@ -104,6 +104,8 @@ class EdgeOffloading (Thread):
       if len (tasks) == 0:
         # deploy and run mobile application
         app = cls._m_app_prof.dep_app (cls._app_name)
+        # update current site of task exeuction when previous app execution is completed
+        cls._s_ode.set_curr_node (Util.get_mob_site (off_sites))
         app.run ()
         exe_cnt = exe_cnt + 1
         
@@ -177,8 +179,11 @@ class EdgeOffloading (Thread):
         # off_sites = cls.__reset_reputation (off_sites)
         continue
 
+      # getting updated reputation when consensus is finished after certain delay
+      print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
       if con_delay == cls._con_delay:
         off_sites = cls.__get_reputation (off_sites)
+        cls.__print_reputation (off_sites)
         con_delay = 0
         task_n_delay = tasks[0].get_name ()
 
@@ -196,6 +201,21 @@ class EdgeOffloading (Thread):
         exe_cnt = cls._exe
         continue
 
+  # printing reputation score values per offloading site
+  def __print_reputation (cls, off_sites):
+
+    trace = "################### REPUTATION SCORES ##################\n"
+
+    for site in off_sites:
+      if site.get_reputation () != 0.5:
+        trace += "####### SC ID: " + str (site.get_sc_id ()) + ": " + \
+          str (site.get_reputation ()) + "######## | "
+        continue
+
+      trace += "SC ID: " + str (site.get_sc_id ()) + ": " + str (site.get_reputation ()) + " | "
+
+    print (trace)
+
 
   def __get_avail_distro (cls, off_sites):
 
@@ -204,7 +224,6 @@ class EdgeOffloading (Thread):
     for site in off_sites:
       # avail distro is stored by node prototype key
       node_proto = site.get_node_prototype ()
-      
       if node_proto in avail_distro:
         continue
 
@@ -294,15 +313,11 @@ class EdgeOffloading (Thread):
     reset_msg = cls._rsp_q.get ()
 
     if reset_msg[0] == 'reset_rsp':
-
       for site_rep in reset_msg[1]:
-
         for site in off_sites:
-
           if site_rep['id'] == site.get_sc_id ():
-
             site.set_reputation (site_rep['score'])
             # print (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
             # cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
-
+    
     return off_sites

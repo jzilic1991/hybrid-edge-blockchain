@@ -21,9 +21,10 @@ class PowerConsum:
     IDLE = 0.3
 
 
+
 class CommDirection:
   
-    DOWNLINK, UPLINK = ('DOWNLINK', 'UPLINK')
+    DOWNLINK, UPLINK, COMP = ('DOWNLINK', 'UPLINK', "COMP")
 
 
 class Prices:
@@ -44,7 +45,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
     APP_EXECUTIONS = 10
-    SAMPLES = 2
+    SAMPLES = 1
     NUM_LOCS = 2
     # constants
     SCALABILITY = 1

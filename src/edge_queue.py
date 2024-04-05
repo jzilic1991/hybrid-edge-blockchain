@@ -11,8 +11,7 @@ from task import Task
 class EdgeQueue (ABC):
 
 
-  # comm_direct is for communication queue direction (downlink or uplink) and site_name is for execution queue
-  def __init__ (self, total, arrival_rate = 0.0, task_size_rate = 0.0, comm_direct = None, site_name = None):
+  def __init__ (self, total, arrival_rate = 0.0, task_size_rate = 0.0, comm_direct = CommDirection.COMP, site_name = None):
 
     self._total = total
     self._comm_direct = comm_direct
@@ -20,6 +19,7 @@ class EdgeQueue (ABC):
     self._arrival_rate = arrival_rate
     self._task_size_rate = task_size_rate
     self._workload = list ()
+    self._est_lat = 0.0
 
 
   def est_lat (cls, task):
@@ -32,8 +32,9 @@ class EdgeQueue (ABC):
 
     workload.extend (cls._arrival (task = task))
     util = cls._utilization_factor (workload, task = task)
-    
-    return cls._waiting_time (workload, util) + cls._service_time (task, util)
+    cls._est_lat = cls._waiting_time (workload, util) + cls._service_time (task, util)
+
+    return cls._est_lat
 
 
   def act_lat (cls, task):
@@ -45,10 +46,23 @@ class EdgeQueue (ABC):
     cls._workload.extend (generated_workload)
     util = cls._utilization_factor (cls._workload, task = task)
     cls._print_workload (cls._workload, util)
-    total_lat = cls._waiting_time (cls._workload, util) + cls._service_time (task, util)
+    waiting_time = cls._waiting_time (cls._workload, util) 
+    service_time = cls._service_time (task, util)
+    total_lat = waiting_time + service_time
+    print ("\n########## QUEUE LATENCY TIME COMPUTATIONS #############")
+    print ("(" + str (cls._comm_direct) + " QUEUE + task " + task.get_name () + \
+      "): Waiting + Service = " + str (waiting_time) + " s + " + \
+      str (service_time) + " s")
+    print ("ESTIMATED Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (cls._est_lat))
+    print ("ACTUAL Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (total_lat))
     cls._workload = cls._residual_workload (cls._workload)
 
     return total_lat
+
+  
+  def get_est_lat (cls):
+
+    return cls._est_lat
 
 
   def workload_update (cls, time_passed):
@@ -81,16 +95,13 @@ class EdgeQueue (ABC):
   def _arrival (cls, task = None):
 
     workload = list ()
-
     # workload.append (site.gen_workload ())
     numb_of_tasks = cls._gen_num_of_tasks ()
 
     for i in range (numb_of_tasks):
-          
       workload.append (cls._gen_task_size ())
 
     if task != None:
-        
        workload.append (task)
     
     random.shuffle (workload)
@@ -104,14 +115,11 @@ class EdgeQueue (ABC):
     
     # actual workload is a list of floats i.e. task sizes
     for w in workload:
-
       if type (w) == float:
-        
         util += w / cls._total
         continue
 
       if task != None:
-        
         util += task.get_mi () / cls._total
     
     return util
@@ -122,23 +130,18 @@ class EdgeQueue (ABC):
     queue_type = None
     
     if cls._comm_direct == CommDirection.UPLINK:
-
       queue_type = "offloading"
 
     elif cls._comm_direct == CommDirection.DOWNLINK:
-
       queue_type = "delivery"
 
-    elif cls._site_name != None:
-
+    elif cls._comm_direct == CommDirection.COMP:
       queue_type = "execution"
 
     # here is the code for converting task class object into floating point task size 
     conv_workload = list ()
     for ele in workload:
-        
       if type (ele) == float:
-        
         conv_workload.append (ele)
         continue
       

@@ -54,7 +54,7 @@ class OffloadingSite:
       if curr_n_id != cls._name_id:
 
         off_lat = cls._task_off_queue.est_lat (task)
-        del_lat = cls._task_del_queue.est_lat (task)
+        # del_lat = cls._task_del_queue.est_lat (task)
           
         if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
           
@@ -80,7 +80,7 @@ class OffloadingSite:
       if curr_n_id != cls._name_id:
 
         off_lat = cls._task_off_queue.act_lat (task)
-        del_lat = cls._task_del_queue.act_lat (task)
+        # del_lat = cls._task_del_queue.act_lat (task)
         
         if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
           
@@ -89,7 +89,7 @@ class OffloadingSite:
       
       exe_lat = cls._task_exe_queue.act_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
-      
+      print ("Total task latency time is " + str (total_lat.get_overall ()) + " s")      
       # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
       # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ACTUAL DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))
@@ -198,10 +198,6 @@ class OffloadingSite:
 
     def get_reputation (cls):
 
-        # if cls._node_type == NodeTypes.MOBILE:
-            
-        #     return 1.0
-        
         return cls._reput
 
 

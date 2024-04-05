@@ -53,12 +53,10 @@ class OffloadingDecisionEngine(ABC):
         proc = constr.get_proc ()
         lat = constr.get_lat ()
         deadline = proc + lat
-
         tmp = round ((deadline - metric['rt']) / deadline, 3) * 1000
 
         if tmp == math.inf or tmp == -math.inf:
             incentive = 0
-
         else:
             incentive = int (tmp)
 
@@ -80,7 +78,7 @@ class OffloadingDecisionEngine(ABC):
             print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + " s, QoS: " + \
               str (qos['rt']) + " s")
             cls._qos_viol_cnt += 1
-
+        
         cls._curr_app_time = 0.0
 
 
@@ -121,11 +119,9 @@ class OffloadingDecisionEngine(ABC):
 
                 cand_n, values = cls.offloading_decision (task, metrics, timestamp, app_name, \
                     constr, qos)
-
                 cls._off_dist_hist[cand_n.get_node_prototype ()] += 1
 
                 if cand_n.execute (task, timestamp):
-
                     # t_rsp_time = t_rsp_time + values['rt']
                     # t_e_consum = t_e_consum + values['ec']
                     # t_price = t_price + values['pr']
@@ -143,7 +139,6 @@ class OffloadingDecisionEngine(ABC):
                     off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (cand_n, \
                         values, app_name)])
                     break
-
                 else:
 
                     print ("############# OFFLOADING FAILURE on site " + cand_n.get_n_id () + " ##############################")
@@ -158,7 +153,8 @@ class OffloadingDecisionEngine(ABC):
                     cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
                     continue
 
-            # print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
+            print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + \
+              " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
             cls.__evaluate_constraint_violations (cand_n, t_rsp_time, app_name)
 
         (max_rsp_time, acc_e_consum) = cls.__get_total_objs (t_rsp_time_arr, \
@@ -168,6 +164,8 @@ class OffloadingDecisionEngine(ABC):
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
         cls._curr_app_time += round (max_rsp_time, 3)
+        print ("Total app RT: " + str (cls._curr_app_time - (round (max_rsp_time, 3))) +\
+          " + " + str (round (max_rsp_time, 3)) + " = " + str (cls._curr_app_time))
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         # cls._res_pr_hist.append (acc_price)
@@ -301,7 +299,6 @@ class OffloadingDecisionEngine(ABC):
         metrics = dict ()
 
         for cand_n in off_sites:
-               
             (rsp_time, e_consum) = cls.__compute_estimated_objectives (task, off_sites, cand_n, \
                 curr_n)
             metrics[cand_n] = {'rt': rsp_time, 'ec': e_consum}
