@@ -25,14 +25,17 @@ class EdgeQueue (ABC):
   def est_lat (cls, task):
 
     workload = list ()
+    
+    if cls._utilization_factor (cls._workload, task = task) >= 1.0:
+      cls._reduce_workload (task)
 
     for ele in cls._workload:
-
       workload.append (ele)
 
     workload.extend (cls._arrival (task = task))
     util = cls._utilization_factor (workload, task = task)
-    cls._est_lat = cls._waiting_time (workload, util) + cls._service_time (task, util)
+    cls._print_workload (workload, util)
+    cls._est_lat = round (cls._waiting_time (workload, util) + cls._service_time (task, util), 3)
 
     return cls._est_lat
 
@@ -48,13 +51,14 @@ class EdgeQueue (ABC):
     cls._print_workload (cls._workload, util)
     waiting_time = cls._waiting_time (cls._workload, util) 
     service_time = cls._service_time (task, util)
-    total_lat = waiting_time + service_time
+    total_lat = round (waiting_time + service_time, 3)
     print ("\n########## QUEUE LATENCY TIME COMPUTATIONS #############")
     print ("(" + str (cls._comm_direct) + " QUEUE + task " + task.get_name () + \
       "): Waiting + Service = " + str (waiting_time) + " s + " + \
       str (service_time) + " s")
     print ("ESTIMATED Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (cls._est_lat))
-    print ("ACTUAL Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (total_lat))
+    print ("ACTUAL Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (total_lat) +\
+      cls._mape (total_lat, cls._est_lat))
     cls._workload = cls._residual_workload (cls._workload)
 
     return total_lat
@@ -84,12 +88,29 @@ class EdgeQueue (ABC):
 
   def update_arrival_rate (cls):
 
-    cls._arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE)
+    cls._arrival_rate = round (random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), 3)
 
 
   def update_task_size_rate (cls):
 
-    cls._task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE)
+    cls._task_size_rate = round (random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), 3)
+
+  
+  def _reduce_workload (cls, task):
+
+    print ("REDUCE WORKLOAD: " + str (cls._workload))
+
+    while (cls._utilization_factor (cls._workload, task = Task)) >= 1.0:
+      cls._workload.pop (0)
+      print ("UPDATED WORKLOAD: " + str (cls._workload))
+
+  
+  def _mape (cls, actual, estimated):
+
+    if (actual + estimated) == 0.0:
+      return " (~0.0 %)"
+
+    return " (~" + str (round (np.abs (actual / (actual + estimated)) * 100, 3)) + " %)"
 
   
   def _arrival (cls, task = None):
@@ -121,8 +142,8 @@ class EdgeQueue (ABC):
 
       if task != None:
         util += task.get_mi () / cls._total
-    
-    return util
+
+    return round (util, 3)
 
 
   def _print_workload (cls, workload, util):
@@ -155,11 +176,9 @@ class EdgeQueue (ABC):
   def _residual_workload (cls, workload, time_passed = None):
 
     k = None
-
+    
     for i in range (len (workload)):
-
       if type (workload[i]) == Task:
-
         k = i
         break
 
@@ -167,11 +186,9 @@ class EdgeQueue (ABC):
     # queue state to remove those tasks that are executed within time passed
     # the case applies to sites which did not receive task class object
     if k == None:
-
       workload = cls._elapsed_workload (workload, time_passed, cls._utilization_factor (workload)) 
        
     else:
-      
       workload = workload[(k + 1):]
 
     return workload
@@ -179,12 +196,12 @@ class EdgeQueue (ABC):
 
   def _gen_task_size (cls):
 
-    return random.expovariate (cls._task_size_rate)
+    return round (random.expovariate (cls._task_size_rate), 3)
 
 
   def _gen_num_of_tasks (cls):
 
-    return np.random.poisson (lam = cls._arrival_rate)
+    return round (np.random.poisson (lam = cls._arrival_rate), 3)
 
   
   def _elapsed_workload (cls, workload, time_passed, util):
@@ -216,15 +233,15 @@ class CommQueue (EdgeQueue):
 
     for i in range (len (workload)):
 
-      elapsed_time = workload[i] / (avail * math.log (1 + Settings.SNR, 2))
+      elapsed_time = round (workload[i] / (avail * math.log (1 + Settings.SNR, 2)), 3)
       elapsed_time_accumulated += elapsed_time
       # print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
 
       if elapsed_time_accumulated > time_passed:
         
         # print ("Accumulated time has surpassed time passed!")
-        new_update_task_size = (elapsed_time_accumulated - time_passed) * \
-          (avail * math.log (1 + Settings.SNR, 2))
+        new_update_task_size = round ((elapsed_time_accumulated - time_passed) * \
+          (avail * math.log (1 + Settings.SNR, 2)), 3)
         # print ("New update task size: " + str (new_update_task_size))
         break
     
@@ -242,13 +259,10 @@ class CommQueue (EdgeQueue):
   def _waiting_time (cls, workload, util):
 
     for i in range (len (workload)):
-
       if type (workload[i]) == Task:
-        
         if i != 0:
-          
           # print ("CommQueue workload until task: " + str (workload[:i]) + ", sum(workload) = " + str (sum (workload[:i])) + ", total: " + str (cls._total) + ", util: " + str (util) + ", ACTUAL WAITING TIME: " + str (sum (workload[:i]) / (cls._total - util)))
-          return sum (workload[:i]) / (cls._total - util)
+          return round (sum (workload[:i]) / (cls._total - util), 3)
 
         return 0.0
 
@@ -259,7 +273,7 @@ class CommQueue (EdgeQueue):
 
     avail = cls._total - util
     
-    return task.get_data_in () / (avail * math.log (1 + Settings.SNR, 2))
+    return round (task.get_data_in () / (avail * math.log (1 + Settings.SNR, 2)), 3)
 
 
 
@@ -276,15 +290,15 @@ class CompQueue (EdgeQueue):
 
     for i in range (len (workload)):
 
-      elapsed_time = workload[i] / avail
+      elapsed_time = round (workload[i] / avail, 3)
       elapsed_time_accumulated += elapsed_time
       # print ("Elapsed time accumulated (index: " + str (i) + "): " + str (elapsed_time_accumulated))
 
       if elapsed_time_accumulated > time_passed:
 
         # print ("Accumulated time has surpassed time passed!")
-        new_update_task_size = (elapsed_time_accumulated - time_passed) * \
-          (avail * math.log (1 + Settings.SNR, 2))
+        new_update_task_size = round ((elapsed_time_accumulated - time_passed) * \
+          (avail * math.log (1 + Settings.SNR, 2)), 3)
         # print ("New update task: " + str (new_update_task_size))
         break
     
@@ -302,13 +316,10 @@ class CompQueue (EdgeQueue):
   def _waiting_time (cls, workload, util):
     
     for i in range (len (workload)):
-
       if type (workload[i]) == Task:
-        
         if i != 0:
-          
-          # print ("CompQueue workload until task: " + str (workload[:i]) + ", sum(workload) = " + str (sum (workload[:i])) + ", total: " + str (cls._total) + ", util: " + str (util) + ", ACTUAL WAITING TIME: " + str (sum (workload[:i]) / (cls._total - util)))
-          return sum (workload[:i]) / (cls._total - util)
+          print ("CompQueue workload until task: " + str (workload[:i]) + ", sum(workload) = " + str (sum (workload[:i])) + ", total: " + str (cls._total) + ", util: " + str (util) + ", ACTUAL WAITING TIME: " + str (sum (workload[:i]) / (cls._total - util)))
+          return round (sum (workload[:i]) / (cls._total - util), 3)
 
         return 0.0
 
@@ -317,4 +328,4 @@ class CompQueue (EdgeQueue):
 
   def _service_time (cls, task, util):
 
-    return task.get_mi () / (cls._total - util)      
+    return round (task.get_mi () / (cls._total - util), 3)      

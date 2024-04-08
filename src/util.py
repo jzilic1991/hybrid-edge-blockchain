@@ -44,9 +44,9 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 3
-    APP_EXECUTIONS = 10
-    SAMPLES = 1
-    NUM_LOCS = 2
+    APP_EXECUTIONS = 100
+    SAMPLES = 10
+    NUM_LOCS = 10
     # constants
     SCALABILITY = 1
     CONSENSUS_DELAY = 0

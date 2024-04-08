@@ -21,6 +21,8 @@ class SmtOde (OffloadingDecisionEngine):
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos):
 
         if task.is_offloadable ():
+            cls._k = round ((len (metrics) / 2))
+            print ("K param is " + str (cls._k))
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
                 app_name, constr, qos)
             start = time.time ()

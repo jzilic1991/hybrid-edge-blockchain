@@ -1,7 +1,7 @@
 import math
 
 from util import MeasureUnits, ResponseTime, EnergyConsum, \
-	NodeTypes, PowerConsum, NetLinkTypes, Settings, Util, Prices
+  NodeTypes, PowerConsum, NetLinkTypes, Settings, Util, Prices
 
 
 class Model (object):
@@ -193,6 +193,7 @@ class Model (object):
     if task_completion_time == 0.0:
       return 0.0
 
+    print ("Task completion time: " + str (task_completion_time))
     return 1 / (1 + math.exp(task_completion_time))
 
 

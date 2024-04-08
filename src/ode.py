@@ -164,8 +164,8 @@ class OffloadingDecisionEngine(ABC):
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
         cls._curr_app_time += round (max_rsp_time, 3)
-        print ("Total app RT: " + str (cls._curr_app_time - (round (max_rsp_time, 3))) +\
-          " + " + str (round (max_rsp_time, 3)) + " = " + str (cls._curr_app_time))
+        print ("Total app RT: " + str (round (cls._curr_app_time - max_rsp_time, 3)) +\
+          " + " + str (round (max_rsp_time, 3)) + " = " + str (round (cls._curr_app_time, 3)))
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         # cls._res_pr_hist.append (acc_price)
