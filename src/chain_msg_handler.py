@@ -14,9 +14,9 @@ from util import Testnets, PrivateKeys
 class ChainHandler:
 	
 
-	def __init__ (self, testnet):
+	def __init__ (self, testnet, port):
 
-		self.__prepare_basics (testnet)
+		self.__prepare_basics (testnet, port)
 
 
 	def get_base (cls):
@@ -141,13 +141,13 @@ class ChainHandler:
 		return cls._smart_contract.address
 
 
-	def __prepare_basics (cls, testnet):
+	def __prepare_basics (cls, testnet, port):
 
 		# load environment variables
 		load_dotenv()
 
 		# determine test network where to deploy smart contract
-		cls._testnet = cls.__determine_testnet(testnet)
+		cls._testnet = cls.__determine_testnet (testnet, port)
 
 		# establish web3 connection to the test network
 		cls._w3 = Web3 (HTTPProvider (cls._testnet))
@@ -158,7 +158,7 @@ class ChainHandler:
 		cls._account = cls._w3.eth.account.from_key (cls._key)
 
 
-	def __determine_testnet (cls, testnet):
+	def __determine_testnet (cls, testnet, port):
 
 		# determine a test network for deploying the smart contract
 		if testnet == Testnets.KOVAN:
@@ -177,7 +177,7 @@ class ChainHandler:
 			return 'http://localhost:9545'
 
 		elif testnet == Testnets.GANACHE:
-			return 'http://localhost:8545'
+			return 'http://localhost:' + port
 
 		else:
 			raise ValueError ('Wrong testnet argument! Arg: ' + str (testnet))

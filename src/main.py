@@ -116,7 +116,7 @@ cached_trx = list ()
 update_thread = False
 req_q, rsp_q = Queue (), Queue ()
 
-chain = ChainHandler (Testnets.GANACHE)
+chain = ChainHandler (Testnets.GANACHE, sys.argv[2])
 chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':
@@ -126,7 +126,7 @@ if sys.argv[1] == 'intra':
     edge_off.start ()
 
     experiment_run ()
-    exit ()
+    # exit ()
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_rep_smt_ode ()
