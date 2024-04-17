@@ -9,16 +9,24 @@ from sklearn.cluster import KMeans
 class Infrastructure:
 
   _clustered_nodes = tuple ()
+  _data = dict ()
+  _cluster_labels = np.array ([])
 
 
   @classmethod
   def get_clustered_cells (cls, file_path, off_site_dict, num_clusters = 100):
 
-    parsed_data = cls.__parse_topology_file (file_path)
-    cluster_labels = cls.__clustering_cells (parsed_data, num_clusters)
-    cls._clustered_nodes = cls.__create_cluster_nodes (cluster_labels, off_site_dict)
+    _parsed_data = cls.__parse_topology_file (file_path)
+    cls._data, cls._cluster_labels = cls.__clustering_cells (_parsed_data, num_clusters)
+    cls._clustered_nodes = cls.__create_cluster_nodes (cls._cluster_labels, off_site_dict)
 
     return cls._clustered_nodes
+
+
+  @classmethod
+  def get_plotting_data (cls):
+
+    return (cls._data, cls._cluster_labels)
   
   
   @classmethod
@@ -26,12 +34,10 @@ class Infrastructure:
     
     data = dict ()
     
-    with open(file_path, 'r') as file:
-        
-        csv_reader = csv.reader(file)
-        
-        for row in csv_reader:
-            
+    with open(file_path, 'r') as file:        
+        csv_reader = csv.reader(file)  
+      
+        for row in csv_reader:            
             key = row[3] # cell ID (land area code)
             data[key] = { "latitude": float (row[7]), "longitude": float (row[6]) }
     
@@ -58,7 +64,7 @@ class Infrastructure:
     kmeans = KMeans (n_init = 10, n_clusters = num_clusters)
     kmeans.fit (data_wo_duplicates)
     
-    return kmeans.labels_
+    return (data_wo_duplicates, kmeans.labels_)
 
 
   @classmethod
@@ -68,18 +74,12 @@ class Infrastructure:
     node_prototypes = [NodePrototypes.ER, NodePrototypes.ED, NodePrototypes.EC]
 
     for i in range (len (labels)):
-
-        if not labels[i] in cluster_node_cnt:
-            
+        if not labels[i] in cluster_node_cnt:            
             cluster_node_cnt[labels[i]] = 1
         
         cluster_node_cnt[labels[i]] += 1
 
     cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, off_site_dict)
-
-    #for label in cluster_nodes:
-
-    #  print (str (label) + ": " + str (len (cluster_nodes[label])))
     
     return cluster_nodes
 
@@ -89,16 +89,12 @@ class Infrastructure:
     
     cluster_nodes = dict ()
 
-    for label in cluster_node_cnt:
-      
+    for label in cluster_node_cnt:      
       category_sizes = cls.__determine_node_prototype_sizes (cluster_node_cnt[label], len (node_prototypes))
 
       for i in range (len (category_sizes)):
-
         for j in range (category_sizes[i]):
-
           if not label in cluster_nodes:
-
             cluster_nodes[label] = list ()
           
           cluster_nodes[label].append (OffloadingSite (node_prototypes[i], off_site_dict['off-sites'][node_prototypes[i]]))
@@ -127,6 +123,5 @@ class Infrastructure:
 
           # Increment the size of the category
           category_sizes[category_index] += 1
-
 
       return category_sizes
