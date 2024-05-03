@@ -21,9 +21,7 @@ class SqOde (OffloadingDecisionEngine):
         k = cls._k
 
         if task.is_offloadable ():
-
             while True:
-
                 top_k_sites = cls.__get_top_k_rep ([off_site for off_site in metrics.keys ()], k)
                 # print ("Top k sites ")
                 # for site in top_k_sites:
@@ -31,16 +29,13 @@ class SqOde (OffloadingDecisionEngine):
                 queue_wait_t = Model.queue_waiting_time (task, top_k_sites)
                 best_off_site = cls.__select_best_one (queue_wait_t, timestamp)
                 if best_off_site == None:
-
                     k = len (metrics)
                     continue
 
                 return (best_off_site, metrics[best_off_site])
 
         for key, values in metrics.items ():
-
             if key.get_node_type() == NodeTypes.MOBILE:
-
                 return (key, values)
 
 
@@ -61,7 +56,7 @@ class SqOde (OffloadingDecisionEngine):
             # print ("Min waiting time: " + str (min_w_t))
             # print ("Avaialbility: " + str (off_site.avail_or_not (timestamp)))
 
-            if (min_w_t == None or min_w_t > q_wait_t) and off_site.avail_or_not (timestamp):
+            if (min_w_t == None or min_w_t > q_wait_t): #and off_site.avail_or_not (timestamp):
 
                 min_w_t = q_wait_t
                 best_off_site = off_site

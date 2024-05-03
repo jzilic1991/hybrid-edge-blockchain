@@ -15,14 +15,14 @@ class SmtOde (OffloadingDecisionEngine):
 
         super().__init__(name, curr_n, md, app_name, con_delay)
         self._activate = activate
-        self._k = 4
+        self._k = Settings.K
 
 
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos):
 
         if task.is_offloadable ():
-            cls._k = round ((len (metrics) / 2))
-            print ("K param is " + str (cls._k))
+            # cls._k = round ((len (metrics) / 2))
+            # print ("K param is " + str (cls._k))
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
                 app_name, constr, qos)
             start = time.time ()

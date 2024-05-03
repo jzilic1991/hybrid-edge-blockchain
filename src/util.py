@@ -43,7 +43,7 @@ class Settings:
     W_EC = 0.4
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
-    K = 3
+    K = 4
     APP_EXECUTIONS = 100
     SAMPLES = 10
     NUM_LOCS = 10

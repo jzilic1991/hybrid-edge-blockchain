@@ -12,7 +12,7 @@ class ResourceMonitor:
 
     def __init__ (self, scala):
 
-        self._scala = scala
+        self._scala = scala # currently obsolete instance variable
         self._clustered_cells = Infrastructure.get_clustered_cells ("data/AT-Cell.csv", \
           json.load (open ("data/off-sites.json"))) 
         # self._off_sites = self.__init_off_sites ()
@@ -151,21 +151,18 @@ class ResourceMonitor:
 
 
     # instantiating offloading sites
+    # currently obsolete instance method
     def __init_off_sites (cls):
         
         off_sites = list ()
         data = json.load (open ('data/off-sites.json'))
 
         for p_id, res in data['off-sites'].items ():
-
             if p_id == NodePrototypes.MD:
-
                 off_sites.append (OffloadingSite (p_id, res))
 
             else:
-                
                 for i in range (cls._scala):
-                    
                     off_sites.append (OffloadingSite (p_id, res))
 
         return off_sites
@@ -176,9 +173,7 @@ class ResourceMonitor:
         nodes = list ()
         
         for off_site in cls._clustered_cells[n]:
-            
             if off_site.get_node_type () == node_type:
-              
               nodes.append (off_site)
 
         return nodes

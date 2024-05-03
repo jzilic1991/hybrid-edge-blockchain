@@ -142,6 +142,8 @@ class EdgeOffloading (Thread):
         
         if not cell_mover:
           # update reputation after each application execution and reset transaction list
+          print ("############## UPDATING TRANSACTIONS ###############")
+          print ("Transactions: " + str (off_transactions))
           cls._req_q.put (('update', off_transactions))
           off_transactions = list ()
         

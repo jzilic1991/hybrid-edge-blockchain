@@ -14,7 +14,7 @@ from util import Testnets, PrivateKeys
 
 class ChainHandler:
 
-  def __init__ (self, testnet, port):
+  def __init__ (self, testnet, port = 8545):
 
     self.__prepare_basics (testnet, port)
 
@@ -155,7 +155,7 @@ class ChainHandler:
     cls._testnet = cls.__determine_testnet (testnet, port)
 
     # establish web3 connection to the test network
-    cls._w3 = Web3 (HTTPProvider (cls._testnet))
+    cls._w3 = Web3 (HTTPProvider (cls._testnet, request_kwargs = { 'timeout': 30 }))
     print ("Web3 is connected: " + str(cls._w3.is_connected ()))
 
     # determine private key and user account
@@ -182,7 +182,7 @@ class ChainHandler:
       return 'http://localhost:9545'
 
     elif testnet == Testnets.GANACHE:
-      return 'http://localhost:' + port
+      return 'http://localhost:' + str (port)
 
     else:
       raise ValueError ('Wrong testnet argument! Arg: ' + str (testnet))
