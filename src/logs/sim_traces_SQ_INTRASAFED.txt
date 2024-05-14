@@ -3,80 +3,80 @@ Availability distributions (statistically): {'ER': 1.0, 'ED': 0.45, 'EC': 0.48, 
 Offloading distribution (percentage): {'ER': 55.00000000000001, 'ED': 2.0, 'EC': 6.0, 'CD': 0.0, 'MD': 37.0}
 Offloading failure distribution (percentage): {'ER': 8.05, 'ED': 91.67, 'EC': 31.43, 'CD': 0.0, 'MD': 0.0}
 Average task failure rate (percentage) is 4.176
-Constraint violation distribution (percentage): {'ER': 0.34, 'ED': 8.33, 'EC': 2.86, 'CD': 100.0, 'MD': 0.0}
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 8.33, 'EC': 5.71, 'CD': 100.0, 'MD': 0.0}
 Average constraint violation rate is 0.733 %
 
 ########### CELL 1 #############
 Availability distributions (statistically): {'ER': 0.34, 'ED': 0.17, 'EC': 0.25, 'CD': 0.99, 'MD': 1.0}
-Offloading distribution (percentage): {'ER': 20.0, 'ED': 19.0, 'EC': 37.0, 'CD': 13.0, 'MD': 10.0}
-Offloading failure distribution (percentage): {'ER': 97.12, 'ED': 100.0, 'EC': 98.7, 'CD': 0.0, 'MD': 0.0}
-Average task failure rate (percentage) is 59.166
-Constraint violation distribution (percentage): {'ER': 0.48, 'ED': 0.0, 'EC': 0.0, 'CD': 35.97, 'MD': 0.0}
-Average constraint violation rate is 4.937 %
+Offloading distribution (percentage): {'ER': 21.0, 'ED': 20.0, 'EC': 35.0, 'CD': 14.000000000000002, 'MD': 10.0}
+Offloading failure distribution (percentage): {'ER': 96.26, 'ED': 100.0, 'EC': 98.56, 'CD': 0.0, 'MD': 0.0}
+Average task failure rate (percentage) is 58.967
+Constraint violation distribution (percentage): {'ER': 1.4, 'ED': 0.0, 'EC': 1.44, 'CD': 41.24, 'MD': 0.0}
+Average constraint violation rate is 6.456 %
 
 ########### CELL 2 #############
 Availability distributions (statistically): {'ER': 0.38, 'ED': 0.24, 'EC': 0.97, 'CD': 1.0, 'MD': 1.0}
-Offloading distribution (percentage): {'ER': 34.0, 'ED': 34.0, 'EC': 25.0, 'CD': 0.0, 'MD': 6.0}
-Offloading failure distribution (percentage): {'ER': 99.1, 'ED': 100.0, 'EC': 65.85, 'CD': 0.0, 'MD': 0.0}
-Average task failure rate (percentage) is 52.991
-Constraint violation distribution (percentage): {'ER': 0.09, 'ED': 0.0, 'EC': 1.22, 'CD': 100.0, 'MD': 0.0}
-Average constraint violation rate is 0.648 %
+Offloading distribution (percentage): {'ER': 54.0, 'ED': 42.0, 'EC': 2.0, 'CD': 0.0, 'MD': 2.0}
+Offloading failure distribution (percentage): {'ER': 98.8, 'ED': 99.48, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
+Average task failure rate (percentage) is 39.657
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.52, 'EC': 31.82, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 0.968 %
 
 ########### CELL 3 #############
 Availability distributions (statistically): {'ER': 0.93, 'ED': 1.0, 'EC': 1.0, 'CD': 1.0, 'MD': 1.0}
 Offloading distribution (percentage): {'ER': 23.0, 'ED': 43.0, 'EC': 0.0, 'CD': 0.0, 'MD': 33.0}
-Offloading failure distribution (percentage): {'ER': 71.01, 'ED': 0.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
-Average task failure rate (percentage) is 14.191
-Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.0 %
+Offloading failure distribution (percentage): {'ER': 71.43, 'ED': 0.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
+Average task failure rate (percentage) is 14.286
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 7.69, 'EC': 0, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 3.333 %
 
 ########### CELL 4 #############
 Availability distributions (statistically): {'ER': 1.0, 'ED': 0.62, 'EC': 1.0, 'CD': 1.0, 'MD': 1.0}
 Offloading distribution (percentage): {'ER': 60.0, 'ED': 0.0, 'EC': 0.0, 'CD': 0.0, 'MD': 40.0}
 Offloading failure distribution (percentage): {'ER': 0.0, 'ED': 0, 'EC': 0, 'CD': 0, 'MD': 0.0}
 Average task failure rate (percentage) is 0.0
-Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0, 'EC': 0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.0 %
+Constraint violation distribution (percentage): {'ER': 0.33, 'ED': 0, 'EC': 0, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 0.2 %
 
 ########### CELL 5 #############
 Availability distributions (statistically): {'ER': 0.46, 'ED': 0.95, 'EC': 0.35, 'CD': 1.0, 'MD': 1.0}
-Offloading distribution (percentage): {'ER': 18.0, 'ED': 43.0, 'EC': 16.0, 'CD': 2.0, 'MD': 21.0}
-Offloading failure distribution (percentage): {'ER': 93.1, 'ED': 36.52, 'EC': 94.04, 'CD': 0.0, 'MD': 0.0}
-Average task failure rate (percentage) is 44.786
-Constraint violation distribution (percentage): {'ER': 0.57, 'ED': 0.0, 'EC': 0.0, 'CD': 100.0, 'MD': 0.0}
-Average constraint violation rate is 2.204 %
+Offloading distribution (percentage): {'ER': 20.0, 'ED': 43.0, 'EC': 15.0, 'CD': 2.0, 'MD': 21.0}
+Offloading failure distribution (percentage): {'ER': 89.89, 'ED': 36.59, 'EC': 99.29, 'CD': 0.0, 'MD': 0.0}
+Average task failure rate (percentage) is 45.171
+Constraint violation distribution (percentage): {'ER': 4.79, 'ED': 4.88, 'EC': 0.71, 'CD': 100.0, 'MD': 0.0}
+Average constraint violation rate is 5.214 %
 
 ########### CELL 6 #############
 Availability distributions (statistically): {'ER': 0.48, 'ED': 0.1, 'EC': 1.0, 'CD': 0.99, 'MD': 1.0}
 Offloading distribution (percentage): {'ER': 28.000000000000004, 'ED': 25.0, 'EC': 28.000000000000004, 'CD': 0.0, 'MD': 19.0}
 Offloading failure distribution (percentage): {'ER': 96.55, 'ED': 100.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
 Average task failure rate (percentage) is 39.31
-Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.0 %
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 6.9, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 1.923 %
 
 ########### CELL 7 #############
 Availability distributions (statistically): {'ER': 0.9, 'ED': 0.2, 'EC': 1.0, 'CD': 0.99, 'MD': 1.0}
 Offloading distribution (percentage): {'ER': 39.0, 'ED': 37.0, 'EC': 14.000000000000002, 'CD': 0.0, 'MD': 10.0}
 Offloading failure distribution (percentage): {'ER': 97.44, 'ED': 100.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
 Average task failure rate (percentage) is 39.487
-Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.0 %
+Constraint violation distribution (percentage): {'ER': 0.13, 'ED': 0.0, 'EC': 3.57, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 0.547 %
 
 ########### CELL 8 #############
 Availability distributions (statistically): {'ER': 0.28, 'ED': 0.84, 'EC': 0.89, 'CD': 0.99, 'MD': 1.0}
-Offloading distribution (percentage): {'ER': 12.0, 'ED': 34.0, 'EC': 23.0, 'CD': 0.0, 'MD': 31.0}
-Offloading failure distribution (percentage): {'ER': 73.33, 'ED': 30.73, 'EC': 12.24, 'CD': 0, 'MD': 0.0}
-Average task failure rate (percentage) is 23.951
-Constraint violation distribution (percentage): {'ER': 1.33, 'ED': 0.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.156 %
+Offloading distribution (percentage): {'ER': 13.0, 'ED': 33.0, 'EC': 23.0, 'CD': 0.0, 'MD': 31.0}
+Offloading failure distribution (percentage): {'ER': 73.49, 'ED': 31.48, 'EC': 12.16, 'CD': 0, 'MD': 0.0}
+Average task failure rate (percentage) is 23.987
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 13.89, 'EC': 18.92, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 8.964 %
 
 ########### CELL 9 #############
 Availability distributions (statistically): {'ER': 0.01, 'ED': 1.0, 'EC': 0.38, 'CD': 1.0, 'MD': 1.0}
 Offloading distribution (percentage): {'ER': 26.0, 'ED': 44.0, 'EC': 0.0, 'CD': 0.0, 'MD': 28.999999999999996}
 Offloading failure distribution (percentage): {'ER': 100.0, 'ED': 0.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
 Average task failure rate (percentage) is 20.0
-Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
-Average constraint violation rate is 0.0 %
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 10.0, 'EC': 0, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 4.412 %
 
 ########### CELL 10 #############
 Availability distributions (statistically): {}
@@ -86,15 +86,15 @@ Average task failure rate (percentage) is 0.0
 Constraint violation distribution (percentage): {}
 Average constraint violation rate 0.0 %
 
-After 10 samples, average is 10.53 s
-After 10 samples, average is 10.34 J
+After 10 samples, average is 75.88 s
+After 10 samples, average is 51.54 J
 After 10 samples, average is 0.0 monetary units
-After 10 samples, average is 98.97 % of energy remains
-After 10 samples, average is 26.3 % QoS violation rate
+After 10 samples, average is 94.85 % of energy remains
+After 10 samples, average is 33.4 % QoS violation rate
 
-Offloading distribution (percentage): {'ER': 31.0, 'ED': 30.0, 'EC': 20.0, 'CD': 3.0, 'MD': 16.0}
-Offloading failure distribution (percentage): {'ER': 81.44, 'ED': 73.81, 'EC': 59.04, 'CD': 0.0, 'MD': 0.0}
-Average task failure rate is 29.806 %
-Constraint violation distribution (percentage): {'ER': 0.16, 'ED': 0.03, 'EC': 0.44, 'CD': 42.39, 'MD': 0.0}
-Average constraint violation rate is 1.214 %
+Offloading distribution (percentage): {'ER': 42.0, 'ED': 35.0, 'EC': 10.0, 'CD': 2.0, 'MD': 11.0}
+Offloading failure distribution (percentage): {'ER': 90.11, 'ED': 84.73, 'EC': 47.24, 'CD': 0.0, 'MD': 0.0}
+Average task failure rate is 28.504 %
+Constraint violation distribution (percentage): {'ER': 0.22, 'ED': 1.87, 'EC': 7.79, 'CD': 45.42, 'MD': 0.0}
+Average constraint violation rate is 2.259 %
 

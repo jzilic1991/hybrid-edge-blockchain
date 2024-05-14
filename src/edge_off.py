@@ -185,7 +185,7 @@ class EdgeOffloading (Thread):
       print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
       if con_delay == cls._con_delay:
         off_sites = cls.__get_reputation (off_sites)
-        cls.__print_reputation (off_sites)
+        # cls.__print_reputation (off_sites)
         con_delay = 0
         task_n_delay = tasks[0].get_name ()
 

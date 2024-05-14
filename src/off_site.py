@@ -62,8 +62,8 @@ class OffloadingSite:
           # del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
 
       exe_lat = cls._task_exe_queue.est_lat (task)
-      print ("Offloading latency: " + str (off_lat))
-      print ("Execution latency: " + str (exe_lat))
+      # print ("Offloading latency: " + str (off_lat))
+      # print ("Execution latency: " + str (exe_lat))
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
 
       # print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY (" + task.get_name () + ") = "+ str (off_lat))
@@ -91,7 +91,7 @@ class OffloadingSite:
       
       exe_lat = cls._task_exe_queue.act_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
-      print ("Total task latency time is " + str (total_lat.get_overall ()) + " s")      
+      # print ("Total task latency time is " + str (total_lat.get_overall ()) + " s")      
       # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
       # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
       # print (cls._node_type + " has ACTUAL DELIVERY LATENCY (" + task.get_name () + ") = " + str (del_lat))

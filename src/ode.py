@@ -75,8 +75,8 @@ class OffloadingDecisionEngine(ABC):
     def app_exc_done (cls, qos):
 
         if qos['rt'] < cls._curr_app_time:
-            print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + " s, QoS: " + \
-              str (qos['rt']) + " s")
+            # print ("Application QoS is violated! RT: " + str (cls._curr_app_time) + " s, QoS: " + \
+            #  str (qos['rt']) + " s")
             cls._qos_viol_cnt += 1
         
         cls._curr_app_time = 0.0
@@ -112,6 +112,8 @@ class OffloadingDecisionEngine(ABC):
             t_rsp_time = 0.0
             t_e_consum = 0.0
             # t_price = 0.0
+            t_fail_cost = 0.0
+            e_fail_cost = 0.0
 
             metrics = cls.__compute_metrics (task, off_sites, cls._curr_n)
 
@@ -127,8 +129,12 @@ class OffloadingDecisionEngine(ABC):
                     # t_price = t_price + values['pr']
                     (t_rsp_time, t_e_consum) = cls.__runtime_objectives (task, off_sites, \
                       cand_n, cls._curr_n)
+                    print ("Execution is done! Completed task latency is " + str (t_rsp_time))
+                    t_rsp_time += t_fail_cost
+                    t_e_consum += e_fail_cost
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
+                    print ("Total RT array is :" + str (t_rsp_time_arr))
                     # t_price_arr += (t_price,)
                     # cls._log.w ("Task " + task.get_name () + \
                     #      " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
@@ -139,19 +145,18 @@ class OffloadingDecisionEngine(ABC):
                     off_transactions.append ([cand_n.get_sc_id (), cls.dynamic_t_incentive (cand_n, \
                         values, app_name)])
                     break
-                else:
-
-                    print ("############# OFFLOADING FAILURE on site " + cand_n.get_n_id () + " ##############################")
-                    # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
-                    (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
-                    # cls._log.w ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
-                    #     str (e_cost) + " J")
-                    t_rsp_time = t_rsp_time + time_cost
-                    t_e_consum = t_e_consum + e_cost
-                    del metrics[cand_n]
-                    off_transactions.append ([cand_n.get_sc_id (), 0])
-                    cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
-                    continue
+                
+                print ("############# OFFLOADING FAILURE on site " + cand_n.get_n_id () + " ##############################")
+                # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
+                (time_cost, e_cost) = Model.fail_cost (cand_n, cls._curr_n)
+                print ("Failure cost is RT:" + str (time_cost) + "s, EC: " + \
+                  str (e_cost) + " J")
+                t_fail_cost += time_cost
+                e_fail_cost += e_cost
+                print ("Accumulated RT (including failures) is " + str (t_fail_cost))
+                del metrics[cand_n]
+                off_transactions.append ([cand_n.get_sc_id (), 0])
+                cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
 
             print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + \
               " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")
@@ -164,8 +169,8 @@ class OffloadingDecisionEngine(ABC):
 
         # cls._log.w  ('BATTERY LIFETIME: ' + str (cls._BL))
         cls._curr_app_time += round (max_rsp_time, 3)
-        print ("Total app RT: " + str (round (cls._curr_app_time - max_rsp_time, 3)) +\
-          " + " + str (round (max_rsp_time, 3)) + " = " + str (round (cls._curr_app_time, 3)))
+        # print ("Total app RT: " + str (round (cls._curr_app_time - max_rsp_time, 3)) +\
+        #  " + " + str (round (max_rsp_time, 3)) + " = " + str (round (cls._curr_app_time, 3)))
         cls._rsp_time_hist.append (max_rsp_time)
         cls._e_consum_hist.append (acc_e_consum)
         # cls._res_pr_hist.append (acc_price)

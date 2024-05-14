@@ -30,7 +30,7 @@ class ChainHandler:
       return cls._smart_contract.functions.getReputationScore(nodeId).call()[0] / cls._base
     
     except ContractLogicError as e:
-      print ("Contract logic error occured: " + e)
+      print ("Contract logic error occured: " + str (e))
       return None
 
 
@@ -155,7 +155,7 @@ class ChainHandler:
     cls._testnet = cls.__determine_testnet (testnet, port)
 
     # establish web3 connection to the test network
-    cls._w3 = Web3 (HTTPProvider (cls._testnet, request_kwargs = { 'timeout': 30 }))
+    cls._w3 = Web3 (HTTPProvider (cls._testnet, request_kwargs = { 'timeout': 500 }))
     print ("Web3 is connected: " + str(cls._w3.is_connected ()))
 
     # determine private key and user account

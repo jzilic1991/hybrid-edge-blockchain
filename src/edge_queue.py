@@ -52,13 +52,13 @@ class EdgeQueue (ABC):
     waiting_time = cls._waiting_time (cls._workload, util) 
     service_time = cls._service_time (task, util)
     total_lat = round (waiting_time + service_time, 3)
-    print ("\n########## QUEUE LATENCY TIME COMPUTATIONS #############")
-    print ("(" + str (cls._comm_direct) + " QUEUE + task " + task.get_name () + \
-      "): Waiting + Service = " + str (waiting_time) + " s + " + \
-      str (service_time) + " s")
-    print ("ESTIMATED Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (cls._est_lat))
-    print ("ACTUAL Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (total_lat) +\
-      cls._mape (total_lat, cls._est_lat))
+    # print ("\n########## QUEUE LATENCY TIME COMPUTATIONS #############")
+    # print ("(" + str (cls._comm_direct) + " QUEUE + task " + task.get_name () + \
+    #  "): Waiting + Service = " + str (waiting_time) + " s + " + \
+    #  str (service_time) + " s")
+    # print ("ESTIMATED Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (cls._est_lat))
+    # print ("ACTUAL Total " + str (cls._comm_direct) + " QUEUE latency time: " + str (total_lat) +\
+    #  cls._mape (total_lat, cls._est_lat))
     cls._workload = cls._residual_workload (cls._workload)
 
     return total_lat
@@ -98,11 +98,11 @@ class EdgeQueue (ABC):
   
   def _reduce_workload (cls, task):
 
-    print ("REDUCE WORKLOAD: " + str (cls._workload))
+    # print ("REDUCE WORKLOAD: " + str (cls._workload))
 
     while (cls._utilization_factor (cls._workload, task = Task)) >= 1.0:
       cls._workload.pop (0)
-      print ("UPDATED WORKLOAD: " + str (cls._workload))
+      # print ("UPDATED WORKLOAD: " + str (cls._workload))
 
   
   def _mape (cls, actual, estimated):
@@ -318,7 +318,7 @@ class CompQueue (EdgeQueue):
     for i in range (len (workload)):
       if type (workload[i]) == Task:
         if i != 0:
-          print ("CompQueue workload until task: " + str (workload[:i]) + ", sum(workload) = " + str (sum (workload[:i])) + ", total: " + str (cls._total) + ", util: " + str (util) + ", ACTUAL WAITING TIME: " + str (sum (workload[:i]) / (cls._total - util)))
+          # print ("CompQueue workload until task: " + str (workload[:i]) + ", sum(workload) = " + str (sum (workload[:i])) + ", total: " + str (cls._total) + ", util: " + str (util) + ", ACTUAL WAITING TIME: " + str (sum (workload[:i]) / (cls._total - util)))
           return round (sum (workload[:i]) / (cls._total - util), 3)
 
         return 0.0
