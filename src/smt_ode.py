@@ -68,11 +68,9 @@ class SmtOde (OffloadingDecisionEngine):
         b_sites = [(Bool (site.get_n_id ()), site) for site in sites]
 
         if cls._activate:
-
             s = Optimize ()
 
         else:
-
             s = Solver ()
 
         # cls.__print_smt_offload_info (metrics, b_sites, timestamp, app_name, qos)
@@ -135,9 +133,7 @@ class SmtOde (OffloadingDecisionEngine):
         loc_opt = 0.0
 
         for site, val in metrics.items ():
-
             if loc_opt > metrics[site][obj]:
-
                 loc_opt = metrics[site][obj]
 
         return loc_opt
@@ -147,15 +143,21 @@ class SmtOde (OffloadingDecisionEngine):
 
         rt = cls.__compute_local_optimum (metrics, 'rt')
         ec = cls.__compute_local_optimum (metrics, 'ec')
-        # pr = cls.__compute_local_optimum (metrics, 'pr')
-
+        pr = cls.__compute_local_optimum (metrics, 'pr')
+        
         for site, val in metrics.items ():
-
             metrics[site]['score'] = Settings.W_RT * abs (val['rt'] - rt) + \
-                Settings.W_EC * abs (val['ec'] - ec)# + Settings.W_PR * abs (val['pr'] - pr)
+                Settings.W_EC * abs (val['ec'] - ec) + Settings.W_PR * abs (val['pr'] - pr)
+            # print ("Local optima RT: " + str (rt))
+            # print ("Local optima EC: " + str (ec))
+            # print ("Local optima PR: " + str (pr))
+            # print ("Site " + str (site.get_n_id ()) + " has score " + str (metrics[site]['score']))
+            # print ("RT value: " + str (val['rt']) + ", diff = " + str (Settings.W_RT * (val['rt'] - rt)))
+            # print ("EC value: " + str (val['ec']) + ", diff = " + str (Settings.W_EC * (val['ec'] - ec)))
+            # print ("PR value: " + str (val['pr']) + ", diff = " + str (Settings.W_PR * (val['pr'] - pr)))
+            # print ("")
 
             if metrics[site]['score'] == math.inf:
-
                 metrics[site]['score'] = 100
 
         return metrics

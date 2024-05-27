@@ -27,7 +27,6 @@ class Model (object):
   def task_rsp_time (cls, task, cand_n, curr_n, topology):
         
     if cand_n.get_n_id () == curr_n.get_n_id ():
-
       comp_time = cls.__comp_time(task, cand_n)
       return ResponseTime (comp_time, 0, 0, comp_time)
 
@@ -35,12 +34,10 @@ class Model (object):
     comp_time = cls.__comp_time(task, cand_n)
     
     if not task.get_out_edges():
-  
       downlink_time = cls.__downlink_time (cls, task, \
         cand_n, curr_n, topology)
         
     else:
-
       downlink_time = 0
                 
     return ResponseTime (comp_time, downlink_time, uplink_time, \
@@ -48,25 +45,28 @@ class Model (object):
 
 
   @classmethod
-  def price (cls, task, off_sites, cand_n, curr_n, topology):
+  def price (cls, task, off_sites, cand_n, curr_n):
 
     n_d = cand_n.get_node_type ()
 
     if n_d == NodeTypes.MOBILE:
-
       return 0.0
 
     elif n_d == NodeTypes.E_REG or n_d == NodeTypes.E_DATABASE or \
       n_d == NodeTypes.E_COMP:
+      t_f = cls.__t_f (cls, off_sites)
 
-      t_f = cls.__t_f (cls, off_sites, topology)
-
+      # if t_f < 0.0:
+      #  for site in off_sites:
+      #    print ("Site " + str (site.get_n_id () + " has a offloading latency " + str (str (site.get_off_lat ()))))
+      #  raise ValueError ("Tf factor should not be negative!")
+      #  exit ()
+      
       return (t_f / Settings.ETA) - math.sqrt ((Settings.ETA * \
         cls.__cloud_pr (cls, task, cand_n) + t_f) / Settings.ETA ** 2 * \
-        cls.__edge_min_rt (cls, task, off_sites, curr_n, topology)) 
+        cls.__edge_min_rt (cls, task, off_sites, curr_n))
 
     elif n_d == NodeTypes.CLOUD:
-
       return cls.__cloud_pr (cls, task, cand_n)
 
     raise ValueError ("Resource pricing does not recognize node type! " + str (n_d))
@@ -130,11 +130,12 @@ class Model (object):
 
 
   @classmethod
-  def fail_cost (cls, cand_n, curr_n):
+  def fail_cost (cls, task, off_sites, cand_n, curr_n):
         
     time_cost = Settings.OFFLOADING_FAILURE_DETECTION_TIME
     cost_rsp_time = ResponseTime (0.0, 0.0, 0.0, 0.0)
     cost_energy_consum = EnergyConsum (0.0, 0.0, 0.0, 0.0)
+    cost_price = 0.0
     # cost_rewards = 0
 
     if cand_n.get_node_type () != NodeTypes.MOBILE and \
@@ -142,6 +143,7 @@ class Model (object):
       cost_rsp_time = ResponseTime (time_cost, 0.0, 0.0, time_cost)
       cost_energy_consum = cls.task_e_consum \
         (cost_rsp_time, cand_n, curr_n)
+      cost_price = cls.price (task, off_sites, cand_n, curr_n)
       # task_time_reward = cls.__task_rsp_time_rwd \
       # 	(cost_rsp_time.get_task_overall())
       # task_energy_reward = cls.__task_e_consum_rwd \
@@ -153,6 +155,7 @@ class Model (object):
       curr_n.get_node_type () != NodeTypes.MOBILE:
       cost_rsp_time = ResponseTime (0.0, time_cost, 0.0, time_cost)
       cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
+      cost_price = cls.price (task, off_sites, cand_n, curr_n)
       # task_time_reward = cls.__task_rsp_time_rwd \
       # 	(cost_rsp_time.get_task_overall())
       # task_energy_reward = cls.__task_e_consum_rwd \
@@ -164,6 +167,7 @@ class Model (object):
       curr_n.get_node_type () == NodeTypes.MOBILE:
       cost_rsp_time = ResponseTime (0.0, 0.0, time_cost, time_cost)
       cost_energy_consum = cls.task_e_consum (cost_rsp_time, cand_n, curr_n)
+      cost_price = cls.price (task, off_sites, cand_n, curr_n)
       # task_time_reward = cls.__task_rsp_time_rwd \
       # 	(cost_rsp_time.get_task_overall())
       # task_energy_reward = cls.__task_e_consum_rwd \
@@ -172,7 +176,7 @@ class Model (object):
       # 	(task_time_reward, task_energy_reward)
 
     # return (cost_rsp_time, cost_energy_consum, cost_rewards)
-    return (cost_rsp_time.get_overall (), cost_energy_consum.get_overall ())
+    return (cost_rsp_time.get_overall (), cost_energy_consum.get_overall (), cost_price)
 
 
   @classmethod
@@ -181,7 +185,6 @@ class Model (object):
     wait_times = dict ()
 
     for off_site in top_k_sites:
-
       wait_times[off_site] = round (cls.__comp_time (task, off_site), 3)
 
     return wait_times
@@ -193,7 +196,7 @@ class Model (object):
     if task_completion_time == 0.0:
       return 0.0
 
-    print ("Task completion time: " + str (task_completion_time))
+    # print ("Task completion time: " + str (task_completion_time))
     return 1 / (1 + math.exp(task_completion_time))
 
 
@@ -216,25 +219,23 @@ class Model (object):
 
 
   @classmethod
-  def overall_task_rwd (cls, time_reward, energy_reward): #, price_reward):
+  def overall_task_rwd (cls, time_reward, energy_reward, price_reward):
 
-    return (0.5 * time_reward) + (0.5 * energy_reward) #+ (0.34 * price_reward)
+    return (0.34 * time_reward) + (0.33 * energy_reward) + (0.33 * price_reward)
 
 
   def __uplink_time (cls, task, cand_n, curr_n, topology):
-
+    
     name = cls.__key_for_topology_access (cand_n.get_n_id (), \
       curr_n.get_n_id (), topology)
 
     if name == None:
-
       return math.inf
 
     bw = topology[name]['bw']
     lat = topology[name]['lat']
 
     if topology[name]['type'] == NetLinkTypes.WIRELESS:
-
       return (task.get_data_in() * MeasureUnits.KILOBYTE) / \
         ((bw * MeasureUnits.KILOBYTE_PER_SECOND) * math.log (1 + Settings.SNR)) + \
         (lat / MeasureUnits.THOUSAND_MS)
@@ -279,7 +280,7 @@ class Model (object):
   def __cloud_pr (cls, task, cand_n):
 
     return cls.__cloud_pr_cpu (cls, task, cand_n) + cls.__cloud_pr_stor (cls, task)
-
+    
 
   def __cloud_pr_cpu (cls, task, curr_n):
 
@@ -293,70 +294,73 @@ class Model (object):
        * Prices.STOR_PER_GB
 
 
-  def __cloud_t_f (cls, c_sites, m_site, topology):
+  def __cloud_t_f (cls, c_sites, m_site):
 
     t_f = 0.0
+
+    # print ("Computing Cloud T_F!")
 
     for site in c_sites:
+      # name = cls.__key_for_topology_access (site.get_n_id (), \
+      #  m_site.get_n_id (), topology)
 
-      name = cls.__key_for_topology_access (site.get_n_id (), \
-        m_site.get_n_id (), topology)
-
-      if name == None:
-
-        return math.inf
-
-      t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (c_sites)) + (1 / site.get_cores ())
+      # if name == None:
+      #  return math.inf
+      # print ("Offloading latency" + str (site.get_off_lat ())  + ", number of C sites: " + str (len (c_sites)) + ", number of cores: " + str (site.get_cores ()))
+      t_f += (Util.get_lat (site, m_site) / len (c_sites)) + (1 / site.get_cores ())
+      # print ("Cumulative T_F: " + str (t_f))
 
     return t_f
 
 
-  def __edge_t_f (cls, e_sites, m_site, topology):
+  def __edge_t_f (cls, e_sites, m_site):
 
     t_f = 0.0
 
+    # print ("Computing Edge T_F!")
+    
     for site in e_sites:
+      # name = cls.__key_for_topology_access (site.get_n_id (), \
+      #   m_site.get_n_id (), topology)
 
-      name = cls.__key_for_topology_access (site.get_n_id (), \
-        m_site.get_n_id (), topology)
-
-      if name == None:
-
-        return math.inf
-
-      t_f = t_f + ((topology[name]['lat'] / MeasureUnits.THOUSAND_MS) / len (e_sites))
+      # if name == None:
+      #  return math.inf
+      # print ("Offloading latency" + str (site.get_off_lat ())  + ", number of E sites: " + str (len (e_sites)))
+      t_f += (Util.get_lat (site, m_site) / len (e_sites))
+     #  print ("Cumulative T_F: " + str (t_f))
 
     return t_f
 
 
-  def __edge_min_rt (cls, task, off_sites, curr_n, topology):
+  def __edge_min_rt (cls, task, off_sites, curr_n):
 
     e_sites = Util.get_edge_sites (off_sites)
     min_rt = 0.0
 
     for cand_n in e_sites:
-
-      t_rsp_time = cls.task_rsp_time (task, cand_n, curr_n, topology).get_overall ()
+      t_rsp_time = cand_n.get_lat ()  # cls.task_rsp_time (task, cand_n, curr_n, topology).get_overall ()
+      
       if min_rt == 0.0:
+        min_rt = t_rsp_time.get_overall ()
 
-        min_rt = t_rsp_time
-
-      elif min_rt > t_rsp_time:
-
-        min_rt = t_rsp_time
+      elif min_rt > t_rsp_time.get_overall ():
+        min_rt = t_rsp_time.get_overall ()
 
     # print ("Edge min RT = " + str (min_rt))
     return min_rt
 
 
-  def __t_f (cls, off_sites, topology):
+  def __t_f (cls, off_sites):
 
     c_sites = Util.get_cloud_sites (off_sites)
     e_sites = Util.get_edge_sites (off_sites)
     m_site = Util.get_mob_site (off_sites)
 
-    return cls.__cloud_t_f (cls, c_sites, m_site, topology) - \
-      cls.__edge_t_f (cls, e_sites, m_site, topology)
+    cloud_t_f = cls.__cloud_t_f (cls, c_sites, m_site)
+    edge_t_f = cls.__edge_t_f (cls, e_sites, m_site)
+    # print ("CLOUD T_F: " + str (cloud_t_f))
+    # print ("EDGE T_F: " + str (edge_t_f))
+    return cloud_t_f - edge_t_f
 
 
   def __offload_e_consum_downlink (cls, downlink_time, execution_time):

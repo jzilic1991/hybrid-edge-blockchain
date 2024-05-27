@@ -128,6 +128,13 @@ if sys.argv[1] == 'intra':
     
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_rep_smt_ode ()
+    edge_off.start ()
+
+    experiment_run ()
+    
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_smt_ode ()
     edge_off.start ()
 
@@ -139,14 +146,6 @@ if sys.argv[1] == 'intra':
     edge_off.start ()
 
     experiment_run ()
-    
-    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
-        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
-    edge_off.deploy_rep_smt_ode ()
-    edge_off.start ()
-
-    experiment_run ()
-    # exit ()
     
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)

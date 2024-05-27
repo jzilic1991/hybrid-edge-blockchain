@@ -35,7 +35,7 @@ class Prices:
 
 class Settings:
 
-    OFFLOADING_FAILURE_DETECTION_TIME = 0.05 # seconds
+    OFFLOADING_FAILURE_DETECTION_TIME = 0.01 # seconds
     BATTERY_LF = 1000 # joules
     SNR = 5 # dB
     ETA = 0.5
@@ -44,9 +44,9 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 4
-    APP_EXECUTIONS = 100
-    SAMPLES = 10
-    NUM_LOCS = 10
+    APP_EXECUTIONS = 120
+    SAMPLES = 100
+    NUM_LOCS = 30
     # constants
     SCALABILITY = 1
     CONSENSUS_DELAY = 0
@@ -175,6 +175,7 @@ class Objective:
         return ResponseTime (cls._execution + other.get_execution (), cls._downlink + other.get_downlink (), \
           cls._uplink + other.get_uplink (), cls._task_overall + other.get_overall ())
 
+    
 
 class ResponseTime (Objective):
     
@@ -330,52 +331,52 @@ class Util (object):
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_DATABASE:
             
-            return round((15 + numpy.random.normal(200, 33.5)), 2)
+            return round((15 + numpy.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_COMP:
             
-            return round((15 + numpy.random.normal(200, 33.5)), 2)
+            return round((15 + numpy.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.E_REG:
             
-            return round((15 + numpy.random.normal(200, 33.5)), 2)
+            return round((15 + numpy.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
 
         if f_peer.get_node_type() == NodeTypes.CLOUD and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
             
-            return round((54 + numpy.random.normal(200, 33.5)), 2)
+            return round((54 + numpy.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.E_COMP:
             
-            return 10
+            return 10 / MeasureUnits.THOUSAND_MS
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.E_REG:
             
-            return 10
+            return 10 / MeasureUnits.THOUSAND_MS
 
         if f_peer.get_node_type() == NodeTypes.E_DATABASE and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
             
-            return 15
+            return 15 / MeasureUnits.THOUSAND_MS
 
         if f_peer.get_node_type() == NodeTypes.E_COMP and \
             s_peer.get_node_type() == NodeTypes.E_REG:
             
-            return 10 
+            return 10 / MeasureUnits.THOUSAND_MS
 
         if f_peer.get_node_type() == NodeTypes.E_COMP and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
             
-            return 15
+            return 15 / MeasureUnits.THOUSAND_MS
 
         if f_peer.get_node_type() == NodeTypes.E_REG and \
             s_peer.get_node_type() == NodeTypes.MOBILE:
             
-            return 15
+            return 15 / MeasureUnits.THOUSAND_MS
 
 
     @classmethod

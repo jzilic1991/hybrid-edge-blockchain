@@ -212,19 +212,19 @@ class MdpOde(OffloadingDecisionEngine):
                     #cls._OffloadingDecisionEngine__compute_complete_task_time_completion(task, \
                     #        cls._offloading_sites[k], cls._offloading_sites[j])
                     task_energy_consum = metrics[cls._offloading_sites[k]]['ec']
-                    # task_price = metrics[cls._offloading_sites[k]]['pr']
+                    task_price = metrics[cls._offloading_sites[k]]['pr']
                     #cls._OffloadingDecisionEngine__compute_complete_energy_consumption\
                     #        (task_rsp_time, cls._offloading_sites[k], cls._offloading_sites[j])
                     task_time_completion_reward = Model.task_rsp_time_rwd(task_rsp_time)
                     #cls._OffloadingDecisionEngine__compute_task_time_completion_reward\
                     #        (task_rsp_time.get_task_overall())
                     task_energy_consumption_reward = Model.task_e_consum_rwd (task_energy_consum)
-                    # task_price_rwd = Model.task_price_rwd (task_price)
+                    task_price_rwd = Model.task_price_rwd (task_price)
                     task_overall_reward = Model.overall_task_rwd (task_time_completion_reward, \
-                        task_energy_consumption_reward) #,task_price_rwd)
+                        task_energy_consumption_reward, task_price_rwd)
 
                     if task_rsp_time < 0 or task_energy_consum < 0 or task_time_completion_reward < 0 or \
-                            task_energy_consumption_reward < 0 or task_overall_reward < 0: #or task_price_rwd < 0:
+                            task_energy_consumption_reward < 0 or task_overall_reward < 0 or task_price_rwd < 0:
                         
                         raise ValueError("Some value is negative, leading to negative rewards!")
 

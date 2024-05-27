@@ -3,7 +3,8 @@ import random
 import uuid
 import numpy as np
 
-from util import NodePrototypes, ResponseTime, CommDirection, Util, NodeTypes, ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
+from util import NodePrototypes, ResponseTime, CommDirection, Util, NodeTypes, \
+  ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
 from task import Task
 from edge_queue import CompQueue, CommQueue
 
@@ -43,7 +44,17 @@ class OffloadingSite:
         self._task_del_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
           task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
           site_name = self._node_type)
+        self._est_lat = None
+        self._act_lat = None
+        self._off_lat = None
         # self.print_system_config()
+
+
+    def reset_latencies (cls):
+
+      cls._off_lat = None
+      cls._act_lat = None
+      cls._est_lat = None
 
 
     def est_lat (cls, task, curr_n_id, curr_n_proto):
@@ -51,20 +62,26 @@ class OffloadingSite:
       off_lat = 0.0
       del_lat = 0.0
 
-      if curr_n_id != cls._name_id:
-
+      if curr_n_id != cls._name_id or cls._node_prototype == NodePrototypes.CD:
         off_lat = cls._task_off_queue.est_lat (task)
         # del_lat = cls._task_del_queue.est_lat (task)
           
         if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
-          
-          off_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
+          off_lat += round ((15 + np.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
+          # print ("Estimated Offloading latency including internet latency is " + str (off_lat))
+          # print ("Estimated Offloading latency is " + str (off_lat))
           # del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
+
+      if cls._node_prototype == NodePrototypes.MD:
+        del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
 
       exe_lat = cls._task_exe_queue.est_lat (task)
       # print ("Offloading latency: " + str (off_lat))
       # print ("Execution latency: " + str (exe_lat))
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
+      cls._off_lat = off_lat
+      # print ("Full estimated offloading latency is " + str (cls._off_lat))
+      cls._est_lat = total_lat
 
       # print (cls._node_type + " has ESTIMATED OFFLOADING LATENCY (" + task.get_name () + ") = "+ str (off_lat))
       # print (cls._node_type + " has ESTIMATED EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
@@ -79,18 +96,21 @@ class OffloadingSite:
       off_lat = 0.0
       del_lat = 0.0
 
-      if curr_n_id != cls._name_id:
-
+      if curr_n_id != cls._name_id or cls._node_prototype == NodePrototypes.CD:
         off_lat = cls._task_off_queue.act_lat (task)
         # del_lat = cls._task_del_queue.act_lat (task)
         
         if curr_n_proto == NodePrototypes.CD or cls._node_prototype == NodePrototypes.CD:
-          
-          off_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
+          off_lat += round ((15 + np.random.normal(200, 33.5)) / MeasureUnits.THOUSAND_MS, 2)
+          # print ("Actual Offloading latency including internet latency is " + str (off_lat))
+          # print ("Actual Offloading latency is " + str (off_lat))
           # del_lat += round ((15 + np.random.normal(200, 33.5)) / 1000, 2)
       
       exe_lat = cls._task_exe_queue.act_lat (task)
       total_lat = ResponseTime (exe_lat, del_lat, off_lat, off_lat + exe_lat + del_lat)
+      cls._off_lat = off_lat
+      # print ("Full actual offloading latency is " + str (cls._off_lat))
+      cls._act_lat = total_lat
       # print ("Total task latency time is " + str (total_lat.get_overall ()) + " s")      
       # print (cls._node_type + " has ACTUAL OFFLOADING LATENCY (" + task.get_name () + ") = " + str (off_lat))
       # print (cls._node_type + " has ACTUAL EXECUTION LATENCY (" + task.get_name () + ") = " + str (exe_lat))
@@ -98,6 +118,19 @@ class OffloadingSite:
       # print (cls._name_id + " has ACTUAL TOTAL LATENCY (task = " + task.get_name () + ") = " + str (total_lat.get_overall ()))
 
       return total_lat
+
+
+    def get_lat (cls):
+
+      if cls._act_lat != None:
+        return cls._act_lat
+
+      return cls._est_lat
+
+
+    def get_off_lat (cls):
+
+      return cls._off_lat
 
 
     def update_arrival_rate (cls): 
@@ -120,8 +153,9 @@ class OffloadingSite:
 
     
     def set_bandwidth (cls, bw):
-
-      print (cls._name_id + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))
+      
+      pass
+      # print (cls._name_id + " has updated bandwidth of both queues (offloading and delivery): " + str (bw))
      
 
     def workload_update (cls, time_passed):
@@ -137,15 +171,12 @@ class OffloadingSite:
     def get_constr (cls, app_name):
 
         if app_name == MobApps.INTRASAFED:
-
             return cls._intra_constr
 
         elif app_name == MobApps.MOBIAR:
-
             return cls._mobiar_constr
 
         elif app_name == MobApps.NAVIAR:
-
             return cls._naviar_constr
 
 
