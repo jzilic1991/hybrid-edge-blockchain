@@ -142,8 +142,8 @@ class EdgeOffloading (Thread):
         
         if not cell_mover:
           # update reputation after each application execution and reset transaction list
-          print ("############## UPDATING TRANSACTIONS ###############")
-          print ("Transactions: " + str (off_transactions))
+          # print ("############## UPDATING TRANSACTIONS ###############")
+          # print ("Transactions: " + str (off_transactions))
           cls._req_q.put (('update', off_transactions))
           off_transactions = list ()
         
@@ -182,7 +182,7 @@ class EdgeOffloading (Thread):
         continue
 
       # getting updated reputation when consensus is finished after certain delay
-      print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
+      # print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
       if con_delay == cls._con_delay:
         off_sites = cls.__get_reputation (off_sites)
         # cls.__print_reputation (off_sites)
@@ -258,7 +258,6 @@ class EdgeOffloading (Thread):
 
     if curr_progress != prev_progress and (curr_progress % \
       Settings.PROGRESS_REPORT_INTERVAL == 0):
-
       print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()))
 
     return (curr_progress, prev_progress)
@@ -267,7 +266,7 @@ class EdgeOffloading (Thread):
   def __register_nodes (cls, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (cls._cell_number) + ")")
+    # print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (cls._cell_number) + ")")
     cls._req_q.put (('reg', names))
     reg_nodes = cls._rsp_q.get ()
   
@@ -304,7 +303,6 @@ class EdgeOffloading (Thread):
     app.print_entire_config ()
 
     for off_site in off_sites:
-
       off_site.print_system_config ()
 
 

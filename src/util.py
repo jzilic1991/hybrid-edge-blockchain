@@ -45,7 +45,7 @@ class Settings:
     PROGRESS_REPORT_INTERVAL = 1
     K = 4
     APP_EXECUTIONS = 120
-    SAMPLES = 100
+    SAMPLES = 10
     NUM_LOCS = 30
     # constants
     SCALABILITY = 1

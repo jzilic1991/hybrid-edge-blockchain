@@ -181,16 +181,13 @@ class MdpOde(OffloadingDecisionEngine):
                     if cls._offloading_sites[k].get_offloading_action_index() == i:
                         cls._P[i][j][k] = cls._offloading_sites[k].\
                             get_avail ()
-                        # print ("Prvi if")
 
                     elif cls._mobile_device.get_offloading_action_index() == k:
                         cls._P[i][j][k] = 1 - cls._offloading_sites[i].\
                             get_avail ()
-                        # print ("Drugi if")
 
                     else:
                         cls._P[i][j][k] = 0.0
-                        # print ("Treci if")
 
                     # print ("P["+ str(i) + "][" + str(j) + "][" + str(k) + "] = " + str(cls._P[i][j][k]))
 
