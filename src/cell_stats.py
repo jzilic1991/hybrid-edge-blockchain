@@ -10,6 +10,7 @@ class CellStats:
     self._off_fail_samp = dict ()   # of scalars per sampling
     self._constr_viol = dict ()     # 
     self._avail_distros = dict ()    # avaialability distribution per node prototype
+    self._overhead = list ()
 
 
   def get_off_dist_samp (cls):
@@ -145,6 +146,11 @@ class CellStats:
     return ("Availability distributions (statistically): " + str (cls._avail_distros))
 
 
+  def get_avg_overhead (cls):
+
+    return ("Offloading decision time overhead (average): " + str (round (sum (cls._overhead) / len (cls._overhead), 6)) + " s")
+
+
   def get_all (cls):
 
     return "########### CELL " + str (cls._id) + " #############\n" + \
@@ -152,7 +158,8 @@ class CellStats:
       cls.get_avg_off_dist () + '\n' + \
       cls.get_avg_off_fail_dist () + '\n' + \
       cls.get_avg_off_fail () + "\n" + cls.get_avg_constr_viol_dist () + '\n' + \
-      cls.get_avg_constr_viol () + "\n"
+      cls.get_avg_constr_viol () + "\n" + \
+      cls.get_avg_overhead () + "\n"
 
 
   def add_off_dist (cls, off_dist_samp):
@@ -183,6 +190,11 @@ class CellStats:
 
       else:
         cls._constr_viol[key] = [val]
+
+
+  def add_overhead (cls, overhead):
+
+    cls._overhead.append (overhead)
 
   ### avail_distros - dictionary { key: node prototype => value: mean value 
   ### of avail distro (float) } 

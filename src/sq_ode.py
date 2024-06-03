@@ -1,6 +1,7 @@
 from z3 import *
 import random
 import math
+import time
 
 from ode import OffloadingDecisionEngine
 from task import Task
@@ -16,18 +17,26 @@ class SqOde (OffloadingDecisionEngine):
         super().__init__(name, curr_n, md, app_name, con_delay)
 
 
-    def offloading_decision(cls, task, metrics, timestamp, app_name, constr, qos):
+    def offloading_decision(cls, task, metrics, timestamp, app_name, constr, qos, cell_name):
 
         k = cls._k
 
         if task.is_offloadable ():
             while True:
+                start = time.time ()                
                 top_k_sites = cls.__get_top_k_rep ([off_site for off_site in metrics.keys ()], k)
                 # print ("Top k sites ")
                 # for site in top_k_sites:
                 #     print ("Site: " + site.get_n_id () + ", reputation: " + str (site.get_reputation ()))
                 queue_wait_t = Model.queue_waiting_time (task, top_k_sites)
                 best_off_site = cls.__select_best_one (queue_wait_t, timestamp)
+                end = time.time ()
+
+                # storing offloading decision time measurement
+                if cls._measure_off_dec_time:
+                  cls._cell_stats[cell_name].add_overhead (round (end - start, 6))
+                  cls._measure_off_dec_time = False
+                
                 if best_off_site == None:
                     k = len (metrics)
                     continue

@@ -121,7 +121,6 @@ class EdgeOffloading (Thread):
         # then mobile device moves to another cell location and 
         # new availability datasets are loaded per offloading site
         if exe_cnt % cls._user_move == 0:
-
           period_cnt = 0
           cell_mover = True
 
@@ -190,7 +189,7 @@ class EdgeOffloading (Thread):
         task_n_delay = tasks[0].get_name ()
 
       # off_sites = cls.__update_behav (off_sites, exe_cnt)
-      trxs = cls._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos ())
+      trxs = cls._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos (), cls._r_mon.get_cell_name ())
       off_transactions += trxs
 
       # update workload after task offloading
@@ -279,6 +278,9 @@ class EdgeOffloading (Thread):
             # print ("SC ID is a " + str (ele['id']))
             break
 
+    # measuring offloading decision time 
+    cls._s_ode.start_measuring_overhead ()
+    
     return off_sites
 
 

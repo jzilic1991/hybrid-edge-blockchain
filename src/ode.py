@@ -27,6 +27,7 @@ class OffloadingDecisionEngine(ABC):
         self._curr_app_time = 0.0
         self._stats = Stats ()
         self._cell_stats = dict ()       # key (cell name) - value is cell stats class object
+        self._measure_off_dec_time = True
         self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         super().__init__()
@@ -42,6 +43,11 @@ class OffloadingDecisionEngine(ABC):
 
     def get_md (cls):
         return cls._md
+
+
+    def start_measuring_overhead (cls):
+
+        cls._measure_off_dec_time = True
 
 
     def dynamic_t_incentive (cls, site, metric, app_name):
@@ -79,7 +85,7 @@ class OffloadingDecisionEngine(ABC):
         cls._curr_app_time = 0.0
 
 
-    def offload (cls, tasks, off_sites, timestamp, app_name, qos):
+    def offload (cls, tasks, off_sites, timestamp, app_name, qos, cell_name):
 
         if cls._BL <= 0.0:
             return []
@@ -117,7 +123,7 @@ class OffloadingDecisionEngine(ABC):
             while True:
 
                 cand_n, values = cls.offloading_decision (task, metrics, timestamp, app_name, \
-                    constr, qos)
+                    constr, qos, cell_name)
                 cls._off_dist_hist[cand_n.get_node_prototype ()] += 1
 
                 if cand_n.execute (task, timestamp):

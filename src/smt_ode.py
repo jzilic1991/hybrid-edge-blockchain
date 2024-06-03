@@ -18,18 +18,26 @@ class SmtOde (OffloadingDecisionEngine):
         self._k = Settings.K
 
 
-    def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos):
+    def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos, cell_name):
 
         if task.is_offloadable ():
             # cls._k = round ((len (metrics) / 2))
             # print ("K param is " + str (cls._k))
             (s, b_sites) = cls.__smt_solving (task, cls.__compute_score (metrics), timestamp, \
                 app_name, constr, qos)
-            start = time.time ()
             
+            # measuring offloading decision time
+            start = time.time ()
+            check = s.check ()
+            end = time.time ()
+            
+            # storing overhead measurement
+            if cls._measure_off_dec_time:
+              cls._cell_stats[cell_name].add_overhead (round (end - start, 6))
+              cls._measure_off_dec_time = False
+
             # if solution has been found 
-            if str(s.check ()) == 'sat':
-                end = time.time ()
+            if str(check) == 'sat':
                 # cls._log.w ("Time elapsed for SMT computing is " + str (round (end - start, 3)) + " s")
                 sites_to_off = list ()
                 # print (s.model ())

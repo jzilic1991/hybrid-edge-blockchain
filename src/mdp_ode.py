@@ -40,37 +40,36 @@ class MdpOde(OffloadingDecisionEngine):
         cls.__init_MDP_settings()
 
 
-    def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos):
+    def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos, cell_name):
 
         validity_vector = [cls._offloading_sites[i].avail_or_not (timestamp) \
             for i in range (len (cls._offloading_sites))]
         
         for off_site in cls._offloading_sites:
-
             if not off_site in metrics.keys ():
-
                 validity_vector[off_site.get_offloading_action_index()] = False
 
         while True:
-
             if not task.is_offloadable():
-
                 for i in range (len(validity_vector)):
-
                     if cls._offloading_sites[i].get_offloading_site_code() != OffloadingSiteCode.MOBILE_DEVICE:
-
                         validity_vector[i] = False
 
                 return (cls._mobile_device, metrics[cls._mobile_device])
 
             offloading_site_index = cls._curr_n.get_offloading_action_index()
 
+            start = time.time ()
             cls._policy = cls.__MDP_run(task, metrics, validity_vector)
             # Logger.w("Current node: " + cls._current_node.get_name())
             # Logger.w("Current offloading policy: " + str(cls._policy))
-
+            end = time.time ()
+            
+            if cls._measure_off_dec_time:
+              cls._cell_stats[cell_name].add_overhead (round (end - start, 6))
+              cls._measure_off_dec_time = False
+            
             if cls._policy[offloading_site_index] == OffloadingActions.MOBILE_DEVICE:
-                
                 return (cls._offloading_sites[cls._mobile_device.get_offloading_action_index()], \
                     metrics[cls._mobile_device])
 
@@ -85,20 +84,17 @@ class MdpOde(OffloadingDecisionEngine):
             # print ("Probability matrix: " + str (cls._P[action_index][source_node_index]))
             # print ("Mobile device action index: " + str (cls._mobile_device.get_offloading_action_index ()))
             for i in range(P_matrix_columns):
-                
                 # print ("P[" + str (action_index) + "][" + str (source_node_inex) + "][" + str (i) + "] = " + \
                 #  str (cls._P[action_index][source_node_index][i]))
 
                 if cls._P[action_index][source_node_index][i] != 0.0 and \
                     i != cls._mobile_device.get_offloading_action_index():
-
                     trans_prob.append (1.0)
 
                 else:
                     trans_prob.append (0.0)
                 
             if sum (trans_prob) == 0.0:
-              
               trans_prob[cls._mobile_device.get_offloading_action_index ()] = 1.0
 
             # print ("Transition probabilities are :" + str (trans_prob))
@@ -106,7 +102,6 @@ class MdpOde(OffloadingDecisionEngine):
 
             if cls._offloading_sites[offloading_site_index].get_offloading_site_code() == \
                 OffloadingSiteCode.MOBILE_DEVICE:
-
                 validity_vector[action_index] = False
 
                 if any(validity_vector):
@@ -118,6 +113,7 @@ class MdpOde(OffloadingDecisionEngine):
 
             break
 
+          
         return (cls._offloading_sites[offloading_site_index], \
             metrics[cls._offloading_sites[offloading_site_index]])
 
