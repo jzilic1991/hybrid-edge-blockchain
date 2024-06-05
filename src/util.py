@@ -44,7 +44,7 @@ class Settings:
     W_PR = 0.1
     PROGRESS_REPORT_INTERVAL = 1
     K = 4
-    APP_EXECUTIONS = 4
+    APP_EXECUTIONS = 2
     SAMPLES = 2
     NUM_LOCS = 2
     # constants

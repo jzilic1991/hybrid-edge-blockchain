@@ -436,12 +436,12 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
 # samples = sys.argv[1]
 overhead_plot ()
-# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
+# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*)", 'Response time (seconds)', True)
+# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*)", "Battery lifetime (%)", False)
+# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units(.*)", "Monetary units", False)
 # print_constraint_violation_distribution ()
 # plot_offloading_distributions (samples)
-# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
+# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-# regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations"
+# regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations(.*)"
 # plot_average_qos_viols (regex, "QoS violation rate (%)")

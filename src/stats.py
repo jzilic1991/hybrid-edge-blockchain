@@ -5,7 +5,6 @@ from util import Settings
 class Stats:
 
     def __init__(self):
-         
          self._rsp_time_samp = list ()   # of scalars
          self._e_consum_samp = list ()   # of scalars
          self._price_samp = list ()      # of scalars
@@ -15,33 +14,53 @@ class Stats:
 
 
     def get_avg_qos_viol (cls):
-
         return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._qos_viol_samp), 2)) + " % QoS violation rate")
+            str (round (np.mean(cls._qos_viol_samp), 4)) + " % QoS violation rate (min: " + \
+            str (np.min (cls._qos_viol_samp)) + ", max: " + \
+            str (np.max (cls._qos_viol_samp)) + ", var: " + \
+            str (np.var (cls._qos_viol_samp)) + ", std: "+ \
+            str (np.std (cls._qos_viol_samp)) + ", median: " + \
+            str (np.median (cls._qos_viol_samp)) + ")")
 
 
     def get_avg_rsp_time (cls): 
-        
         return ("After " + str (len (cls._rsp_time_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._rsp_time_samp), 2)) + " s")
+            str (round (np.mean(cls._rsp_time_samp), 4)) + " s (min: " + \
+            str (np.min (cls._rsp_time_samp)) + ", max: " + \
+            str (np.max (cls._rsp_time_samp)) + ", var: " + \
+            str (np.var (cls._rsp_time_samp)) + ", std: "+ \
+            str (np.std (cls._rsp_time_samp)) + ", median: " + \
+            str (np.median (cls._rsp_time_samp)) + ")")
 
 
     def get_avg_e_consum (cls):
-        
         return ("After " + str (len (cls._e_consum_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._e_consum_samp), 2)) + " J")
+            str (round (np.mean(cls._e_consum_samp), 4)) + " J (min: " + \
+            str (np.min (cls._e_consum_samp)) + ", max: " + \
+            str (np.max (cls._e_consum_samp)) + ", var: " + \
+            str (np.var (cls._e_consum_samp)) + ", std: "+ \
+            str (np.std (cls._e_consum_samp)) + ", median: " + \
+            str (np.median (cls._e_consum_samp)) + ")")
 
 
     def get_avg_prices (cls):
-        
         return ("After " + str (len (cls._price_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._price_samp), 2)) + " monetary units")
+            str (round (np.mean(cls._price_samp), 4)) + " monetary units (min: " + \
+            str (np.min (cls._price_samp)) + ", max: " + \
+            str (np.max (cls._price_samp)) + ", var: " + \
+            str (np.var (cls._price_samp)) + ", std: "+ \
+            str (np.std (cls._price_samp)) + ", median: " + \
+            str (np.median (cls._price_samp)) + ")")
 
 
     def get_avg_bl (cls):
-
         return ("After " + str (len (cls._bl_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._bl_samp), 2)) + " % of energy remains")
+            str (round (np.mean(cls._bl_samp), 4)) + " % of energy remains (min: " + \
+            str (np.min (cls._bl_samp)) + ", max: " + \
+            str (np.max (cls._bl_samp)) + ", var: " + \
+            str (np.var (cls._bl_samp)) + ", std: "+ \
+            str (np.std (cls._bl_samp)) + ", median: " + \
+            str (np.median (cls._bl_samp)) + ")")
 
 
     def get_avg_off_dist (cls, cells):
