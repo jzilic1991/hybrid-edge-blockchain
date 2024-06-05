@@ -66,7 +66,7 @@ class MdpOde(OffloadingDecisionEngine):
             end = time.time ()
             
             if cls._measure_off_dec_time:
-              cls._cell_stats[cell_name].add_overhead (round (end - start, 6))
+              cls._cell_stats[cell_name].add_overhead (len (metrics), round (end - start, 6))
               cls._measure_off_dec_time = False
             
             if cls._policy[offloading_site_index] == OffloadingActions.MOBILE_DEVICE:

@@ -5,7 +5,7 @@ Offloading failure distribution (percentage): {'ER': 97.52, 'ED': 99.55, 'EC': 0
 Average task failure rate (percentage) is 19.919
 Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.45, 'EC': 100.0, 'CD': 0, 'MD': 0.0}
 Average constraint violation rate is 0.971 %
-Offloading decision time overhead (average): 6.7e-05 s
+Offloading decision time overhead: (36 nodes, 3.4e-05 s)
 
 ########### CELL 1 #############
 Availability distributions (statistically): {'ER': 0.34, 'ED': 0.17, 'EC': 0.25, 'CD': 0.99, 'MD': 1.0}
@@ -14,7 +14,7 @@ Offloading failure distribution (percentage): {'ER': 98.59, 'ED': 96.69, 'EC': 9
 Average task failure rate (percentage) is 58.074
 Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 3.31, 'EC': 4.76, 'CD': 100.0, 'MD': 0.0}
 Average constraint violation rate is 2.967 %
-Offloading decision time overhead (average): 3.4e-05 s
+Offloading decision time overhead: (62 nodes, 2.9e-05 s)
 
 ########### CELL 2 #############
 Availability distributions (statistically): {}
@@ -23,11 +23,11 @@ Offloading failure distribution (percentage): {}
 Average task failure rate (percentage) is 0.0
 Constraint violation distribution (percentage): {}
 Average constraint violation rate 0.0 %
-Offloading decision time overhead (average): 6.7e-05 s
+Offloading decision time overhead: (166 nodes, 4.7e-05 s)
 
-After 2 samples, average is 4.68 s
-After 2 samples, average is 2.32 J
-After 2 samples, average is 190.41 monetary units
+After 2 samples, average is 4.69 s
+After 2 samples, average is 2.34 J
+After 2 samples, average is 188.53 monetary units
 After 2 samples, average is 99.77 % of energy remains
 After 2 samples, average is 75.0 % QoS violation rate
 
