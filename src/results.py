@@ -42,7 +42,6 @@ def overhead_plot ():
 
 
 def plot_objective (regex_exp, y_axis_title, show):
-
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len(app_names))
   ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
@@ -152,7 +151,6 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
 
 
 def plot_offloading_distributions (samples):
-
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
@@ -164,25 +162,21 @@ def plot_offloading_distributions (samples):
     " '(EC[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
 
   for ode_n in ode_names:
-
     result [ode_n] = dict ()
+    
     for app_n in app_names:
-
       result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
       f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
       summary_flag = False
 
       for line in f.readlines ():
-
         if not summary_flag:
+          matched = re.search("After (\d+) samples, average is (\d+\.\d+) % QoS violation rate(.*)", line)
 
-          matched = re.search("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
           if matched:
-
             summary_flag = True
         
         else:
-
           matched = re.search(regex_ex, line)
           if matched:
             
@@ -230,7 +224,6 @@ def plot_offloading_distributions (samples):
 
 
 def print_constraint_violation_distribution (samples):
-
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
@@ -240,29 +233,25 @@ def print_constraint_violation_distribution (samples):
   result = dict ()
 
   for ode_n in ode_names:
-
     result [ode_n] = dict ()
+    
     for app_n in app_names:
-
       result [ode_n][app_n] = {"CD": 0.0, "MD": 0.0, "ED": 0.0, "EC": 0.0, "ER": 0.0}
       f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
       summary_flag = False
+      
       for line in f.readlines ():
-
         if not summary_flag:
-
           matched = re.search("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
+          
           if matched:
-
             summary_flag = True
 
         else:
-
           matched = re.search("Constraint violation distribution \(percentage\): {'(ED[^']*'): (\d+\.\d+), '(EC[^']*'): (\d+\.\d+)," + \
             " '(ER[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}", line)
 
           if matched:
-
             result[ode_n][app_n]['ED'] = float (matched.group (2))
             result[ode_n][app_n]['EC'] = float (matched.group (4))
             result[ode_n][app_n]['ER'] = float (matched.group (6))
@@ -272,18 +261,15 @@ def print_constraint_violation_distribution (samples):
   # print ('Constraint violation distribution: ' + str (result))
 
   for app_n in app_names:
-
     print (app_n + " constraint violations (in percentages)")
 
     for ode_n in ode_names:
-
       print (ode_n + ": " + str (result[ode_n][app_n]))
 
     print ()
 
 
 def plot_average_qos_viols (regex, title):
-
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
   x = np.arange (len (app_n))
   ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
@@ -292,19 +278,15 @@ def plot_average_qos_viols (regex, title):
   # for summarizing overall task failure rate
 
   for ode_n in ode_names:
-
     result [ode_n] = list ()
 
     for app in app_n:
-
       f = open("logs/sim_traces_" + ode_n + "_" + app + '.txt')
 
       for line in f.readlines ():
-
         matched = re.search(regex, line)
 
         if matched:
-
           result[ode_n].append (float (matched.group (1)))
 
   # print (result)
@@ -336,7 +318,6 @@ def plot_average_constr_viols (regex, title, samples):
   # for summarizing overall task failure rate
   
   for ode_n in ode_names:
-
     result [ode_n] = list ()
 
     for app in app_n:
@@ -345,10 +326,9 @@ def plot_average_constr_viols (regex, title, samples):
 
       for line in f.readlines ():
         if not summary_flag:
-
           matched = re.search ("After " + samples + " samples, average is (\d+\.\d+) QoS violations", line)
+          
           if matched:
-
             summary_flag = True
 
         else:
@@ -390,26 +370,21 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
     for mal in mal_scenarios:
 
       if mal == "MAL1/5":
-
         f = open("logs/backup_logs/1_mal_node/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       elif mal == "MAL2/5a":
-
         f = open("logs/backup_logs/2_mal_nodes/EC_ER/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       elif mal == "MAL2/5b":
-
         f = open("logs/backup_logs/2_mal_nodes/EC_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       elif mal == "MAL2/5c":
-
         f = open("logs/backup_logs/2_mal_nodes/ER_ED/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       for line in f.readlines ():
-
         matched = re.search(regex_exp, line)
-        if matched:
 
+        if matched:
           result[ode_n].append (float (matched.group (1)))
 
   plt.rcParams.update({'font.size': 16})
@@ -434,14 +409,14 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
   plt.show()
 
 
-# samples = sys.argv[1]
+samples = sys.argv[1]
 overhead_plot ()
-# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*)", 'Response time (seconds)', True)
-# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*)", "Battery lifetime (%)", False)
-# plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units(.*)", "Monetary units", False)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*)", 'Response time (seconds)', True)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*)", "Battery lifetime (%)", False)
+plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*)", "Monetary units", False)
 # print_constraint_violation_distribution ()
-# plot_offloading_distributions (samples)
+plot_offloading_distributions (samples)
 # regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-# regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations(.*)"
-# plot_average_qos_viols (regex, "QoS violation rate (%)")
+regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*)"
+plot_average_qos_viols (regex, "QoS violation rate (%)")
