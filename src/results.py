@@ -7,44 +7,37 @@ from util import MobApps
 
 
 def overhead_plot ():
+  data = dict ()
+  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
 
-  scale_nodes = [4, 20, 40, 60, 120, 200, 320, 400]
-  smt_overhead = list ()
+  for ode in ode_names:
+    data[ode] = list ([list (), list ()])
+    
+    for app in app_names:
+      overhead_file = open ("logs/sim_traces_" + str (ode) + "_" + str (app) + ".txt", "r")
+      
+      for line in overhead_file.readlines ():
+        matched = re.search("Offloading decision time overhead: (\d+) nodes, (\d+\.\d+) s", line)
 
-  for scala in [1, 5, 10, 15, 30, 50, 80, 100]:
-
-    overhead_file = open ("logs/backup_logs/overhead/scala_" + str (scala) + ".txt", "r")
-    smt_ovr_samples = list ()
-
-    for line in overhead_file.readlines ():
-
-      matched = re.search("Time elapsed for SMT computing is (\d+\.\d+) s", line)
-
-      if matched:
-
-        smt_ovr_samples.append (float (matched.group (1)))
-
-    # print ('Average SMT overhead (' + str(scala * 4 + 1) + ' nodes) is ' + \
-    # 	str (round (sum (smt_overhead) / len (smt_overhead), 4)) + ' s')
-    smt_overhead.append (round (sum (smt_ovr_samples) / len (smt_ovr_samples), 4))
+        if matched:
+          data[ode][0].append (int (matched.group (1)))
+          data[ode][1].append (float (matched.group (2)))
+  
 
   plt.rcParams.update({'font.size': 16})
-  # plotting the points 
-  plt.plot(scale_nodes, smt_overhead)
-  
-  # naming the x axis
+  plt.plot(data[ode_names[0]][0], data[ode_names[0]][1])
+  plt.plot(data[ode_names[1]][0], data[ode_names[1]][1])
+  plt.plot(data[ode_names[2]][0], data[ode_names[2]][1])
+  plt.plot(data[ode_names[3]][0], data[ode_names[3]][1])
   plt.xlabel('Number of nodes')
-  # naming the y axis
   plt.ylabel('Time (s)')
-  
-  # function to show the plot
   plt.show()
 
 
 def plot_objective (regex_exp, y_axis_title, show):
 
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
-  # app_names = [MobApps.NAVIAR]
   x = np.arange(len(app_names))
   ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
   result = dict ()
@@ -435,14 +428,14 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
   plt.show()
 
 
-samples = sys.argv[1]
-# overhead_plot ()
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
+# samples = sys.argv[1]
+overhead_plot ()
+# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s", 'Response time (seconds)', True)
+# plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains", "Battery lifetime (%)", False)
 # plot_objective ("After 100 samples, average is (\d+\.\d+) monetary units", "Monetary units", False)
 # print_constraint_violation_distribution ()
-plot_offloading_distributions (samples)
-regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
-plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations"
-plot_average_qos_viols (regex, "QoS violation rate (%)")
+# plot_offloading_distributions (samples)
+# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)"
+# plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
+# regex = "After " + samples + " samples, average is (\d+\.\d+) QoS violations"
+# plot_average_qos_viols (regex, "QoS violation rate (%)")
