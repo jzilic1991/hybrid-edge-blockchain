@@ -8,7 +8,7 @@ from util import MobApps
 
 def overhead_plot ():
   data = dict ()
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["Rep-SMT", "SMT", "SQ"]
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
 
   for ode in ode_names:
@@ -18,20 +18,26 @@ def overhead_plot ():
       overhead_file = open ("logs/sim_traces_" + str (ode) + "_" + str (app) + ".txt", "r")
       
       for line in overhead_file.readlines ():
-        matched = re.search("Offloading decision time overhead: (\d+) nodes, (\d+\.\d+) s", line)
+        matched = re.search("Offloading decision time overhead: \((\d+) nodes, (\d+\.\d+) s\)", line)
 
         if matched:
           data[ode][0].append (int (matched.group (1)))
-          data[ode][1].append (float (matched.group (2)))
-  
+          data[ode][1].append (float (matched.group (2)) * 1000)
+
+        matched = re.search("Offloading decision time overhead: \((\d+) nodes, (\d+(\.\d+)([eE]-\d+)) s\)", line)
+        if matched:
+          data[ode][0].append (int (matched.group (1)))
+          data[ode][1].append (float (matched.group (2)) * 1000)
+
 
   plt.rcParams.update({'font.size': 16})
-  plt.plot(data[ode_names[0]][0], data[ode_names[0]][1])
-  plt.plot(data[ode_names[1]][0], data[ode_names[1]][1])
-  plt.plot(data[ode_names[2]][0], data[ode_names[2]][1])
-  plt.plot(data[ode_names[3]][0], data[ode_names[3]][1])
+  plt.plot(data[ode_names[0]][0], data[ode_names[0]][1], linestyle = '-', color = 'red', label = ode_names[0])
+  plt.plot(data[ode_names[1]][0], data[ode_names[1]][1], linestyle = '--', color = 'blue', label = ode_names[1])
+  plt.plot(data[ode_names[2]][0], data[ode_names[2]][1], linestyle = '-.', color = 'green', label = ode_names[2])
+  # plt.plot(data[ode_names[3]][0], data[ode_names[3]][1], linestyle = ':', color = 'magenta', label = ode_names[3])
   plt.xlabel('Number of nodes')
-  plt.ylabel('Time (s)')
+  plt.ylabel('Time (ms)')
+  plt.legend()
   plt.show()
 
 
