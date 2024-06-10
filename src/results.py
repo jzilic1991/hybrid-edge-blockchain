@@ -9,10 +9,11 @@ from util import MobApps
 def overhead_plot ():
   data = dict ()
   ode_names = ["Rep-SMT", "SMT", "SQ"]
-  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
+  app_names = [MobApps.INTRASAFED]#, MobApps.MOBIAR, MobApps.NAVIAR]
 
   for ode in ode_names:
     data[ode] = list ([list (), list ()])
+    tmp = list ()
     
     for app in app_names:
       overhead_file = open ("logs/sim_traces_" + str (ode) + "_" + str (app) + ".txt", "r")
@@ -21,19 +22,25 @@ def overhead_plot ():
         matched = re.search("Offloading decision time overhead: \((\d+) nodes, (\d+\.\d+) s\)", line)
 
         if matched:
-          data[ode][0].append (int (matched.group (1)))
-          data[ode][1].append (float (matched.group (2)) * 1000)
+          tmp.append ((int (matched.group (1)), float (matched.group (2)) * 1000))
+          # data[ode][0].append (int (matched.group (1)))
+          # data[ode][1].append (float (matched.group (2)) * 1000)
 
         matched = re.search("Offloading decision time overhead: \((\d+) nodes, (\d+(\.\d+)([eE]-\d+)) s\)", line)
         if matched:
-          data[ode][0].append (int (matched.group (1)))
-          data[ode][1].append (float (matched.group (2)) * 1000)
+          tmp.append ((int (matched.group (1)), float (matched.group (2)) * 1000))
+          # data[ode][0].append (int (matched.group (1)))
+          # data[ode][1].append (float (matched.group (2)) * 1000)
 
+    tmp = sorted (tmp, key = lambda x: x[1])
+    for ele in tmp:
+      data[ode][0].append (ele[0])
+      data[ode][1].append (ele[1])
 
   plt.rcParams.update({'font.size': 16})
-  plt.plot(data[ode_names[0]][0], data[ode_names[0]][1], linestyle = '-', color = 'red', label = ode_names[0])
-  plt.plot(data[ode_names[1]][0], data[ode_names[1]][1], linestyle = '--', color = 'blue', label = ode_names[1])
-  plt.plot(data[ode_names[2]][0], data[ode_names[2]][1], linestyle = '-.', color = 'green', label = ode_names[2])
+  plt.scatter(data[ode_names[0]][0], data[ode_names[0]][1], marker = 'o', color = 'red', label = ode_names[0])
+  plt.scatter(data[ode_names[1]][0], data[ode_names[1]][1], marker = 'x', color = 'blue', label = ode_names[1])
+  plt.scatter(data[ode_names[2]][0], data[ode_names[2]][1], marker = '.', color = 'green', label = ode_names[2])
   # plt.plot(data[ode_names[3]][0], data[ode_names[3]][1], linestyle = ':', color = 'magenta', label = ode_names[3])
   plt.xlabel('Number of nodes')
   plt.ylabel('Time (ms)')
@@ -416,7 +423,7 @@ plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energ
 plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*)", "Monetary units", False)
 # print_constraint_violation_distribution ()
 plot_offloading_distributions (samples)
-# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
+regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
 regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*)"
 plot_average_qos_viols (regex, "QoS violation rate (%)")
