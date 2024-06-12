@@ -35,32 +35,27 @@ class EdgeOffloading (Thread):
     # print ("User move: " + str (self._user_move))
 
 
-  def deploy_rep_smt_ode (cls):
-
-    cls._s_ode = SmtOde ('Rep-SMT', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
+  def deploy_fresco_ode (cls):
+    cls._s_ode = SmtOde ('FRESCO', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, True, cls._con_delay)
 
 
   def deploy_smt_ode (cls):
-
     cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, False, cls._con_delay)
 
 
   def deploy_sq_ode (cls):
-
     cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
       cls._con_delay)
 
 
   def deploy_mdp_ode (cls):
-
     cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, cls._con_delay)
 
 
   def run (cls):
-
     # logging but after ODE is deployed
     cls._log = cls._s_ode.get_logger ()
     off_sites = cls.__update_and_register_off_sites ()
@@ -86,8 +81,8 @@ class EdgeOffloading (Thread):
     # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
     # cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
-    #print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
-    #print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
+    print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
+    print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
 
     while True:
 
@@ -202,9 +197,9 @@ class EdgeOffloading (Thread):
         exe_cnt = cls._exe
         continue
 
+
   # printing reputation score values per offloading site
   def __print_reputation (cls, off_sites):
-
     trace = "################### REPUTATION SCORES ##################\n"
 
     for site in off_sites:

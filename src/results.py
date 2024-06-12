@@ -8,7 +8,7 @@ from util import MobApps
 
 def overhead_plot ():
   data = dict ()
-  ode_names = ["Rep-SMT", "SMT", "SQ"]
+  ode_names = ["FRESCO", "SMT", "SQ"]
   app_names = [MobApps.INTRASAFED]#, MobApps.MOBIAR, MobApps.NAVIAR]
 
   for ode in ode_names:
@@ -50,34 +50,33 @@ def overhead_plot ():
 
 def plot_objective (regex_exp, y_axis_title, show):
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
-  x = np.arange(len(app_names))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  x = np.arange(len (app_names))
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  yerr_ode = {"FRESCO": 0.0, "SMT": 0.0, "SQ": 0.0, "MDP": 0.0}
   result = dict ()
 
   for ode_n in ode_names:
-
     result [ode_n] = list ()
 
     for app_n in app_names:
-
       f = open("logs/sim_traces_" + ode_n + "_" + app_n + '.txt')
 
       for line in f.readlines ():
-
         matched = re.search(regex_exp, line)
-        if matched:
 
+        if matched:
           result[ode_n].append (float (matched.group (1)))
+          yerr_ode[ode_n] = float (matched.group (3))
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
-    align = 'center', label = 'Rep-SMT')
-  ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+  ax.bar(x - 0.2, result['FRESCO'], yerr = yerr_ode['FRESCO'], width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
+  ax.bar(x - 0.1, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
-  ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x + 0, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ')
-  ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+  ax.bar(x + 0.1, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP')
 
   plt.xlabel('Mobile applications')
@@ -86,7 +85,6 @@ def plot_objective (regex_exp, y_axis_title, show):
   plt.xticks(x, app_names, fontsize = 16)
 
   if y_axis_title == "Battery lifetime (%)":
-
     ax.set_ylim (90, 100)
 
   # showing legend on the figure or not
@@ -163,7 +161,7 @@ def plot_offloading_distributions (samples):
   offload_dist_dict = dict ()
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len(app_names))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
   result = dict ()
   regex_ex = "Offloading distribution \(percentage\): {'(ER[^']*'): (\d+\.\d+), '(ED[^']*'): (\d+\.\d+)," + \
     " '(EC[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
@@ -236,7 +234,7 @@ def print_constraint_violation_distribution (samples):
   offload_dist_dict = dict ()
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len(app_names))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
   result = dict ()
 
   for ode_n in ode_names:
@@ -279,7 +277,8 @@ def print_constraint_violation_distribution (samples):
 def plot_average_qos_viols (regex, title):
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
   x = np.arange (len (app_n))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  yerr_ode = {"FRESCO": 0.0, "SMT": 0.0, "SQ": 0.0, "MDP": 0.0}
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -295,17 +294,18 @@ def plot_average_qos_viols (regex, title):
 
         if matched:
           result[ode_n].append (float (matched.group (1)))
+          yerr_ode[ode_n] = float (matched.group (3))
 
   # print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
-    align = 'center', label = 'Rep-SMT')
-  ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+  ax.bar(x - 0.2, result['FRESCO'], yerr = yerr_ode['FRESCO'],width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
+  ax.bar(x - 0.1, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
-  ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x + 0, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ')
-  ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+  ax.bar(x + 0.1, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP')
 
   plt.ylabel(title)
@@ -319,7 +319,7 @@ def plot_average_constr_viols (regex, title, samples):
 
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
   x = np.arange (len (app_n))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -347,8 +347,8 @@ def plot_average_constr_viols (regex, title, samples):
   print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
-    align = 'center', label = 'Rep-SMT')
+  ax.bar(x - 0.2, result['FRESCO'], width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
   ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
   ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
@@ -368,7 +368,7 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
   app_n = MobApps.NAVIAR
   mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
   x = np.arange(len(mal_scenarios))
-  ode_names = ["Rep-SMT", "SMT", "SQ", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
   result = dict ()
 
   for ode_n in ode_names:
@@ -396,8 +396,8 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['Rep-SMT'], width = 0.1, color = 'red', \
-    align = 'center', label = 'Rep-SMT')
+  ax.bar(x - 0.2, result['FRESCO'], width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
   ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
   ax.bar(x, result['SQ'], width = 0.1, color = 'yellow', \
@@ -418,12 +418,12 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
 samples = sys.argv[1]
 overhead_plot ()
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*)", 'Response time (seconds)', True)
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*)", "Battery lifetime (%)", False)
-plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*)", "Monetary units", False)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
+plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
+plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
 # print_constraint_violation_distribution ()
 plot_offloading_distributions (samples)
-regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
+# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*)"
+regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
 plot_average_qos_viols (regex, "QoS violation rate (%)")

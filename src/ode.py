@@ -46,7 +46,6 @@ class OffloadingDecisionEngine(ABC):
 
 
     def start_measuring_overhead (cls):
-
         cls._measure_off_dec_time = True
 
 
@@ -207,7 +206,6 @@ class OffloadingDecisionEngine(ABC):
 
 
     def summarize_cell_stats (cls, cell_name, avail_distros):
-
         # cell statistics
         cls._cell_stats[cell_name].add_off_dist (cls._off_dist_hist)
         cls._cell_stats[cell_name].add_off_fail (cls._off_fail_hist)
@@ -222,7 +220,6 @@ class OffloadingDecisionEngine(ABC):
 
 
     def log_stats (cls):
-
         for key in cls._cell_stats:
             cls._log.w (cls._cell_stats[key].get_all ())
         
