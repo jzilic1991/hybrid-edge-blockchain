@@ -139,10 +139,10 @@ class OffloadingDecisionEngine(ABC):
                     t_rsp_time_arr += (t_rsp_time,)
                     t_e_consum_arr += (t_e_consum,)
                     t_price_arr += (t_price,)
-                    # print ("Total RT array is :" + str (t_rsp_time_arr))
-                    # cls._log.w ("Task " + task.get_name () + \
-                    #      " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
-                    #      "is offloaded successfully on " + cand_n.get_n_id ())
+                    #print ("Total RT array is :" + str (t_rsp_time_arr))
+                    #print ("Task " + task.get_name () + \
+                    #     " (" + str(task.is_offloadable ()) + ", " + task.get_type () + ") " + \
+                    #     "is offloaded successfully on " + cand_n.get_n_id ())
                     # cls._log.w ("RT: " + str (t_rsp_time) + ", EC: " + str (t_e_consum) + \
                     #     ", PR: " + str (t_price))
                     cand_n.terminate (task)
@@ -157,15 +157,19 @@ class OffloadingDecisionEngine(ABC):
                 # print ("############# OFFLOADING FAILURE on site " + cand_n.get_n_id () + " ##############################")
                 # cls._log.w ("Offloading failure occur on " + str (cand_n.get_node_type ()))
                 (time_cost, e_cost, pr_cost) = Model.fail_cost (task, off_sites, cand_n, cls._curr_n)
-                # print ("Failure cost is RT: " + str (time_cost) + "s, EC: " + \
+                #print ("Failure cost is RT: " + str (time_cost) + "s, EC: " + \
                 #  str (e_cost) + "J, price: " + str (pr_cost) + " monetary units")
                 t_fail_cost += time_cost
                 e_fail_cost += e_cost
                 pr_fail_cost += pr_cost
-                # print ("Accumulated RT (including failures) is " + str (t_fail_cost))
-                del metrics[cand_n]
+                # del metrics[cand_n]
+
                 off_transactions.append ([cand_n.get_sc_id (), 0])
                 cls._off_fail_hist[cand_n.get_node_prototype ()] += 1
+                # remove all offloading sites so mobile device can be selected as a candidate site for re-execution
+                for site in off_sites:
+                  if site.get_node_prototype () != NodePrototypes.MD:
+                    del metrics[site]
 
             # print (cls._curr_n.get_n_id () + " -> " + cand_n.get_n_id () + \
             #  " (task = " + task.get_name () + ", off = " + str (task.is_offloadable ()) + ")")

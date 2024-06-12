@@ -149,8 +149,11 @@ class CellStats:
 
   def get_avg_overhead (cls):
 
-    return "Offloading decision time overhead: (" + str (cls._infra_size) + " nodes, " + \
-      str (round (sum (cls._overhead) / len (cls._overhead), 6)) + " s)"
+    if len (cls._overhead) != 0:
+      return "Offloading decision time overhead: (" + str (cls._infra_size) + " nodes, " + \
+        str (round (sum (cls._overhead) / len (cls._overhead), 6)) + " s)"
+    
+    return "Offloading decision time overhead: (" + str (cls._infra_size) + " nodes, 0s)"
 
 
   def get_all (cls):
