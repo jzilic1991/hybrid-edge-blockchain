@@ -8,7 +8,7 @@ from util import MobApps
 
 def overhead_plot ():
   data = dict ()
-  ode_names = ["FRESCO", "SMT", "SQ"]
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
   app_names = [MobApps.INTRASAFED]#, MobApps.MOBIAR, MobApps.NAVIAR]
 
   for ode in ode_names:
@@ -38,14 +38,26 @@ def overhead_plot ():
       data[ode][1].append (ele[1])
 
   plt.rcParams.update({'font.size': 16})
-  plt.scatter(data[ode_names[0]][0], data[ode_names[0]][1], marker = 'o', color = 'red', label = ode_names[0])
-  plt.scatter(data[ode_names[1]][0], data[ode_names[1]][1], marker = 'x', color = 'blue', label = ode_names[1])
-  plt.scatter(data[ode_names[2]][0], data[ode_names[2]][1], marker = '.', color = 'green', label = ode_names[2])
-  # plt.plot(data[ode_names[3]][0], data[ode_names[3]][1], linestyle = ':', color = 'magenta', label = ode_names[3])
+  plt.scatter(data[ode_names[0]][0], np.log (data[ode_names[0]][1]), marker = 'o', color = 'red', label = ode_names[0])
+  plt.scatter(data[ode_names[1]][0], np.log (data[ode_names[1]][1]), marker = 'x', color = 'blue', label = ode_names[1])
+  plt.scatter(data[ode_names[2]][0], np.log (data[ode_names[2]][1]), marker = '.', color = 'green', label = ode_names[2])
+  plt.scatter(data[ode_names[3]][0], np.log (data[ode_names[3]][1]), marker = '^', color = 'magenta', label = ode_names[3])
   plt.xlabel('Number of nodes')
   plt.ylabel('Time (ms)')
+  plt.tight_layout ()
   plt.legend()
   plt.show()
+
+  overhead_print (data)
+
+
+def overhead_print (data):
+  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+
+  print ("Average time overhead:")
+  for i in range (len (ode_names)):
+    print (ode_names[i] + ": " + str (np.mean (data[ode_names[i]][1])) + " ms (" + str (data[ode_names[i]][1]) + ")" + \
+      ", std: " + str (np.std (data[ode_names[i]][1])))
 
 
 def plot_objective (regex_exp, y_axis_title, show):
@@ -71,13 +83,13 @@ def plot_objective (regex_exp, y_axis_title, show):
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
   ax.bar(x - 0.2, result['FRESCO'], yerr = yerr_ode['FRESCO'], width = 0.1, color = 'red', \
-    align = 'center', label = 'FRESCO')
+    align = 'center', label = 'FRESCO', capsize=3)
   ax.bar(x - 0.1, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
-    align = 'center', label = 'SMT')
+    align = 'center', label = 'SMT', capsize=3)
   ax.bar(x + 0, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
-    align = 'center', label = 'SQ')
+    align = 'center', label = 'SQ', capsize=3)
   ax.bar(x + 0.1, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
-    align = 'center', label = 'MDP')
+    align = 'center', label = 'MDP', capsize=3)
 
   plt.xlabel('Mobile applications')
   plt.ylabel(y_axis_title)
@@ -91,6 +103,7 @@ def plot_objective (regex_exp, y_axis_title, show):
   if show:
     plt.legend()
 
+  plt.tight_layout ()
   plt.show()
 
 
@@ -140,6 +153,7 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
     if y_label:
         plt.ylabel(y_label)
 
+    plt.tight_layout ()
     plt.legend(bbox_to_anchor = (1.04,1), loc = "upper left", prop = {'size': 14}, framealpha = 1, frameon = True)
 
     if grid:
@@ -225,6 +239,7 @@ def plot_offloading_distributions (samples):
     ax.set_xlabel('Offloading decision engines', fontsize = 16)
     ax.set_ylabel('Distribution (%)', fontsize = 16)
     ax.set_ylim(0, 102)
+    plt.tight_layout ()
     plt.show()
 
 
@@ -311,7 +326,8 @@ def plot_average_qos_viols (regex, title):
   plt.ylabel(title)
   plt.xlabel("Mobile applications")
   plt.xticks(x, app_n, fontsize = 16)
-  plt.legend()
+  # plt.legend()
+  plt.tight_layout ()
   plt.show()
 
 
@@ -417,7 +433,7 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
 
 samples = sys.argv[1]
-overhead_plot ()
+# overhead_plot ()
 plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
 plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
 plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
@@ -425,5 +441,5 @@ plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary un
 plot_offloading_distributions (samples)
 # regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
-plot_average_qos_viols (regex, "QoS violation rate (%)")
+# regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
+# plot_average_qos_viols (regex, "QoS violation rate (%)")
