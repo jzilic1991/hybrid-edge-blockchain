@@ -97,7 +97,7 @@ def plot_objective (regex_exp, y_axis_title, show):
   plt.xticks(x, app_names, fontsize = 16)
 
   if y_axis_title == "Battery lifetime (%)":
-    ax.set_ylim (90, 100)
+    ax.set_ylim (60, 100)
 
   # showing legend on the figure or not
   if show:
@@ -199,9 +199,9 @@ def plot_offloading_distributions (samples):
           matched = re.search(regex_ex, line)
           if matched:
             
-            result[ode_n][app_n]["ED"] = float (matched.group (2))
-            result[ode_n][app_n]["EC"] = float (matched.group (4))
-            result[ode_n][app_n]["ER"] = float (matched.group (6))
+            result[ode_n][app_n]["ER"] = float (matched.group (2))
+            result[ode_n][app_n]["ED"] = float (matched.group (4))
+            result[ode_n][app_n]["EC"] = float (matched.group (6))
             result[ode_n][app_n]["CD"] = float (matched.group (8))
             result[ode_n][app_n]["MD"] = float (matched.group (10))
 
@@ -433,7 +433,7 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
 
 
 samples = sys.argv[1]
-# overhead_plot ()
+overhead_plot ()
 plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
 plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
 plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
@@ -441,5 +441,5 @@ plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary un
 plot_offloading_distributions (samples)
 # regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-# regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
-# plot_average_qos_viols (regex, "QoS violation rate (%)")
+regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
+plot_average_qos_viols (regex, "QoS violation rate (%)")
