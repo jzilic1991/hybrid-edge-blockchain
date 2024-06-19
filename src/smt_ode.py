@@ -48,7 +48,7 @@ class SmtOde (OffloadingDecisionEngine):
 
                 return (sites_to_off[0], metrics[sites_to_off[0]])
 
-            # if solution has not been found then beest possible choice is selected by Rep-SMT
+            # if solution has not been found then best possible choice is selected by Rep-SMT
             if cls._activate:
                 site, metrics = cls.__get_site_min_score (metrics, timestamp)
                 return (site, metrics)
@@ -99,7 +99,8 @@ class SmtOde (OffloadingDecisionEngine):
                     / cls._BL >= 0.0)) for b in b_sites])
         s.add ([Implies (b[0] == True, \
                 And (b[1].get_mem_consum () < 1, \
-                    b[1].get_stor_consum () < 1)) \
+                    b[1].get_stor_consum () < 1, \
+                    metrics[b[1]]['score'] == score)) \
                     for b in b_sites])
 
         # adding reputation score in SMT formula
@@ -110,8 +111,7 @@ class SmtOde (OffloadingDecisionEngine):
 
             s.add ([Implies (b[0] == True, \
                     And (b[1].get_reputation () >= rep_thr, \
-                        1.0 >= b[1].get_reputation () >= 0.0, \
-                        metrics[b[1]]['score'] == score)) \
+                        1.0 >= b[1].get_reputation () >= 0.0)) \
                         for b in b_sites])
 
             s.minimize (score)
@@ -185,7 +185,6 @@ class SmtOde (OffloadingDecisionEngine):
         for key, value in metrics.items ():
             
             if value['score'] < min_score and key.avail_or_not (timestamp):
-
                 min_score = value['score']
                 site = key
 
