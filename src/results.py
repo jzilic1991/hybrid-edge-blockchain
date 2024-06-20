@@ -8,7 +8,7 @@ from util import MobApps
 
 def overhead_plot ():
   data = dict ()
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
   app_names = [MobApps.INTRASAFED]#, MobApps.MOBIAR, MobApps.NAVIAR]
 
   for ode in ode_names:
@@ -43,16 +43,16 @@ def overhead_plot ():
   plt.scatter(data[ode_names[2]][0], np.log (data[ode_names[2]][1]), marker = '.', color = 'green', label = ode_names[2])
   plt.scatter(data[ode_names[3]][0], np.log (data[ode_names[3]][1]), marker = '^', color = 'magenta', label = ode_names[3])
   plt.xlabel('Number of nodes')
-  plt.ylabel('Time (ms)')
+  plt.ylabel(r'Time (ms) [$log_{10}$ scale]')
   plt.tight_layout ()
-  plt.legend()
+  plt.legend(loc='upper left', fontsize = 12)
   plt.show()
 
   overhead_print (data)
 
 
 def overhead_print (data):
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
 
   print ("Average time overhead:")
   for i in range (len (ode_names)):
@@ -63,8 +63,8 @@ def overhead_print (data):
 def plot_objective (regex_exp, y_axis_title, show):
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len (app_names))
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
-  yerr_ode = {"FRESCO": 0.0, "SMT": 0.0, "SQ": 0.0, "MDP": 0.0}
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
+  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
 
   for ode_n in ode_names:
@@ -82,14 +82,14 @@ def plot_objective (regex_exp, y_axis_title, show):
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['FRESCO'], yerr = yerr_ode['FRESCO'], width = 0.1, color = 'red', \
-    align = 'center', label = 'FRESCO', capsize=3)
-  ax.bar(x - 0.1, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
+  ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT', capsize=3)
-  ax.bar(x + 0, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ', capsize=3)
-  ax.bar(x + 0.1, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
+  ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP', capsize=3)
+  ax.bar(x + 0.1, result['FRESCO'], yerr = yerr_ode['FRESCO'], width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO', capsize=3)
 
   plt.xlabel('Mobile applications')
   plt.ylabel(y_axis_title)
@@ -175,7 +175,7 @@ def plot_offloading_distributions (samples):
   offload_dist_dict = dict ()
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len(app_names))
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
   result = dict ()
   regex_ex = "Offloading distribution \(percentage\): {'(ER[^']*'): (\d+\.\d+), '(ED[^']*'): (\d+\.\d+)," + \
     " '(EC[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
@@ -249,7 +249,7 @@ def print_constraint_violation_distribution (samples):
   offload_dist_dict = dict ()
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len(app_names))
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
   result = dict ()
 
   for ode_n in ode_names:
@@ -290,10 +290,10 @@ def print_constraint_violation_distribution (samples):
 
 
 def plot_average_qos_viols (regex, title):
-  app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
+  app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange (len (app_n))
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
-  yerr_ode = {"FRESCO": 0.0, "SMT": 0.0, "SQ": 0.0, "MDP": 0.0}
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
+  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -314,14 +314,14 @@ def plot_average_qos_viols (regex, title):
   # print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['FRESCO'], yerr = yerr_ode['FRESCO'],width = 0.1, color = 'red', \
-    align = 'center', label = 'FRESCO')
-  ax.bar(x - 0.1, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
+  ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
-  ax.bar(x + 0, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ')
-  ax.bar(x + 0.1, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
+  ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP')
+  ax.bar(x + 0.1, result['FRESCO'], yerr = yerr_ode['FRESCO'],width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
 
   plt.ylabel(title)
   plt.xlabel("Mobile applications")
@@ -335,7 +335,7 @@ def plot_average_constr_viols (regex, title, samples):
 
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED]
   x = np.arange (len (app_n))
-  ode_names = ["FRESCO", "SMT", "SQ", "MDP"]
+  ode_names = ["SMT", "SQ", "MDP", "FRESCO"]
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -363,14 +363,14 @@ def plot_average_constr_viols (regex, title, samples):
   print (result)
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['FRESCO'], width = 0.1, color = 'red', \
-    align = 'center', label = 'FRESCO')
-  ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
+  ax.bar(x - 0, result['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'SMT')
-  ax.bar(x + 0, result['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ')
-  ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
+  ax.bar(x - 0.2, result['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP')
+  ax.bar(x + 0.1, result['FRESCO'], width = 0.1, color = 'red', \
+    align = 'center', label = 'FRESCO')
 
   plt.ylabel(title)
   plt.xlabel("Mobile applications")
