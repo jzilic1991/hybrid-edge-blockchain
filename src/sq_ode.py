@@ -5,7 +5,7 @@ import time
 
 from ode import OffloadingDecisionEngine
 from task import Task
-from util import NodeTypes, Settings
+from util import NodeTypes, Settings, NodePrototypes
 from models import Model
 
 
@@ -25,7 +25,8 @@ class SqOde (OffloadingDecisionEngine):
         if task.is_offloadable ():
             while True:
                 start = time.time ()                
-                top_k_sites = cls.__get_top_k_rep ([off_site for off_site in metrics.keys ()], k)
+                top_k_sites = cls.__get_top_k_rep ([off_site for off_site in metrics.keys () \
+                  if off_site.get_node_prototype () != NodePrototypes.CD], k)
                 # print ("Top k sites ")
                 # for site in top_k_sites:
                 #    print ("Site: " + site.get_n_id () + ", reputation: " + str (site.get_reputation ()))

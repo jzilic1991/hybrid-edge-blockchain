@@ -41,12 +41,12 @@ class EdgeOffloading (Thread):
 
 
   def deploy_smt_ode (cls):
-    cls._s_ode = SmtOde ('SMT', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
+    cls._s_ode = SmtOde ('MINLP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
       cls._app_name, False, cls._con_delay)
 
 
   def deploy_sq_ode (cls):
-    cls._s_ode = SqOde ('SQ', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
+    cls._s_ode = SqOde ('SQ-MOBILE-EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
       cls._con_delay)
 
 

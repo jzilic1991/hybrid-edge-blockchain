@@ -132,7 +132,7 @@ if sys.argv[1] == 'intra':
     edge_off.start ()
 
     experiment_run ()
-    
+    exit ()    
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_fresco_ode ()
@@ -159,6 +159,13 @@ elif sys.argv[1] == 'mobiar':
 
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.MOBIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_sq_ode ()
+    edge_off.start ()
+
+    experiment_run ()
+    exit ()
+    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+        MobApps.MOBIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_fresco_ode ()
     edge_off.start ()
 
@@ -173,19 +180,20 @@ elif sys.argv[1] == 'mobiar':
     
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.MOBIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
-    edge_off.deploy_sq_ode ()
-    edge_off.start ()
-
-    experiment_run ()
-    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
-        MobApps.MOBIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_mdp_ode ()
     edge_off.start ()
 
     experiment_run ()
 
 if sys.argv[1] == 'naviar':
+   
+   edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
+        MobApps.NAVIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+   edge_off.deploy_sq_ode ()
+   edge_off.start ()
 
+   experiment_run ()
+   exit ()
    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
        MobApps.NAVIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
    edge_off.deploy_fresco_ode ()
@@ -208,12 +216,6 @@ if sys.argv[1] == 'naviar':
 
    experiment_run ()
     
-   edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
-        MobApps.NAVIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
-   edge_off.deploy_sq_ode ()
-   edge_off.start ()
-
-   experiment_run ()
 
    #  # for i in [1, 5, 10, 15, 30, 50, 80, 100]:
 
