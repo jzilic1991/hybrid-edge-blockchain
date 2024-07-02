@@ -64,7 +64,7 @@ def plot_objective (regex_exp, y_axis_title, show):
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len (app_names))
   ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
 
   for ode_n in ode_names:
@@ -84,7 +84,7 @@ def plot_objective (regex_exp, y_axis_title, show):
   ax = plt.subplot(111)
   ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ_MOBILE_EDGE'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ EDGE', capsize=3)
   ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP', capsize=3)
@@ -291,7 +291,7 @@ def plot_average_qos_viols (regex, title):
   app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange (len (app_n))
   ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -314,7 +314,7 @@ def plot_average_qos_viols (regex, title):
   ax = plt.subplot(111)
   ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ_MOBILE_EDGE'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ EDGE', capsize=3)
   ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP', capsize=3)
