@@ -49,10 +49,32 @@ project for Ethereum smart contract development.
 
 ## Run Ganache blockchain emulator
 First, we need to run a blockchain emulator on which our edge offloading simulator will connect for reputation updates and retrieval during simulation.
-Printout content of mnemonic.txt file which is necessary for maintaining the same set of Ganache private keys over different experiment runs:
+Pass the content of the mnemonic.txt file to the Ganache main control command, necessary for maintaining the same set of Ganache private keys over different experiment runs:
+
+```bash
 cat mnemonic.txt
 
-Pass the mnemonic.txt content as a argument to the Ganache:
+# Pass the mnemonic.txt content as an argument to the Ganache:
 ganache-cli -m "mnemonic.txt content here" --gasLimit 8000000 --port 8545 --defaultBalanceEther 1000
+```
 
+The three command parameters are for smart contract single execution limit (--gasLimit), port for accessing blockchain instance (--port), and account balance (--defaultBalanceEther) for covering blockchain transaction fees.
 
+Ganache-cli (CLI version of Ganache) can be run from any directory location when is installed globally on the system.
+
+## Run edge offloading simulator
+After the blockchain instance is running, the edge offloading simulator script can be called. You have to be positioned in the /src folder to call the main Python script. The following commands are examples for running experimental simulations with Intrasafed, MobiAR, and NaviAR applications:
+
+```bash
+# /src
+python3 main.py intra 8545
+python3 main.py mobiar 8545
+python3 main.py naviar 8545
+```
+
+## Plotting evaluation results
+Simulation results can be plotted after the experiments are completed. The results are stored in /logs folder.
+
+```
+python3 results.py
+```
