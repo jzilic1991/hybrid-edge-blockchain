@@ -75,6 +75,7 @@ python3 main.py naviar 8545
 ## Plotting evaluation results
 Simulation results can be plotted after the experiments are completed. The results are stored in /logs folder.
 
-```
+```bash
+# /src
 python3 results.py
 ```
