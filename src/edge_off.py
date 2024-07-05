@@ -46,7 +46,7 @@ class EdgeOffloading (Thread):
 
 
   def deploy_sq_ode (cls):
-    cls._s_ode = SqOde ('SQ-MOBILE-EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
+    cls._s_ode = SqOde ('SQ_MOBILE_EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
       cls._con_delay)
 
 
