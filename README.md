@@ -38,7 +38,7 @@ The repository consists of the following directory elements:
 - *src*: edge offloading simulator which contains source code implementation in Python, data for experimental evaluation and simulation logs,
 - *test*: unit tests for smart contract verification written in JavaScript,
 
-The root project directory contains files like mnemonic.txt, package.json, and truffle-config.json. The first one is used for generating 
+The root project directory contains files like *mnemonic.txt*, *package.json*, and *truffle-config.json*. The first one is used for generating 
 private keys in the Ganache blockchain emulator, the second contains metadata for NodeJS dependencies and the third one is used for managing Truffle
 project for Ethereum smart contract development.
 
@@ -48,8 +48,7 @@ project for Ethereum smart contract development.
 - Install Python for running the edge offloading simulator
 
 ## Run Ganache blockchain emulator
-First, we need to run a blockchain emulator on which our edge offloading simulator will connect for reputation updates and retrieval during simulation.
-Pass the content of the mnemonic.txt file to the Ganache main control command, necessary for maintaining the same set of Ganache private keys over different experiment runs:
+First, we need to run a Ganache blockchain emulator (CLI version) on which our edge offloading simulator will connect for reputation updates and retrieval during simulation. Pass the content of the mnemonic.txt file to the Ganache main control command, necessary for maintaining the same set of Ganache private keys over different experiment runs:
 
 ```bash
 cat mnemonic.txt
@@ -60,10 +59,10 @@ ganache-cli -m "mnemonic.txt content here" --gasLimit 8000000 --port 8545 --defa
 
 The three command parameters are for smart contract single execution limit (--gasLimit), port for accessing blockchain instance (--port), and account balance (--defaultBalanceEther) for covering blockchain transaction fees.
 
-Ganache-cli (CLI version of Ganache) can be run from any directory location when is installed globally on the system.
+Ganache-cli can be run from any directory location when is installed globally on the system.
 
 ## Run edge offloading simulator
-After the blockchain instance is running, the edge offloading simulator script can be called. You have to be positioned in the /src folder to call the main Python script. The following commands are examples for running experimental simulations with Intrasafed, MobiAR, and NaviAR applications:
+After the blockchain instance is running, the edge offloading simulator script can be called. You have to be positioned in the */src* folder to call the main Python script. The following commands are examples for running experimental simulations with Intrasafed, MobiAR, and NaviAR applications:
 
 ```bash
 # /src
@@ -73,7 +72,7 @@ python3 main.py naviar 8545
 ```
 
 ## Plotting evaluation results
-Simulation results can be plotted after the experiments are completed. The results are stored in /logs folder.
+Simulation results can be plotted after the experiments are completed. The results are stored in */logs* folder.
 
 ```bash
 # /src
