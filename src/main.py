@@ -53,6 +53,10 @@ def submit_cached_trx ():
 
 def experiment_run ():
 
+    # skip real experiment run
+    print("[Mock] experiment_run() called – skipping actual execution.")
+    return
+    
     global chain, req_q, rsp_q, cached_trx, update_thread
 
     while True:
@@ -117,25 +121,26 @@ update_thread = False
 req_q, rsp_q = Queue (), Queue ()
 chain = None
 
-if (len (sys.argv) - 1) == 2: 
-  chain = ChainHandler (Testnets.GANACHE, sys.argv[2])
-else:
-  chain = ChainHandler (Testnets.GANACHE)
+# instantiating smart contract interface
+# if (len (sys.argv) - 1) == 2: 
+#  chain = ChainHandler (Testnets.GANACHE, sys.argv[2])
+# else:
+#  chain = ChainHandler (Testnets.GANACHE)
 
-chain.deploy_smart_contract ()
+# chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':
     
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
-       MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
-    edge_off.deploy_sq_ode ()
+        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_fresco_ode ()
     edge_off.start ()
 
     experiment_run ()
-    exit ()    
+    
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
-        MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
-    edge_off.deploy_fresco_ode ()
+       MobApps.INTRASAFED, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
+    edge_off.deploy_sq_ode ()
     edge_off.start ()
 
     experiment_run ()
@@ -163,7 +168,6 @@ elif sys.argv[1] == 'mobiar':
     edge_off.start ()
 
     experiment_run ()
-    exit ()
     edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
         MobApps.MOBIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
     edge_off.deploy_fresco_ode ()
@@ -193,7 +197,6 @@ if sys.argv[1] == 'naviar':
    edge_off.start ()
 
    experiment_run ()
-   exit ()
    edge_off = EdgeOffloading (req_q, rsp_q, Settings.APP_EXECUTIONS, Settings.SAMPLES, \
        MobApps.NAVIAR, Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS)
    edge_off.deploy_fresco_ode ()
@@ -216,6 +219,41 @@ if sys.argv[1] == 'naviar':
 
    experiment_run ()
     
+if sys.argv[1] == 'fresco_sweep':
+    app = MobApps.INTRASAFED  # or change to MOBIAR/NAVIAR
+
+    alphas = [0.2, 0.4, 0.6]
+    betas = [0.2, 0.4]
+    ks = [3, 5, 7]
+
+    for alpha in alphas:
+        for beta in betas:
+            gamma = 1.0 - alpha - beta
+            if gamma < 0:
+                continue
+            for k in ks:
+                print(f"[Sweep] α={alpha}, β={beta}, γ={gamma}, k={k}")
+
+                edge_off = EdgeOffloading(
+                    req_q,
+                    rsp_q,
+                    Settings.APP_EXECUTIONS,
+                    Settings.SAMPLES,
+                    app,
+                    Settings.CONSENSUS_DELAY,
+                    Settings.SCALABILITY,
+                    Settings.NUM_LOCS,
+                    alpha=alpha,
+                    beta=beta,
+                    gamma=gamma,
+                    k=k
+                )
+
+                # edge_off.deploy_fresco_ode()
+                # edge_off.start()
+
+                print("[Mock] Skipped real FRESCO deployment and execution.")
+                experiment_run()
 
    #  # for i in [1, 5, 10, 15, 30, 50, 80, 100]:
 

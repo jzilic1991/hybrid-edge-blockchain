@@ -11,11 +11,31 @@ from util import NodeTypes, Settings, MobApps, NodePrototypes
 class SmtOde (OffloadingDecisionEngine):
 
 
-    def __init__(self, name, curr_n, md, app_name, activate, con_delay):
+    def __init__(self, 
+        name, 
+        curr_n, 
+        md, 
+        app_name, 
+        activate, 
+        con_delay,
+        alpha = None,
+        beta = None,
+        gamma = None,
+        k = None):
 
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, 
+            curr_n, 
+            md, 
+            app_name, 
+            con_delay,
+            alpha = alpha,
+            beta = beta,
+            gamma = gamma,
+            k = k)
+        
         self._activate = activate
         self._k = Settings.K
+        print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
 
 
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos, cell_name):

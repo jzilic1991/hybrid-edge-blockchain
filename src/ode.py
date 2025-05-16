@@ -10,7 +10,16 @@ from models import Model
 
 class OffloadingDecisionEngine(ABC):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay):
+    def __init__(self, 
+        name, 
+        curr_n, 
+        md, 
+        app_name, 
+        con_delay,
+        alpha = None,
+        bta = None,
+        gamma = None,
+        k = None):
             
         self._name = name
         self._curr_n = curr_n
@@ -29,6 +38,11 @@ class OffloadingDecisionEngine(ABC):
         self._cell_stats = dict ()       # key (cell name) - value is cell stats class object
         self._measure_off_dec_time = True
         self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
+
+        self._alpha = alpha if alpha is not None else 0.3
+        self._beta = beta if beta is not None else 0.3
+        self._gamma = gamma if gamma is not None else 0.4
+        self._k = k if k is not None else Settings.K  # use default from config
 
         super().__init__()
 

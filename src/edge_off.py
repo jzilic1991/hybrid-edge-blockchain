@@ -12,7 +12,20 @@ from util import Util, Settings
 
 class EdgeOffloading (Thread):
 
-  def __init__ (self, req_q, rsp_q, exe, samp, app_name, con_delay, scala, locs):
+  def __init__ (
+    self, 
+    req_q, 
+    rsp_q, 
+    exe, 
+    samp, 
+    app_name, 
+    con_delay, 
+    scala, 
+    locs,
+    alpha = None,
+    beta = None,
+    gamma = None,
+    k = None):
 
     Thread.__init__ (self)
 
@@ -33,11 +46,25 @@ class EdgeOffloading (Thread):
     # the division result should be a integer
     self._user_move = self._exe / locs
     # print ("User move: " + str (self._user_move))
+    # Sensitivity analysis params (FRESCO only)
+    self.alpha = alpha if alpha is not None else 0.3
+    self.beta = beta if beta is not None else 0.3
+    self.gamma = gamma if gamma is not None else 0.4
+    self.k = k if k is not None else 5
 
 
-  def deploy_fresco_ode (cls):
-    cls._s_ode = SmtOde ('FRESCO', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
-      cls._app_name, True, cls._con_delay)
+  def deploy_fresco_ode (self):
+    self._s_ode = SmtOde ('FRESCO', 
+        self._r_mon.get_md (self._cell_number), 
+        self._r_mon.get_md (self._cell_number), \
+        self._app_name, 
+        True, 
+        self._con_delay,
+        alpha = self.alpha,
+        beta = self.beta,
+        gamma = self.gamma,
+        k = self.k)
+    print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
 
   def deploy_smt_ode (cls):
@@ -46,7 +73,7 @@ class EdgeOffloading (Thread):
 
 
   def deploy_sq_ode (cls):
-    cls._s_ode = SqOde ('SQ-MOBILE-EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
+    cls._s_ode = SqOde ('SQ_MOBILE_EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
       cls._con_delay)
 
 
