@@ -64,7 +64,7 @@ def plot_objective (regex_exp, y_axis_title, show):
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange(len (app_names))
   ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
 
   for ode_n in ode_names:
@@ -77,14 +77,14 @@ def plot_objective (regex_exp, y_axis_title, show):
         matched = re.search(regex_exp, line)
 
         if matched:
-          result[ode_n].append (float (matched.group (1)))
-          yerr_ode[ode_n] = float (matched.group (3))
+          result[ode_n].append (float (matched.group (2)))
+          yerr_ode[ode_n] = float (matched.group (4))
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
   ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ_MOBILE_EDGE'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ EDGE', capsize=3)
   ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP', capsize=3)
@@ -169,7 +169,7 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
                              va = "center")
 
 
-def plot_offloading_distributions (samples):
+def plot_offloading_distributions ():
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
@@ -291,7 +291,7 @@ def plot_average_qos_viols (regex, title):
   app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR]
   x = np.arange (len (app_n))
   ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ": 0.0, "MDP": 0.0, "FRESCO": 0.0}
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "FRESCO": 0.0}
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -306,15 +306,15 @@ def plot_average_qos_viols (regex, title):
         matched = re.search(regex, line)
 
         if matched:
-          result[ode_n].append (float (matched.group (1)))
-          yerr_ode[ode_n] = float (matched.group (3))
+          result[ode_n].append (float (matched.group (2)))
+          yerr_ode[ode_n] = float (matched.group (4))
 
   # print (result)
   plt.rcParams.update({'font.size': 14})
   ax = plt.subplot(111)
   ax.bar(x - 0, result['SMT'], yerr = yerr_ode['SMT'], width = 0.1, color = 'green', \
     align = 'center', label = 'MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ'], width = 0.1, color = 'yellow', \
+  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr = yerr_ode['SQ_MOBILE_EDGE'], width = 0.1, color = 'yellow', \
     align = 'center', label = 'SQ EDGE', capsize=3)
   ax.bar(x - 0.2, result['MDP'], yerr = yerr_ode['MDP'], width = 0.1, color = 'purple', \
     align = 'center', label = 'MDP', capsize=3)
@@ -430,14 +430,14 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
   plt.show()
 
 
-samples = sys.argv[1]
+# samples = sys.argv[1]
 overhead_plot ()
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
-plot_objective ("After " + samples + " samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
-plot_objective ("After " + samples +" samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
+plot_objective ("After (\d+) samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
+plot_objective ("After (\d+) samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
+plot_objective ("After (\d+) samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
 # print_constraint_violation_distribution ()
-plot_offloading_distributions (samples)
+plot_offloading_distributions ()
 # regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
 # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-regex = "After " + samples + " samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
+regex = "After (\d+) samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
 plot_average_qos_viols (regex, "QoS violation rate (%)")
