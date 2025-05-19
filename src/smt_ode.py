@@ -10,7 +10,6 @@ from util import NodeTypes, Settings, MobApps, NodePrototypes
 
 class SmtOde (OffloadingDecisionEngine):
 
-
     def __init__(self, 
         name, 
         curr_n, 
@@ -21,7 +20,8 @@ class SmtOde (OffloadingDecisionEngine):
         alpha = None,
         beta = None,
         gamma = None,
-        k = None):
+        k = None,
+        disable_trace_log = False):
 
         super().__init__(name, 
             curr_n, 
@@ -31,10 +31,11 @@ class SmtOde (OffloadingDecisionEngine):
             alpha = alpha,
             beta = beta,
             gamma = gamma,
-            k = k)
+            k = k,
+            disable_trace_log = disable_trace_log)
         
         self._activate = activate
-        self._k = Settings.K
+        self._disable_trace_log = disable_trace_log
         print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
 
 
@@ -140,11 +141,11 @@ class SmtOde (OffloadingDecisionEngine):
 
 
     def __print_smt_offload_info (cls, metrics, b_sites, timestamp, app_name, qos):
-
-        cls._log.w (app_name + " QoS: " + str (qos['rt']) + ' s')
+        if not disable_trace_log:
+          cls._log.w (app_name + " QoS: " + str (qos['rt']) + ' s')
         
         for triple in b_sites:
-
+          if not disable_trace_log:
             cls._log.w ("Name: " + triple[1].get_n_id ())
             cls._log.w ("Available: " + str (triple[1].avail_or_not (timestamp)))
             cls._log.w ("Processing latency constraint: " + str (triple[2].get_proc ()) + " s")
@@ -167,15 +168,15 @@ class SmtOde (OffloadingDecisionEngine):
         return loc_opt
 
 
-    def __compute_score (cls, metrics):
+    def __compute_score (self, metrics):
 
         rt = cls.__compute_local_optimum (metrics, 'rt')
         ec = cls.__compute_local_optimum (metrics, 'ec')
         pr = cls.__compute_local_optimum (metrics, 'pr')
         
         for site, val in metrics.items ():
-            metrics[site]['score'] = Settings.W_RT * abs (val['rt'] - rt) + \
-                Settings.W_EC * abs (val['ec'] - ec) + Settings.W_PR * abs (val['pr'] - pr)
+            metrics[site]['score'] = self._alpha * abs (val['rt'] - rt) + \
+                self._beta * abs (val['ec'] - ec) + self._gamma * abs (val['pr'] - pr)
             # print ("Local optima RT: " + str (rt))
             # print ("Local optima EC: " + str (ec))
             # print ("Local optima PR: " + str (pr))
@@ -191,10 +192,10 @@ class SmtOde (OffloadingDecisionEngine):
         return metrics
 
 
-    def __compute_rep_threshold (cls, off_sites):
+    def __compute_rep_threshold (self, off_sites):
 
         reps = [site.get_reputation () for site in off_sites]
-        return min (sorted (reps, key = lambda x: x, reverse = True)[:cls._k])
+        return min (sorted (reps, key = lambda x: x, reverse = True)[:self._k])
 
 
     def __get_site_min_score (cls, metrics, timestamp):

@@ -249,8 +249,9 @@ if sys.argv[1] == 'fresco_sweep':
                     k=k
                 )
 
-                # edge_off.deploy_fresco_ode()
+                edge_off.deploy_fresco_ode()
                 # edge_off.start()
+                edge_off.log_sensitivity_summary()
 
                 print("[Mock] Skipped real FRESCO deployment and execution.")
                 experiment_run()

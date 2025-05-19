@@ -11,6 +11,24 @@ class Stats:
          self._bl_samp = list ()         # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
          self._qos_viol_samp = list ()
+    
+
+    def get_sum_e_consum(self):
+        return sum(self._e_consum_samp)
+
+    def get_sum_res_pr(self):
+        return sum(self._price_samp)
+
+    def get_avg_rsp_time_value(self):
+        if not self._rsp_time_samp:
+            return 0.0
+        return round(np.mean(self._rsp_time_samp), 4)
+
+
+    def get_avg_qos_viol_value(self):
+        if not self._qos_viol_samp:
+            return 0.0
+        return round(np.mean(self._qos_viol_samp), 4)
 
 
     def get_avg_qos_viol (cls):

@@ -14,6 +14,12 @@ class CellStats:
     self._infra_size = 0
 
 
+    def get_avg_overhead(self):
+        if not self._overhead:
+            return 0.0
+        return round(sum(self._overhead) / len(self._overhead), 6)
+
+
   def get_off_dist_samp (cls):
 
     return cls._off_dist_samp

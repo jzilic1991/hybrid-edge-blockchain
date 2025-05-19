@@ -25,7 +25,8 @@ class EdgeOffloading (Thread):
     alpha = None,
     beta = None,
     gamma = None,
-    k = None):
+    k = None,
+    disable_trace_log = False):
 
     Thread.__init__ (self)
 
@@ -40,7 +41,6 @@ class EdgeOffloading (Thread):
     self._con_delay = con_delay
     self._log = None
     self._cell_number = 0
-
     # user moves to another cell location after certain number of applications excutions
     # it only works when number of executions is higher than number of locations
     # the division result should be a integer
@@ -51,6 +51,31 @@ class EdgeOffloading (Thread):
     self.beta = beta if beta is not None else 0.3
     self.gamma = gamma if gamma is not None else 0.4
     self.k = k if k is not None else 5
+    self.disable_trace_log = disable_trace_log
+
+
+  def log_sensitivity_summary(self):
+    stats = self._s_ode._stats
+    cell_stats = self._s_ode._cell_stats
+
+    avg_latency = stats.get_avg_rsp_time_value()
+    total_energy = stats.get_sum_e_consum()
+    total_cost = stats.get_sum_res_pr()
+    qos_violation = stats.get_avg_qos_viol_value()
+
+    avg_dec_time = 0.0
+    if cell_stats:
+        avg_dec_time = sum([cell.get_avg_overhead() for cell in cell_stats.values()]) / len(cell_stats)
+
+    score = self.alpha * avg_latency + self.beta * total_cost + self.gamma * total_energy
+
+    with open("fresco_sensitivity_summary.csv", "a") as f:
+        f.write(f"{self.alpha},{self.beta},{self.gamma},{self.k},"
+                f"{avg_latency},{total_energy},{total_cost},{avg_dec_time},{qos_violation},{score}\n")
+
+    print(f"[LOGGED] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
+          f"Score={score:.3f}, Latency={avg_latency}, Energy={total_energy}, "
+          f"Cost={total_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
 
 
   def deploy_fresco_ode (self):
@@ -63,7 +88,8 @@ class EdgeOffloading (Thread):
         alpha = self.alpha,
         beta = self.beta,
         gamma = self.gamma,
-        k = self.k)
+        k = self.k,
+        disable_trace_log = self.disable_trace_log)
     print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
 

@@ -17,9 +17,10 @@ class OffloadingDecisionEngine(ABC):
         app_name, 
         con_delay,
         alpha = None,
-        bta = None,
+        beta = None,
         gamma = None,
-        k = None):
+        k = None,
+        disable_trace_log = False):
             
         self._name = name
         self._curr_n = curr_n
@@ -37,7 +38,8 @@ class OffloadingDecisionEngine(ABC):
         self._stats = Stats ()
         self._cell_stats = dict ()       # key (cell name) - value is cell stats class object
         self._measure_off_dec_time = True
-        self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
+        if disable_trace_log:
+          self._log = Logger ('logs/sim_traces_' + self._name + '_' + app_name + '.txt', True, 'w')
 
         self._alpha = alpha if alpha is not None else 0.3
         self._beta = beta if beta is not None else 0.3
@@ -234,6 +236,9 @@ class OffloadingDecisionEngine(ABC):
 
 
     def log_stats (cls):
+        if disable_trace_log:
+          return
+
         for key in cls._cell_stats:
             cls._log.w (cls._cell_stats[key].get_all ())
         
