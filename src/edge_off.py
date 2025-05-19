@@ -93,37 +93,39 @@ class EdgeOffloading (Thread):
     print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
 
-  def deploy_smt_ode (cls):
-    cls._s_ode = SmtOde ('MINLP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
-      cls._app_name, False, cls._con_delay)
+  def deploy_smt_ode (self):
+    self._s_ode = SmtOde ('MINLP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
+      self._app_name, False, self._con_delay)
 
 
-  def deploy_sq_ode (cls):
-    cls._s_ode = SqOde ('SQ_MOBILE_EDGE', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), cls._app_name, \
-      cls._con_delay)
+  def deploy_sq_ode (self):
+    self._s_ode = SqOde ('SQ_MOBILE_EDGE', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), self._app_name, \
+      self._con_delay)
 
 
-  def deploy_mdp_ode (cls):
-    cls._s_ode = MdpOde ('MDP', cls._r_mon.get_md (cls._cell_number), cls._r_mon.get_md (cls._cell_number), \
-      cls._app_name, cls._con_delay)
+  def deploy_mdp_ode (self):
+    self._s_ode = MdpOde ('MDP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
+      self._app_name, self._con_delay)
 
 
-  def run (cls):
+  def run (self):
     # logging but after ODE is deployed
-    cls._log = cls._s_ode.get_logger ()
-    off_sites = cls.__update_and_register_off_sites ()
+    if not self.disable_trace_log:
+        self._log = self._s_ode.get_logger ()
+    
+    off_sites = self.__update_and_register_off_sites ()
     # deploy and run mobile application
-    app = cls._m_app_prof.dep_app (cls._app_name)
+    app = self._m_app_prof.dep_app (self._app_name)
     app.run ()
 
     # setting cell statistics (this is updated after each cell move)
-    cls._s_ode.set_cell_stats (cls._r_mon.get_cell_name ())
+    self._s_ode.set_cell_stats (self._r_mon.get_cell_name ())
 
     epoch_cnt = 0 # counts task offloadings
     exe_cnt = 0   # counts application executions
     samp_cnt = 0  # counts samples
     period_cnt = 0 # counts number of task offloadings within single time period in cell location
-    time_period = cls.__compute_time_period (app.get_num_of_tasks ())
+    time_period = self.__compute_time_period (app.get_num_of_tasks ())
     timestamp = 0.0
     prev_progress = 0
     curr_progress = 0
@@ -131,34 +133,34 @@ class EdgeOffloading (Thread):
     task_n_delay = "" # delay counter (counting epochs)
     off_transactions = list ()
 
-    # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
-    # cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
+    # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+    # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
-    print ("**************** PROGRESS " + cls._s_ode.get_name() + "****************")
+    print ("**************** PROGRESS " + self._s_ode.get_name() + "****************")
     print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
 
     while True:
 
-      (curr_progress, prev_progress) = cls.__print_progress (exe_cnt, samp_cnt, \
+      (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
         curr_progress, prev_progress)
 
       tasks = app.get_ready_tasks ()
       timestamp = round (time_period * period_cnt, 3)
 
       # when all application tasks are completeid
-      # print ("User move: " + str (cls._user_move))
+      # print ("User move: " + str (self._user_move))
       # print ("Execution count: " + str (exe_cnt))
       # print (str (len (tasks)) + " to offload!")
       if len (tasks) == 0:
         # deploy and run mobile application
-        app = cls._m_app_prof.dep_app (cls._app_name)
+        app = self._m_app_prof.dep_app (self._app_name)
         # update current site of task exeuction when previous app execution is completed
-        cls._s_ode.set_curr_node (Util.get_mob_site (off_sites))
+        self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
         app.run ()
         exe_cnt = exe_cnt + 1
         
         # evaluate application response time against application QoS deadline
-        cls._s_ode.app_exc_done (app.get_qos ())
+        self._s_ode.app_exc_done (app.get_qos ())
         
         # cell mover flag for indicating is cell location has changed
         # if yes then reputation update is not needed
@@ -168,30 +170,30 @@ class EdgeOffloading (Thread):
         # when certain number of application executions are completed 
         # then mobile device moves to another cell location and 
         # new availability datasets are loaded per offloading site
-        if exe_cnt % cls._user_move == 0:
+        if exe_cnt % self._user_move == 0:
           period_cnt = 0
           cell_mover = True
 
           # summarize cell statistics (off distro, off fails, constr viols, avail distro) 
-          cls._s_ode.summarize_cell_stats (cls._cell_number, \
-            cls.__get_avail_distro (off_sites))
+          self._s_ode.summarize_cell_stats (self._cell_number, \
+            self.__get_avail_distro (off_sites))
 
           # update cell number of new switched cell location and get offloading sites of new cell 
-          # cls._cell_number = int (exe_cnt / cls._user_move)
-          cls._cell_number += 1
-          off_sites = cls.__update_and_register_off_sites ()
+          # self._cell_number = int (exe_cnt / self._user_move)
+          self._cell_number += 1
+          off_sites = self.__update_and_register_off_sites ()
           # set new cell statistics for a new cell
-          cls._s_ode.set_cell_stats (cls._cell_number)
+          self._s_ode.set_cell_stats (self._cell_number)
           # update current site of task exeuction when switching cells
-          cls._s_ode.set_curr_node (Util.get_mob_site (off_sites))
+          self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
 
-        # cls._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
+        # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
         
         if not cell_mover:
           # update reputation after each application execution and reset transaction list
           # print ("############## UPDATING TRANSACTIONS ###############")
           # print ("Transactions: " + str (off_transactions))
-          cls._req_q.put (('update', off_transactions))
+          self._req_q.put (('update', off_transactions))
           off_transactions = list ()
         
         continue
@@ -203,56 +205,56 @@ class EdgeOffloading (Thread):
       # incrementing epoch (i.e. task offloading) and period counter (i.e. epochs within same time period)
       epoch_cnt = epoch_cnt + 1
       period_cnt = period_cnt + 1
-      # cls._log.w ('Time epoch ' + str (epoch_cnt) + '.')
+      # self._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
       # all executions are completed
-      if exe_cnt >= cls._exe:
-        cls._s_ode.summarize (exe_cnt)
+      if exe_cnt >= self._exe:
+        self._s_ode.summarize (exe_cnt)
         samp_cnt = samp_cnt + 1
         exe_cnt = 0
-        cls._cell_number = 0
+        self._cell_number = 0
 
         # if all samples are completed, end the experiment via message queue close
-        if samp_cnt == cls._samp: 
-          cls._s_ode.log_stats ()
-          # cls.__reset_reputation (off_sites)
-          cls._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
+        if samp_cnt == self._samp: 
+          self._s_ode.log_stats ()
+          # self.__reset_reputation (off_sites)
+          self._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
         
-          if cls._rsp_q.get () == 'confirm':
+          if self._rsp_q.get () == 'confirm':
             # break from the run loop
             break
 
-        # cls._log.w ("SAMPLE No." + str (samp_cnt + 1))
-        app = cls._m_app_prof.dep_app (cls._app_name)
+        # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
+        app = self._m_app_prof.dep_app (self._app_name)
         app.run ()
-        # off_sites = cls.__reset_reputation (off_sites)
+        # off_sites = self.__reset_reputation (off_sites)
         continue
 
       # getting updated reputation when consensus is finished after certain delay
       # print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
-      if con_delay == cls._con_delay:
-        off_sites = cls.__get_reputation (off_sites)
-        # cls.__print_reputation (off_sites)
+      if con_delay == self._con_delay:
+        off_sites = self.__get_reputation (off_sites)
+        # self.__print_reputation (off_sites)
         con_delay = 0
         task_n_delay = tasks[0].get_name ()
 
-      # off_sites = cls.__update_behav (off_sites, exe_cnt)
-      trxs = cls._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos (), cls._r_mon.get_cell_name ())
+      # off_sites = self.__update_behav (off_sites, exe_cnt)
+      trxs = self._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos (), self._r_mon.get_cell_name ())
       off_transactions += trxs
 
       # update workload after task offloading
-      curr_n = cls._s_ode.get_curr_node ()
+      curr_n = self._s_ode.get_curr_node ()
       for site in off_sites:
           if site != curr_n:
-              site.workload_update (cls._s_ode.get_last_rsp_time ())
+              site.workload_update (self._s_ode.get_last_rsp_time ())
 
       if not off_transactions:
-        exe_cnt = cls._exe
+        exe_cnt = self._exe
         continue
 
 
   # printing reputation score values per offloading site
-  def __print_reputation (cls, off_sites):
+  def __print_reputation (self, off_sites):
     trace = "################### REPUTATION SCORES ##################\n"
 
     for site in off_sites:
@@ -266,7 +268,7 @@ class EdgeOffloading (Thread):
     print (trace)
 
 
-  def __get_avail_distro (cls, off_sites):
+  def __get_avail_distro (self, off_sites):
 
     avail_distro = dict ()
   
@@ -281,27 +283,27 @@ class EdgeOffloading (Thread):
     return avail_distro
 
 
-  def __update_and_register_off_sites (cls):
-    off_sites = cls._r_mon.get_cell (cls._cell_number)
+  def __update_and_register_off_sites (self):
+    off_sites = self._r_mon.get_cell (self._cell_number)
     # register offloading sites of new switched cell location
-    off_sites = cls.__register_nodes (off_sites)
+    off_sites = self.__register_nodes (off_sites)
     # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
-    if isinstance (cls._s_ode, MdpOde):
-      cls._s_ode.update_matrices (off_sites)
+    if isinstance (self._s_ode, MdpOde):
+      self._s_ode.update_matrices (off_sites)
 
     return off_sites
 
 
-  def __compute_time_period (cls, num_of_tasks):
+  def __compute_time_period (self, num_of_tasks):
 
-    return round (1 / (num_of_tasks * (cls._user_move)), 3)
+    return round (1 / (num_of_tasks * (self._user_move)), 3)
 
 
-  def __print_progress (cls, exe_cnt, samp_cnt, curr_progress, prev_progress):
+  def __print_progress (self, exe_cnt, samp_cnt, curr_progress, prev_progress):
 
     prev_progress = curr_progress
-    curr_progress = round((exe_cnt + (samp_cnt * cls._exe)) / \
-      (cls._samp * cls._exe) * 100)
+    curr_progress = round((exe_cnt + (samp_cnt * self._exe)) / \
+      (self._samp * self._exe) * 100)
 
     if curr_progress != prev_progress and (curr_progress % \
       Settings.PROGRESS_REPORT_INTERVAL == 0):
@@ -310,12 +312,12 @@ class EdgeOffloading (Thread):
     return (curr_progress, prev_progress)
 
 
-  def __register_nodes (cls, off_sites):
+  def __register_nodes (self, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    # print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (cls._cell_number) + ")")
-    cls._req_q.put (('reg', names))
-    reg_nodes = cls._rsp_q.get ()
+    # print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ")")
+    self._req_q.put (('reg', names))
+    reg_nodes = self._rsp_q.get ()
   
     if reg_nodes[0] == 'reg_rsp':
       for ele in reg_nodes[1]:
@@ -327,28 +329,28 @@ class EdgeOffloading (Thread):
             break
 
     # measuring offloading decision time 
-    cls._s_ode.start_measuring_overhead ()
+    self._s_ode.start_measuring_overhead ()
     
     return off_sites
 
 
-  def __get_reputation (cls, off_sites):
+  def __get_reputation (self, off_sites):
 
     sc_ids = [site.get_sc_id () for site in off_sites]
-    cls._req_q.put (('get', sc_ids))
-    get_msg = cls._rsp_q.get ()
+    self._req_q.put (('get', sc_ids))
+    get_msg = self._rsp_q.get ()
 
     if get_msg[0] == 'get_rsp':
       for site_rep in get_msg[1]:
         for site in off_sites:
           if site_rep[0] == site.get_sc_id ():
             site.set_reputation (site_rep[1])
-            # cls._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
+            # self._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 
     return off_sites
 
 
-  def __print_setup (cls, off_sites, app):
+  def __print_setup (self, off_sites, app):
 
     app.print_entire_config ()
 
@@ -356,11 +358,11 @@ class EdgeOffloading (Thread):
       off_site.print_system_config ()
 
 
-  def __reset_reputation (cls, off_sites):
+  def __reset_reputation (self, off_sites):
 
     sc_ids = [site.get_sc_id () for site in off_sites]
-    cls._req_q.put (('reset', sc_ids))
-    reset_msg = cls._rsp_q.get ()
+    self._req_q.put (('reset', sc_ids))
+    reset_msg = self._rsp_q.get ()
 
     if reset_msg[0] == 'reset_rsp':
       for site_rep in reset_msg[1]:
@@ -368,6 +370,6 @@ class EdgeOffloading (Thread):
           if site_rep['id'] == site.get_sc_id ():
             site.set_reputation (site_rep['score'])
             # print (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
-            # cls._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
+            # self._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
     
     return off_sites

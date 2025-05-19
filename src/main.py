@@ -54,8 +54,8 @@ def submit_cached_trx ():
 def experiment_run ():
 
     # skip real experiment run
-    print("[Mock] experiment_run() called – skipping actual execution.")
-    return
+    #print("[Mock] experiment_run() called – skipping actual execution.")
+    #return
     
     global chain, req_q, rsp_q, cached_trx, update_thread
 
@@ -121,13 +121,12 @@ update_thread = False
 req_q, rsp_q = Queue (), Queue ()
 chain = None
 
-# instantiating smart contract interface
-# if (len (sys.argv) - 1) == 2: 
-#  chain = ChainHandler (Testnets.GANACHE, sys.argv[2])
-# else:
-#  chain = ChainHandler (Testnets.GANACHE)
+if (len (sys.argv) - 1) == 2: 
+  chain = ChainHandler (Testnets.GANACHE, sys.argv[2])
+else:
+  chain = ChainHandler (Testnets.GANACHE)
 
-# chain.deploy_smart_contract ()
+chain.deploy_smart_contract ()
 
 if sys.argv[1] == 'intra':
     
@@ -250,7 +249,7 @@ if sys.argv[1] == 'fresco_sweep':
                 )
 
                 edge_off.deploy_fresco_ode()
-                # edge_off.start()
+                edge_off.start()
                 edge_off.log_sensitivity_summary()
 
                 print("[Mock] Skipped real FRESCO deployment and execution.")
