@@ -14,10 +14,10 @@ class CellStats:
     self._infra_size = 0
 
 
-    def get_avg_overhead(self):
-        if not self._overhead:
-            return 0.0
-        return round(sum(self._overhead) / len(self._overhead), 6)
+  def get_avg_overhead(self):
+      if not self._overhead:
+          return 0.0
+      return round(sum(self._overhead) / len(self._overhead), 6)
 
 
   def get_off_dist_samp (cls):
@@ -151,15 +151,6 @@ class CellStats:
   def get_avail_distros (cls):
 
     return ("Availability distributions (statistically): " + str (cls._avail_distros))
-
-
-  def get_avg_overhead (cls):
-
-    if len (cls._overhead) != 0:
-      return "Offloading decision time overhead: (" + str (cls._infra_size) + " nodes, " + \
-        str (round (sum (cls._overhead) / len (cls._overhead), 6)) + " s)"
-    
-    return "Offloading decision time overhead: (" + str (cls._infra_size) + " nodes, 0s)"
 
 
   def get_all (cls):

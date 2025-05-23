@@ -21,7 +21,7 @@ class SmtOde (OffloadingDecisionEngine):
         beta = None,
         gamma = None,
         k = None,
-        disable_trace_log = False):
+        disable_trace_log = True):
 
         super().__init__(name, 
             curr_n, 
@@ -36,7 +36,7 @@ class SmtOde (OffloadingDecisionEngine):
         
         self._activate = activate
         self._disable_trace_log = disable_trace_log
-        print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
+        # print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
 
 
     def offloading_decision (self, task, metrics, timestamp, app_name, constr, qos, cell_name):
@@ -141,11 +141,11 @@ class SmtOde (OffloadingDecisionEngine):
 
 
     def __print_smt_offload_info (self, metrics, b_sites, timestamp, app_name, qos):
-        if not disable_trace_log:
+        if not self._disable_trace_log:
           self._log.w (app_name + " QoS: " + str (qos['rt']) + ' s')
         
         for triple in b_sites:
-          if not disable_trace_log:
+          if not self._disable_trace_log:
             self._log.w ("Name: " + triple[1].get_n_id ())
             self._log.w ("Available: " + str (triple[1].avail_or_not (timestamp)))
             self._log.w ("Processing latency constraint: " + str (triple[2].get_proc ()) + " s")

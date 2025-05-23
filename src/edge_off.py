@@ -26,7 +26,7 @@ class EdgeOffloading (Thread):
     beta = None,
     gamma = None,
     k = None,
-    disable_trace_log = False):
+    disable_trace_log = True):
 
     Thread.__init__ (self)
 
@@ -90,7 +90,7 @@ class EdgeOffloading (Thread):
         gamma = self.gamma,
         k = self.k,
         disable_trace_log = self.disable_trace_log)
-    print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
+    #print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
 
   def deploy_smt_ode (self):

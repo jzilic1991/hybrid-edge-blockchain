@@ -223,7 +223,7 @@ if sys.argv[1] == 'fresco_sweep':
 
     alphas = [0.2, 0.4, 0.6]
     betas = [0.2, 0.4]
-    ks = [3, 5, 7]
+    ks = [5]
 
     for alpha in alphas:
         for beta in betas:
@@ -250,10 +250,8 @@ if sys.argv[1] == 'fresco_sweep':
 
                 edge_off.deploy_fresco_ode()
                 edge_off.start()
-                edge_off.log_sensitivity_summary()
-
-                print("[Mock] Skipped real FRESCO deployment and execution.")
                 experiment_run()
+                edge_off.log_sensitivity_summary()
 
    #  # for i in [1, 5, 10, 15, 30, 50, 80, 100]:
 
