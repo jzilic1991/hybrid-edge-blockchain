@@ -3,45 +3,71 @@ import random
 import asyncio
 import sys
 import os
+import argparse
+import time
+import subprocess
+import re
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process
-
+from web3 import Web3, HTTPProvider
 # user-defined libs
 from chain_msg_handler import ChainHandler
 from util import Testnets, MobApps, Settings
 from edge_off import EdgeOffloading
 
 # public functions
-def update_rep_thread (chain, submit_trx):
+def wait_for_ganache_ready(port=8545, min_accounts=1, timeout=10):
+    start = time.time()
+    w3 = Web3(HTTPProvider(f"http://127.0.0.1:{port}"))
+    while time.time() - start < timeout:
+        try:
+            if w3.is_connected():
+                accounts = w3.eth.accounts
+                if len(accounts) >= min_accounts:
+                    return
+        except Exception as e:
+            print(e)
+        time.sleep(0.3)
+    raise RuntimeError(f"Ganache on port {port} failed to return {min_accounts} accounts in time.")
+
+def start_ganache_instance(port):
+    mnemonic = ""
+    with open("../mnemonic.txt", "r") as mfile:
+        mnemonic = mfile.read().strip()
+    ganache_cmd = ["ganache-cli", "--port", str(port), "--mnemonic", mnemonic, "--defaultBalanceEther", "1000", "--accounts", "100"]
+    subprocess.Popen(ganache_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    import socket
+    start = time.time()
+    while time.time() - start < 10:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=1):
+                break
+        except (OSError, ConnectionRefusedError):
+            time.sleep(0.5)
     
+    wait_for_ganache_ready(port = port, min_accounts = 10)
+
+def update_rep_thread (chain, submit_trx):
     t = Thread (target = wrapper_update_rep, args = (chain, submit_trx, ))
     t.start ()
 
-
 def wrapper_update_rep (chain, submit_trx):
-
     asyncio.run (update_reputation (chain, submit_trx))
 
-
 async def update_reputation (chain, submit_trx):
-    
     task = asyncio.create_task(chain.update_reputation(submit_trx))
     task.add_done_callback(lambda future: reputation_update_completed(future, chain))
 
-
 def reputation_update_completed (future, chain):
-
     submit_cached_trx (chain)
 
-
 def submit_cached_trx (chain):
-
     global update_thread, cached_trx
     submit_trx = list ()
 
     if cached_trx:
-
         submit_trx = [trx for trx in cached_trx]
         cached_trx.clear ()
         update_thread = True
@@ -52,11 +78,9 @@ def submit_cached_trx (chain):
 
 
 def experiment_run (chain):
-
     # skip real experiment run
     #print("[Mock] experiment_run() called – skipping actual execution.")
     #return
-    
     global req_q, rsp_q, cached_trx, update_thread
 
     while True:
@@ -120,12 +144,29 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
     proc_name = current_process().name
     print(f"\n=== Starting {proc_name} ===")
     print(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
-    handler = ChainHandler(Testnets.GANACHE, port = port, account_index = suffix)
-    with open("contract_address.txt", "r") as f:
-      addr = f.read().strip()
-      handler.load_contract(addr)
-      #print(f"[Proc {account_index}] BASE = {handler.get_base()}") 
 
+    if os.getenv("MULTICHAIN") == "1":
+        start_ganache_instance(port)
+
+    handler = ChainHandler(Testnets.GANACHE, port=port, account_index=suffix)
+    if not re.fullmatch(r"0x[a-fA-F0-9]{40}", handler._account):
+        raise ValueError(f"Invalid Ethereum account for suffix {suffix}: {handler._account}")
+    
+    if os.getenv("MULTICHAIN") == "1":
+        contract_address = handler.deploy_smart_contract()
+        handler.load_contract(contract_address)
+    else:
+        import pathlib
+        addr_path = pathlib.Path("contract_address.txt")
+        start = time.time()
+        while not addr_path.exists():
+            if time.time() - start > 10:
+                raise RuntimeError("Timeout waiting for contract_address.txt to be created.")
+            time.sleep(0.2)
+        with open(addr_path, "r") as f:
+            addr = f.read().strip()
+            handler.load_contract(addr)
+    
     edge_off = EdgeOffloading(
         req_q,
         rsp_q,
@@ -261,20 +302,31 @@ if sys.argv[1] == 'naviar':
 
 
 if __name__ == '__main__':
-    if not os.path.exists("contract_address.txt"):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("mode", choices=["fresco_sweep", "intra", "mobiar", "naviar"])
+    parser.add_argument("--multi-chain", action="store_true")
+    args = parser.parse_args()
+
+    if not args.multi_chain:
+        start_ganache_instance(8545)
+
+        # Deploy contract if not already done
         deployer = ChainHandler(Testnets.GANACHE, account_index=0)
         contract_address = deployer.deploy_smart_contract()
         with open("contract_address.txt", "w") as f:
             f.write(contract_address)
 
-    if sys.argv[1] == 'fresco_sweep':
+    if args.mode == 'fresco_sweep':
         app = MobApps.INTRASAFED
         alphas = [0.2, 0.4, 0.6]
         betas = [0.2, 0.4]
         k = 5
-
         processes = []
         suffix = 1
+        base_port = 8545
+        
+        if args.multi_chain:
+            os.environ["MULTICHAIN"] = "1"
 
         for alpha in alphas:
             for beta in betas:
@@ -282,7 +334,8 @@ if __name__ == '__main__':
                 if gamma < 0:
                     continue
             
-                proc = Process(target=run_fresco_sim, args=(alpha, beta, gamma, k, app, suffix))
+                port = (base_port + suffix) if args.multi_chain else 8545
+                proc = Process(target=run_fresco_sim, args=(alpha, beta, gamma, k, app, suffix), kwargs={"port": port})
                 proc.start()
                 processes.append(proc)
                 suffix += 1
