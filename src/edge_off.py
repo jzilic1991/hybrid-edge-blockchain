@@ -26,6 +26,7 @@ class EdgeOffloading (Thread):
     beta = None,
     gamma = None,
     k = None,
+    suffix = None,
     disable_trace_log = True):
 
     Thread.__init__ (self)
@@ -51,10 +52,10 @@ class EdgeOffloading (Thread):
     self.beta = beta if beta is not None else 0.3
     self.gamma = gamma if gamma is not None else 0.4
     self.k = k if k is not None else 5
+    self.suffix = suffix if suffix is not None else 0
     self.disable_trace_log = disable_trace_log
 
-
-  def log_sensitivity_summary(self):
+  def log_sensitivity_summary(self, filename):
     stats = self._s_ode._stats
     cell_stats = self._s_ode._cell_stats
 
@@ -69,11 +70,11 @@ class EdgeOffloading (Thread):
 
     score = self.alpha * avg_latency + self.beta * total_cost + self.gamma * total_energy
 
-    with open("fresco_sensitivity_summary.csv", "a") as f:
-        f.write(f"{self.alpha},{self.beta},{self.gamma},{self.k},"
+    with open(filename, "w") as f:
+        f.write(f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
                 f"{avg_latency},{total_energy},{total_cost},{avg_dec_time},{qos_violation},{score}\n")
 
-    print(f"[LOGGED] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
+    print(f"[LOGGED] ID={self.suffix}: α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
           f"Score={score:.3f}, Latency={avg_latency}, Energy={total_energy}, "
           f"Cost={total_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
 
@@ -136,11 +137,10 @@ class EdgeOffloading (Thread):
     # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
     # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
-    print ("**************** PROGRESS " + self._s_ode.get_name() + "****************")
-    print (str(prev_progress) + "% - " + str(datetime.datetime.utcnow()))
+    print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
+    print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
 
     while True:
-
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
         curr_progress, prev_progress)
 
@@ -307,7 +307,7 @@ class EdgeOffloading (Thread):
 
     if curr_progress != prev_progress and (curr_progress % \
       Settings.PROGRESS_REPORT_INTERVAL == 0):
-      print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()))
+      print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()) + " (ID = " + str(self.suffix) + ")")
 
     return (curr_progress, prev_progress)
 
@@ -315,7 +315,7 @@ class EdgeOffloading (Thread):
   def __register_nodes (self, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    # print ("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ")")
+    print("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ") -> [ODE ID = " + str(self.suffix) + "]")
     self._req_q.put (('reg', names))
     reg_nodes = self._rsp_q.get ()
   
