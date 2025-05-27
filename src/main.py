@@ -7,6 +7,8 @@ import argparse
 import time
 import subprocess
 import re
+import signal
+import atexit
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process
@@ -17,6 +19,17 @@ from util import Testnets, MobApps, Settings
 from edge_off import EdgeOffloading
 
 # public functions
+def cleanup_ganache_processes():
+    try:
+        output = subprocess.check_output(["ps", "aux"])
+        lines = output.decode().splitlines()
+        ganache_pids = [line.split()[1] for line in lines if "ganache-cli" in line and "--port" in line]
+        for pid in ganache_pids:
+            print(f"[CLEANUP] Killing Ganache process PID {pid}")
+            os.kill(int(pid), signal.SIGKILL)
+    except Exception as e:
+        print(f"[ERROR] Cleanup failed: {e}")
+
 def wait_for_ganache_ready(port=8545, min_accounts=1, timeout=10):
     start = time.time()
     w3 = Web3(HTTPProvider(f"http://127.0.0.1:{port}"))
@@ -36,8 +49,9 @@ def start_ganache_instance(port):
     with open("../mnemonic.txt", "r") as mfile:
         mnemonic = mfile.read().strip()
     ganache_cmd = ["ganache-cli", "--port", str(port), "--mnemonic", mnemonic, "--defaultBalanceEther", "1000", "--accounts", "100"]
-    subprocess.Popen(ganache_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+    proc = subprocess.Popen(ganache_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print(f"🚀 Starting Ganache on port {port} with PID {proc.pid}")
+    
     import socket
     start = time.time()
     while time.time() - start < 10:
@@ -193,6 +207,9 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
     edge_off.log_sensitivity_summary(output_filename)
     print(f"[{proc_name}] Summary saved to {output_filename}")
 
+atexit.register(cleanup_ganache_processes)
+signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(0))
+signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
 random.seed (42)
 # public variables
 reg_nodes = list ()
@@ -343,7 +360,8 @@ if __name__ == '__main__':
 
         for proc in processes:
             proc.join()
-
+        
+        cleanup_ganache_processes()
 # edge_off = EdgeOffloading (req_q, rsp_q, 100, 2)
 # edge_off.deploy_sq_ode ()
 # edge_off.start ()

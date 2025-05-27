@@ -83,7 +83,7 @@ class ChainHandler:
 
         self._smart_contract = self._w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
         self._base = self._smart_contract.functions.BASE().call()
-        print("Smart contract is deployed:", self._smart_contract.address)
+        print(f"[INFO] (Proc = {self._account_index}) Smart contract is deployed: {self._smart_contract.address}")
         return self._smart_contract.address
 
     def get_base(self):
