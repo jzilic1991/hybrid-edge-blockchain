@@ -1,6 +1,8 @@
 # built-in libs
 import os
 import json
+import re
+import time
 
 # third-party libs
 from dotenv import load_dotenv
@@ -28,7 +30,15 @@ class ChainHandler:
         self._testnet = self.__determine_testnet(testnet, port)
         #print(self._testnet)
         self._w3 = Web3(HTTPProvider(self._testnet, request_kwargs={'timeout': 500}))
-        self._account = self._w3.eth.accounts[self._account_index]
+        start = time.time()
+        while True:
+            accounts = self._w3.eth.accounts
+            if len(accounts) > self._account_index and re.fullmatch(r"0x[a-fA-F0-9]{40}", accounts[self._account_index]):
+                self._account = accounts[self._account_index]
+                break
+            if time.time() - start > 10:
+                raise RuntimeError(f"Account index {account_index} invalid or not ready after 10s: {accounts}")
+            time.sleep(0.3)
         print(f"Web3 is connected: {self._w3.is_connected()}; [Proc {self._account_index}] Using account: {self._account}")
 
     def __determine_testnet(self, testnet, port):

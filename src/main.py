@@ -43,11 +43,12 @@ def start_ganache_instance(port):
     while time.time() - start < 10:
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=1):
-                break
+                #break
+                return
         except (OSError, ConnectionRefusedError):
             time.sleep(0.5)
     
-    wait_for_ganache_ready(port = port, min_accounts = 10)
+    #wait_for_ganache_ready(port = port, min_accounts = 10)
 
 def update_rep_thread (chain, submit_trx):
     t = Thread (target = wrapper_update_rep, args = (chain, submit_trx, ))
