@@ -338,7 +338,7 @@ if __name__ == '__main__':
         app = MobApps.INTRASAFED
         alphas = [0.2, 0.4, 0.6]
         betas = [0.2, 0.4]
-        k = 5
+        k = 4
         processes = []
         suffix = 1
         base_port = 8545
