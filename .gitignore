@@ -9,4 +9,5 @@ src/tags
 src/sim_exe_log.txt
 src/log.txt
 src/data/AT-Cell.csv
+src/contract_address.txt
 tags
