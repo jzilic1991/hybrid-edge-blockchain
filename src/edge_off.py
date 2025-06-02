@@ -26,12 +26,13 @@ class EdgeOffloading (Thread):
     gamma = None,
     k = None,
     suffix = None,
-    app_name = None, 
+    app_name = None,
+    profile = "default",
     disable_trace_log = True):
 
     Thread.__init__ (self)
 
-    self._r_mon = ResourceMonitor (scala)
+    self._r_mon = ResourceMonitor (scala, profile)
     self._m_app_prof = MobileAppProfiler () 
     self._s_ode = None
     self._req_q = req_q
@@ -42,6 +43,7 @@ class EdgeOffloading (Thread):
     self._con_delay = con_delay
     self._log = None
     self._cell_number = 0
+    self._profile = profile
     # user moves to another cell location after certain number of applications excutions
     # it only works when number of executions is higher than number of locations
     # the division result should be a integer

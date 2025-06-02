@@ -169,15 +169,18 @@ def experiment_run (chain):
         else:
           raise ValueError ("Wrong message received from offloading thread: " + str (msg[0]))
 
-def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
+def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
     """
     Executes full benchmarking across all offloading models (FRESCO, SQ, SMT, MDP)
     with the same application and simulation setup, using legacy-style execution
     and full reputation integration.
     """
+  
     proc_name = current_process().name
     print(f"\n=== Starting {proc_name} ===")
     print(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
+    Settings.workload_profile = profile
+    print(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
 
     if os.getenv("MULTICHAIN") == "1":
         start_ganache_instance(port)
@@ -215,6 +218,7 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
         k=k,
         suffix=suffix,
         app_name = app,
+        profile = profile,
         disable_trace_log=True
     )
 
@@ -349,6 +353,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["fresco_sweep", "intra", "mobiar", "naviar"])
     parser.add_argument("--multi-chain", action="store_true")
+    parser.add_argument("--profile", choices=["default", "ar"], default="default",
+                        help="Workload profile to use: 'default' or 'ar'")
     parser.add_argument(
       '--app', type=str, default='random',
       choices=['random', 'mobiar', 'intrasafed', 'naviar'],
@@ -400,7 +406,7 @@ if __name__ == '__main__':
 
                 proc = Process(
                     target=run_fresco_sim,
-                    args=(alpha, beta, gamma, k, app, suffix),
+                    args=(alpha, beta, gamma, k, app, suffix, args.profile),
                     kwargs={"port": port}
                 )
                 proc.start()

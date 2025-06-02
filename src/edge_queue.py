@@ -9,10 +9,7 @@ from task import Task
 
 # Template method pattern
 class EdgeQueue (ABC):
-
-
   def __init__ (self, total, arrival_rate = 0.0, task_size_rate = 0.0, comm_direct = CommDirection.COMP, site_name = None):
-
     self._total = total
     self._comm_direct = comm_direct
     self._site_name = site_name
@@ -20,10 +17,9 @@ class EdgeQueue (ABC):
     self._task_size_rate = task_size_rate
     self._workload = list ()
     self._est_lat = 0.0
-
+    # print(f"[EDGE QUEUE] Arrival rate = {self._arrival_rate}, task size rate = {self._task_size_rate}")
 
   def est_lat (cls, task):
-
     workload = list ()
     
     if cls._utilization_factor (cls._workload, task = task) >= 1.0:

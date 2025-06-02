@@ -7,12 +7,10 @@ from util import NodePrototypes, ResponseTime, CommDirection, Util, NodeTypes, \
   ExeErrCode, MeasureUnits, MobApps, PoissonRate, ExpRate
 from task import Task
 from edge_queue import CompQueue, CommQueue
-
+from workload_profiles import DefaultProfile, ARProfile
 
 class OffloadingSite:
-
-    def __init__(self, p_id, data):
-        
+    def __init__(self, p_id, data, profile = "default"):
         self._name_id = p_id + str (uuid.uuid4 ())
         self._p_id = p_id
         self._mips = data['mips']
@@ -35,14 +33,31 @@ class OffloadingSite:
         self._off_action = None # offloading action index in MDP matrices
         self._node_prototype = Util.determine_node_prototype (self._node_type)
         self._dataset_node = None
-        self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
+        self.workload = None
+
+        if profile == "ar":
+            self.workload = ARProfile()
+            print(f"[EDGE QUEUE] Using AR workload profile")
+        else:
+            self.workload = DefaultProfile()
+            print(f"[EDGE QUEUE] Using default workload profile")
+
+        #self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+        #  task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
+        self._task_exe_queue = CompQueue (self._mips, arrival_rate = self.workload.get_arrival_rate(), \
+          task_size_rate = self.workload.get_task_size_rate(), site_name = self._node_type)
         # comm queues are initialized when bandwidth is set
-        self._task_off_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK, \
+        #self._task_off_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+        #  task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.UPLINK, \
+        #  site_name = self._node_type)
+        self._task_off_queue = CommQueue (self._bw, arrival_rate = self.workload.get_arrival_rate(), \
+          task_size_rate = self.workload.get_task_size_rate(), comm_direct = CommDirection.UPLINK, \
           site_name = self._node_type)
-        self._task_del_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
-          task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
+        #self._task_del_queue = CommQueue (self._bw, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
+        #  task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), comm_direct = CommDirection.DOWNLINK,
+        #  site_name = self._node_type)
+        self._task_del_queue = CommQueue (self._bw, arrival_rate = self.workload.get_arrival_rate(), \
+          task_size_rate = self.workload.get_task_size_rate(), comm_direct = CommDirection.DOWNLINK,
           site_name = self._node_type)
         self._est_lat = None
         self._act_lat = None

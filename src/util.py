@@ -4,7 +4,6 @@ import numpy
 
 
 class MeasureUnits:
-    
     KILOBYTE = 1000            # bytes
     KILOBYTE_PER_SECOND = 1000 # 1Mbps -> 0.125 Mb/s
     THOUSAND_MS = 1000         # 1000ms -> 1s used for network latency unit conversion
@@ -13,7 +12,6 @@ class MeasureUnits:
 
 
 class PowerConsum:
-
     # constants for power consumption (Watts)
     UPLINK = 1.3
     DOWNLINK = 1.0
@@ -21,20 +19,16 @@ class PowerConsum:
     IDLE = 0.3
 
 
-
 class CommDirection:
-  
     DOWNLINK, UPLINK, COMP = ('DOWNLINK', 'UPLINK', "COMP")
 
 
 class Prices:
-
     STOR_PER_GB = 0.023 # american dollars (Google Cloud Storage for Central Europe [Warsaw])
     CPU_PER_HOUR = 0.776 # american dollars (Google Cloud general-purpose VMs)
 
 
 class Settings:
-
     OFFLOADING_FAILURE_DETECTION_TIME = 1.5 # seconds
     BATTERY_LF = 1000 # joules
     SNR = 5 # dB
@@ -50,6 +44,20 @@ class Settings:
     # constants
     SCALABILITY = 1
     CONSENSUS_DELAY = 0
+
+    # General/default values
+    task_size_min = 0.5     # MB
+    task_size_max = 1.0     # MB
+    lambda_min = 8          # tasks/sec
+    lambda_max = 16         # tasks/sec
+
+    # AR profile override
+    ar_task_size_min = 0.1
+    ar_task_size_max = 0.2
+    ar_lambda_min = 60
+    ar_lambda_max = 70
+
+    workload_profile = "default"  # Can be "default" or "ar"
 
 
 class Testnets:

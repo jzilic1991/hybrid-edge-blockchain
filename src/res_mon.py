@@ -10,11 +10,10 @@ from infra import Infrastructure
 
 class ResourceMonitor:
 
-    def __init__ (self, scala):
-
+    def __init__ (self, scala, profile = "default"):
         self._scala = scala # currently obsolete instance variable
         self._clustered_cells = Infrastructure.get_clustered_cells ("data/AT-Cell.csv", \
-          json.load (open ("data/off-sites.json"))) 
+          json.load (open ("data/off-sites.json")), profile) 
         # self._off_sites = self.__init_off_sites ()
         #self._topology = self.__create_topology (json.load \
         #    (open ('data/topology.json')))
@@ -25,66 +24,43 @@ class ResourceMonitor:
         # starting with first dataset node per node type
         # self._off_sites = self.load_datasets (0)
 
-
     def get_topology (cls):
-
         return cls._topology
 
-
     def get_cell_name (cls):
-
         return cls._curr_cell
 
-
     def get_edge_regs (cls, n):
-        
         return cls.__get_off_site (NodeTypes.E_REG, n)
 
-
     def get_edge_dats (cls, n):
-        
         return cls.__get_off_site (NodeTypes.E_DAT, n)
 
-
     def get_edge_comps (cls, n):
-        
         return cls.__get_off_site (NodeTypes.E_COMP, n)
 
-
     def get_cloud_dc (cls, n):
-        
         return cls.__get_off_site (NodeTypes.CLOUD, n)[0]
 
-
     def get_md (cls, n):
-        
         return cls.__get_off_site (NodeTypes.MOBILE, n)[0]
 
-
     def get_bw (cls, f_peer, s_peer):
-
         return cls._topology[f_peer.get_n_id () + \
             '-' + s_peer.get_n_id ()]['bw']
 
-
     def get_lat (cls, f_peer, s_peer):
-
         return cls._topology[f_peer.get_n_id () + \
             '-' + s_peer.get_n_id ()]['lat']
 
-
     def get_off_sites (cls):
-        
         return cls._off_sites
 
-
     def get_cell (cls, n):
-
         off_sites = cls._clustered_cells[n]
         
         # new datasets are loaded when mobile device is moved to a new cell
         for site in off_sites:
-
             # dataset nodes are not mapped to mobile device since it is assumed to be failure-free
             id_ = cls._json_datasets[site.get_node_prototype ()][n]['id']
             site.load_data (LoadedData.get_dataset_node (id_))
@@ -92,7 +68,6 @@ class ResourceMonitor:
         # update cell name when new dataset nodes are loaded
         cls._curr_cell = n
         for site in off_sites:
-
             site.update_arrival_rate ()
             site.update_task_size_rate ()
 

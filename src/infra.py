@@ -14,24 +14,19 @@ class Infrastructure:
 
 
   @classmethod
-  def get_clustered_cells (cls, file_path, off_site_dict, num_clusters = 100):
-
+  def get_clustered_cells (cls, file_path, off_site_dict, profile = "default", num_clusters = 100):
     _parsed_data = cls.__parse_topology_file (file_path)
     cls._data, cls._cluster_labels = cls.__clustering_cells (_parsed_data, num_clusters)
-    cls._clustered_nodes = cls.__create_cluster_nodes (cls._cluster_labels, off_site_dict)
+    cls._clustered_nodes = cls.__create_cluster_nodes (cls._cluster_labels, off_site_dict, profile)
 
     return cls._clustered_nodes
 
-
   @classmethod
   def get_plotting_data (cls):
-
     return (cls._data, cls._cluster_labels)
-  
   
   @classmethod
   def __parse_topology_file (cls, file_path):
-    
     data = dict ()
     
     with open(file_path, 'r') as file:        
@@ -43,14 +38,11 @@ class Infrastructure:
     
     return data
 
-
   @classmethod
   def __clustering_cells(cls, parsed_data, num_clusters):
-
     data = tuple ()
     
     for values in parsed_data.values ():
-        
         latitude = float (values["latitude"])
         longitude = float (values["longitude"])
         data += ((latitude, longitude), )
@@ -68,8 +60,7 @@ class Infrastructure:
 
 
   @classmethod
-  def __create_cluster_nodes (cls, labels, off_site_dict):
-
+  def __create_cluster_nodes (cls, labels, off_site_dict, profile):
     cluster_node_cnt = dict ()
     node_prototypes = [NodePrototypes.ER, NodePrototypes.ED, NodePrototypes.EC]
 
@@ -79,14 +70,13 @@ class Infrastructure:
         
         cluster_node_cnt[labels[i]] += 1
 
-    cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, off_site_dict)
+    cluster_nodes = cls.__label_cluster_nodes (cluster_node_cnt, node_prototypes, off_site_dict, profile)
     
     return cluster_nodes
 
  
   @classmethod
-  def __label_cluster_nodes (cls, cluster_node_cnt, node_prototypes, off_site_dict):
-    
+  def __label_cluster_nodes (cls, cluster_node_cnt, node_prototypes, off_site_dict, profile):
     cluster_nodes = dict ()
 
     for label in cluster_node_cnt:      
@@ -97,10 +87,10 @@ class Infrastructure:
           if not label in cluster_nodes:
             cluster_nodes[label] = list ()
           
-          cluster_nodes[label].append (OffloadingSite (node_prototypes[i], off_site_dict['off-sites'][node_prototypes[i]]))
+          cluster_nodes[label].append (OffloadingSite (node_prototypes[i], off_site_dict['off-sites'][node_prototypes[i]], profile = profile))
 
-      cluster_nodes[label].append (OffloadingSite (NodePrototypes.CD, off_site_dict['off-sites'][NodePrototypes.CD]))
-      cluster_nodes[label].append (OffloadingSite (NodePrototypes.MD, off_site_dict['off-sites'][NodePrototypes.MD]))
+      cluster_nodes[label].append (OffloadingSite (NodePrototypes.CD, off_site_dict['off-sites'][NodePrototypes.CD], profile = profile))
+      cluster_nodes[label].append (OffloadingSite (NodePrototypes.MD, off_site_dict['off-sites'][NodePrototypes.MD], profile = profile))
 
     return cluster_nodes
 
