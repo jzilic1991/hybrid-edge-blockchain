@@ -59,31 +59,22 @@ class Testnets:
 
 
 class PrivateKeys:
-
   TRUFFLE, GANACHE = \
     ('73da343c609ec75ba846091a38970e4e57566beae9f328f375c67a90a308edbf', \
       '0x5c7a050c7b0e3a6896e9667a6dff3a6b389c665aaed218c352071890c05520ee')
 
 
 class ExeErrCode:
-
     EXE_NOK, EXE_OK = range(2)
 
 
 class TaskTypes:
-
     DI, CI, MODERATE = ('DI', 'CI', 'MODERATE')
 
 
 class MobApps:
-
-    #ANTIVIRUS, GPS_NAVIGATOR, CHESS, FACERECOGNIZER, FACEBOOK = \
-    #	('ANTIVIRUS', 'GPS_NAVIGATOR', 'CHESS', 'FACERECOGNIZER', 'FACEBOOK')
-
     INTRASAFED, MOBIAR, NAVIAR = ('INTRASAFED', 'MOBIAR', 'NAVIAR')
-    #PROBS = {ANTIVIRUS: 0.05, GPS_NAVIGATOR: 0.3, CHESS: 0.1, FACERECOGNIZER: 0.1, \
-    #    FACEBOOK: 0.45}
-    PROBS = {INTRASAFED: 0.25, MOBIAR: 0.4, NAVIAR: 0.35}
+    PROBS = {INTRASAFED: 0.2, MOBIAR: 0.76, NAVIAR: 0.04}
 
 
 class NodeTypes: 

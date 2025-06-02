@@ -21,47 +21,31 @@ class MobileApplication:
 
 
     def run(cls):
-
         if not cls._running:
-
             cls._running = True
 
-
     def get_name(cls):
-
         return cls._name
 
-
     def get_qos (cls):
-
         return cls._qos
 
-
     def get_num_of_tasks (cls):
-
         return len (cls._app_struct)
-
     
     def get_ready_tasks(cls):
-
         ready_tasks = ()
 
         if not cls._running:
-            
             return ready_tasks
 
         for task in cls._app_struct:
-            
             if not task.get_in_edges() and not task.is_executed():
-                
                 ready_tasks = ready_tasks + (task,)
 
         if not ready_tasks:
-            
             for task in cls._app_struct:
-                
                 if not task.is_executed():
-                    
                     return ready_tasks
 
             # cls.print_task_exe_status()

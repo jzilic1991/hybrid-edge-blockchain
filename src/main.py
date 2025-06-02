@@ -187,7 +187,6 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
         rsp_q,
         Settings.APP_EXECUTIONS,
         Settings.SAMPLES,
-        app,
         Settings.CONSENSUS_DELAY,
         Settings.SCALABILITY,
         Settings.NUM_LOCS,
@@ -196,6 +195,7 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
         gamma=gamma,
         k=k,
         suffix=suffix,
+        app_name = app,
         disable_trace_log=True
     )
 
@@ -203,7 +203,7 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
     edge_off._id_suffix = suffix
     edge_off.start()
     experiment_run(handler)
-    output_filename = f"fresco_sensitivity/sensitivity_summary_a{alpha}_b{beta}_g{gamma}.csv"
+    output_filename = f"fresco_sensitivity/sensitivity_summary_a{alpha}_b{beta}_g{gamma}_{app}.csv"
     edge_off.log_sensitivity_summary(output_filename)
     print(f"[{proc_name}] Summary saved to {output_filename}")
 
@@ -329,6 +329,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["fresco_sweep", "intra", "mobiar", "naviar"])
     parser.add_argument("--multi-chain", action="store_true")
+    parser.add_argument(
+      '--app', type=str, default='random',
+      choices=['random', 'mobiar', 'intrasafed', 'naviar'],
+      help="App deployment mode: 'random' for LiveLab sampling or fixed: 'mobiar', 'intrasafed', 'naviar'"
+    )
     args = parser.parse_args()
 
     if not args.multi_chain:
@@ -340,14 +345,12 @@ if __name__ == '__main__':
         with open("contract_address.txt", "w") as f:
             f.write(contract_address)
 
-
     if args.mode == 'fresco_sweep':
-        app = MobApps.INTRASAFED  # Change to sweep for other apps too if needed
+        app = None if args.app.lower() == 'random' else args.app.upper()
         k = 4
         base_port = 8545
         suffix = 1
         max_parallel = multiprocessing.cpu_count()  # or set MAX_PARALLEL = 40
-
         step = 0.2
         values = [round(x * step, 2) for x in range(int(1 / step) + 1)]
         param_combinations = []

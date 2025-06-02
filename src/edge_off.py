@@ -18,7 +18,6 @@ class EdgeOffloading (Thread):
     rsp_q, 
     exe, 
     samp, 
-    app_name, 
     con_delay, 
     scala, 
     locs,
@@ -27,6 +26,7 @@ class EdgeOffloading (Thread):
     gamma = None,
     k = None,
     suffix = None,
+    app_name = None, 
     disable_trace_log = True):
 
     Thread.__init__ (self)
@@ -115,10 +115,12 @@ class EdgeOffloading (Thread):
         self._log = self._s_ode.get_logger ()
     
     off_sites = self.__update_and_register_off_sites ()
-    # deploy and run mobile application
-    app = self._m_app_prof.dep_app (self._app_name)
+    if self._app_name:
+        app = self._m_app_prof.dep_app (self._app_name)
+    else:
+        app = self._m_app_prof.dep_rand_mob_app()
+    
     app.run ()
-
     # setting cell statistics (this is updated after each cell move)
     self._s_ode.set_cell_stats (self._r_mon.get_cell_name ())
 
@@ -137,31 +139,31 @@ class EdgeOffloading (Thread):
     # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
     # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
+    
     print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
     print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
+    print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
 
     while True:
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
         curr_progress, prev_progress)
 
       tasks = app.get_ready_tasks ()
-      timestamp = round (time_period * period_cnt, 3)
+      timestamp = round(time_period * period_cnt, 3)
 
       # when all application tasks are completeid
-      # print ("User move: " + str (self._user_move))
-      # print ("Execution count: " + str (exe_cnt))
-      # print (str (len (tasks)) + " to offload!")
       if len (tasks) == 0:
-        # deploy and run mobile application
-        app = self._m_app_prof.dep_app (self._app_name)
+        if self._app_name:
+            app = self._m_app_prof.dep_app (self._app_name)
+        else:
+            app = self._m_app_prof.dep_rand_mob_app()
+        print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
+        app.run ()
         # update current site of task exeuction when previous app execution is completed
         self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
-        app.run ()
         exe_cnt = exe_cnt + 1
-        
         # evaluate application response time against application QoS deadline
         self._s_ode.app_exc_done (app.get_qos ())
-        
         # cell mover flag for indicating is cell location has changed
         # if yes then reputation update is not needed
         # it is a fix solution for sending a new offloading transaction when previous offloading transaction is still pending 
@@ -225,8 +227,12 @@ class EdgeOffloading (Thread):
             break
 
         # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
-        app = self._m_app_prof.dep_app (self._app_name)
+        if self._app_name:
+            app = self._m_app_prof.dep_app (self._app_name)
+        else:
+            app = self._m_app_prof.dep_rand_mob_app()
         app.run ()
+        print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
         # off_sites = self.__reset_reputation (off_sites)
         continue
 
