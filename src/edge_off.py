@@ -142,7 +142,7 @@ class EdgeOffloading (Thread):
     
     print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
     print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
-    print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
+    # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
 
     while True:
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
@@ -157,7 +157,7 @@ class EdgeOffloading (Thread):
             app = self._m_app_prof.dep_app (self._app_name)
         else:
             app = self._m_app_prof.dep_rand_mob_app()
-        print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
+        # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
         app.run ()
         # update current site of task exeuction when previous app execution is completed
         self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
@@ -232,7 +232,7 @@ class EdgeOffloading (Thread):
         else:
             app = self._m_app_prof.dep_rand_mob_app()
         app.run ()
-        print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
+        # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
         # off_sites = self.__reset_reputation (off_sites)
         continue
 

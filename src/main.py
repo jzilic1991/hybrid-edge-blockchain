@@ -45,6 +45,25 @@ def cleanup_ganache_processes():
     except Exception as e:
         print(f"[ERROR] Cleanup failed: {e}")
 
+    clean_ganache_temp()
+
+def clean_ganache_temp():
+    print("[INFO] Cleaning old Ganache temp files in /tmp...")
+    import glob
+    import shutil
+
+    for temp_path in glob.glob("/tmp/tmp-*"):
+        try:
+            if os.path.isdir(temp_path):
+                shutil.rmtree(temp_path)
+            else:
+                os.remove(temp_path)
+            print(f"[CLEANUP] Removed {temp_path}")
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"[WARN] Could not delete {temp_path}: {e}")
+
 def start_ganache_instance(port):
     mnemonic = ""
     with open("../mnemonic.txt", "r") as mfile:
@@ -326,6 +345,7 @@ if sys.argv[1] == 'naviar':
 
 
 if __name__ == '__main__':
+    clean_ganache_temp()
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["fresco_sweep", "intra", "mobiar", "naviar"])
     parser.add_argument("--multi-chain", action="store_true")
