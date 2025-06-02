@@ -72,7 +72,7 @@ class EdgeOffloading (Thread):
 
     with open(filename, "w") as f:
         f.write(f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
-                f"{avg_latency},{total_energy},{total_cost},{avg_dec_time},{qos_violation},{score}\n")
+            f"{avg_latency},{total_energy},{total_cost},{avg_dec_time},{qos_violation},{score}\n")
 
     print(f"[LOGGED] ID={self.suffix}: α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
           f"Score={score:.3f}, Latency={avg_latency}, Energy={total_energy}, "

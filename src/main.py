@@ -9,6 +9,8 @@ import subprocess
 import re
 import signal
 import atexit
+import multiprocessing
+import socket
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process
@@ -19,6 +21,19 @@ from util import Testnets, MobApps, Settings
 from edge_off import EdgeOffloading
 
 # public functions
+def find_available_port(starting_from, used_ports):
+    port = starting_from
+    while port < 65535:
+        if port in used_ports:
+            port += 1
+            continue
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                used_ports.add(port)
+                return port
+        port += 1
+    raise RuntimeError("No available ports found.")
+
 def cleanup_ganache_processes():
     try:
         output = subprocess.check_output(["ps", "aux"])
@@ -29,20 +44,6 @@ def cleanup_ganache_processes():
             os.kill(int(pid), signal.SIGKILL)
     except Exception as e:
         print(f"[ERROR] Cleanup failed: {e}")
-
-def wait_for_ganache_ready(port=8545, min_accounts=1, timeout=10):
-    start = time.time()
-    w3 = Web3(HTTPProvider(f"http://127.0.0.1:{port}"))
-    while time.time() - start < timeout:
-        try:
-            if w3.is_connected():
-                accounts = w3.eth.accounts
-                if len(accounts) >= min_accounts:
-                    return
-        except Exception as e:
-            print(e)
-        time.sleep(0.3)
-    raise RuntimeError(f"Ganache on port {port} failed to return {min_accounts} accounts in time.")
 
 def start_ganache_instance(port):
     mnemonic = ""
@@ -62,7 +63,6 @@ def start_ganache_instance(port):
         except (OSError, ConnectionRefusedError):
             time.sleep(0.5)
     
-    #wait_for_ganache_ready(port = port, min_accounts = 10)
 
 def update_rep_thread (chain, submit_trx):
     t = Thread (target = wrapper_update_rep, args = (chain, submit_trx, ))
@@ -203,13 +203,19 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, port = 8545):
     edge_off._id_suffix = suffix
     edge_off.start()
     experiment_run(handler)
-    output_filename = f"fresco_sensitivity/results_fresco_a{alpha}_b{beta}_k{k}_s{suffix}.csv"
+    output_filename = f"fresco_sensitivity/sensitivity_summary_a{alpha}_b{beta}_g{gamma}.csv"
     edge_off.log_sensitivity_summary(output_filename)
     print(f"[{proc_name}] Summary saved to {output_filename}")
 
 atexit.register(cleanup_ganache_processes)
-signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(0))
-signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
+def handle_interrupt(signum, frame):
+    print(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
+    cleanup_ganache_processes()
+    sys.exit(1)
+
+signal.signal(signal.SIGINT, handle_interrupt)
+signal.signal(signal.SIGTERM, handle_interrupt)
+
 random.seed (42)
 # public variables
 reg_nodes = list ()
@@ -334,34 +340,56 @@ if __name__ == '__main__':
         with open("contract_address.txt", "w") as f:
             f.write(contract_address)
 
-    if args.mode == 'fresco_sweep':
-        app = MobApps.INTRASAFED
-        alphas = [0.2, 0.4, 0.6]
-        betas = [0.2, 0.4]
-        k = 4
-        processes = []
-        suffix = 1
-        base_port = 8545
-        
-        if args.multi_chain:
-            os.environ["MULTICHAIN"] = "1"
 
-        for alpha in alphas:
-            for beta in betas:
-                gamma = 1.0 - alpha - beta
-                if gamma < 0:
-                    continue
-            
-                port = (base_port + suffix) if args.multi_chain else 8545
-                proc = Process(target=run_fresco_sim, args=(alpha, beta, gamma, k, app, suffix), kwargs={"port": port})
+    if args.mode == 'fresco_sweep':
+        app = MobApps.INTRASAFED  # Change to sweep for other apps too if needed
+        k = 4
+        base_port = 8545
+        suffix = 1
+        max_parallel = multiprocessing.cpu_count()  # or set MAX_PARALLEL = 40
+
+        step = 0.2
+        values = [round(x * step, 2) for x in range(int(1 / step) + 1)]
+        param_combinations = []
+
+        for alpha in values:
+            for beta in values:
+                for gamma in values:
+                    if round(alpha + beta + gamma, 2) == 1.0:
+                        param_combinations.append((alpha, beta, gamma))
+
+        print(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
+        print(f"[INFO] Max parallel processes (CPU cores): {max_parallel}")
+        used_ports = set()
+    
+        # Batch execution
+        for i in range(0, len(param_combinations), max_parallel):
+            batch = param_combinations[i:i + max_parallel]
+            processes = []
+
+            for alpha, beta, gamma in batch:
+                if args.multi_chain:
+                    port = find_available_port(base_port + suffix, used_ports)
+                    suffix = port - base_port  # Bind suffix to port offset
+                    os.environ["MULTICHAIN"] = "1"
+                else:
+                    port = 8545
+
+                proc = Process(
+                    target=run_fresco_sim,
+                    args=(alpha, beta, gamma, k, app, suffix),
+                    kwargs={"port": port}
+                )
                 proc.start()
                 processes.append(proc)
-                suffix += 1
+                print(f"[SPAWN] α={alpha}, β={beta}, γ={gamma}, port={port}")
 
-        for proc in processes:
-            proc.join()
-        
+        # Wait for current batch to finish before starting next
+            for proc in processes:
+                proc.join()
+
         cleanup_ganache_processes()
+
 # edge_off = EdgeOffloading (req_q, rsp_q, 100, 2)
 # edge_off.deploy_sq_ode ()
 # edge_off.start ()
