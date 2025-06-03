@@ -23,7 +23,16 @@ class Stats:
         if not self._rsp_time_samp:
             return 0.0
         return round(np.mean(self._rsp_time_samp), 4)
+    
+    def get_avg_e_consum_value(self):
+        if not self._e_consum_samp:
+            return 0.0
+        return round(np.mean(self._e_consum_samp), 4)
 
+    def get_avg_res_pr_value(self):
+        if not self._price_samp:
+            return 0.0
+        return round(np.mean(self._price_samp), 4)
 
     def get_avg_qos_viol_value(self):
         if not self._qos_viol_samp:

@@ -11,6 +11,7 @@ import signal
 import atexit
 import multiprocessing
 import socket
+import shutil
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process
@@ -21,6 +22,15 @@ from util import Testnets, MobApps, Settings
 from edge_off import EdgeOffloading
 
 # public functions
+def init_sensitivity_csvs():
+    results_dir = "fresco_sensitivity/"
+    os.makedirs(results_dir, exist_ok=True)
+
+    for app in ["mobiar", "intrasafe", "naviar", "random"]:
+        filepath = os.path.join(results_dir, f"{app}.csv")
+        with open(filepath, "w") as f:
+            f.write("suffix,alpha,beta,gamma,k,latency,energy,cost,dec_time,qos_violation,score\n")
+
 def find_available_port(starting_from, used_ports):
     port = starting_from
     while port < 65535:
@@ -50,7 +60,6 @@ def cleanup_ganache_processes():
 def clean_ganache_temp():
     print("[INFO] Cleaning old Ganache temp files in /tmp...")
     import glob
-    import shutil
 
     for temp_path in glob.glob("/tmp/tmp-*"):
         try:
@@ -229,8 +238,8 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
         edge_off.start()
         experiment_run(handler)
         output_filename = f"fresco_sensitivity/sensitivity_summary_a{alpha}_b{beta}_g{gamma}_{app}.csv"
-        edge_off.log_sensitivity_summary(output_filename)
-        print(f"[{proc_name}] Summary saved to {output_filename}")
+        edge_off.log_sensitivity_summary()
+        # print(f"[{proc_name}] Summary saved to {output_filename}")
 
     finally:
         if ganache_proc is not None:
@@ -362,6 +371,7 @@ if sys.argv[1] == 'naviar':
 
 if __name__ == '__main__':
     clean_ganache_temp()
+    init_sensitivity_csvs()
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["fresco_sweep", "intra", "mobiar", "naviar"])
     parser.add_argument("--multi-chain", action="store_true")

@@ -1,5 +1,7 @@
 import random
 import datetime
+import fcntl
+import os
 from threading import Thread
 
 from smt_ode import SmtOde
@@ -57,29 +59,39 @@ class EdgeOffloading (Thread):
     self.suffix = suffix if suffix is not None else 0
     self.disable_trace_log = disable_trace_log
 
-  def log_sensitivity_summary(self, filename):
+  def log_sensitivity_summary(self):
     stats = self._s_ode._stats
     cell_stats = self._s_ode._cell_stats
 
     avg_latency = stats.get_avg_rsp_time_value()
-    total_energy = stats.get_sum_e_consum()
-    total_cost = stats.get_sum_res_pr()
+    avg_energy = stats.get_avg_e_consum_value()
+    avg_cost = stats.get_avg_res_pr_value()
     qos_violation = stats.get_avg_qos_viol_value()
 
     avg_dec_time = 0.0
     if cell_stats:
         avg_dec_time = sum([cell.get_avg_overhead() for cell in cell_stats.values()]) / len(cell_stats)
 
-    score = self.alpha * avg_latency + self.beta * total_cost + self.gamma * total_energy
+    score = self.alpha * avg_latency + self.beta * avg_energy + self.gamma * avg_cost
 
-    with open(filename, "w") as f:
-        f.write(f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
-            f"{avg_latency},{total_energy},{total_cost},{avg_dec_time},{qos_violation},{score}\n")
+    # Determine app name and file
+    app_csv = (self._app_name or "random").lower()
+    filename = os.path.join("fresco_sensitivity/", f"{app_csv}.csv")
+
+    # Format CSV line
+    line = (f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
+            f"{avg_latency},{avg_energy},{avg_cost},{avg_dec_time},{qos_violation},{score}\n")
+
+    # Append with lock
+    with open(filename, "a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(line)
+        f.flush()
+        fcntl.flock(f, fcntl.LOCK_UN)
 
     print(f"[LOGGED] ID={self.suffix}: α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
-          f"Score={score:.3f}, Latency={avg_latency}, Energy={total_energy}, "
-          f"Cost={total_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
-
+          f"Score={score:.3f}, Latency={avg_latency}, Energy={avg_energy}, "
+          f"Cost={avg_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
 
   def deploy_fresco_ode (self):
     self._s_ode = SmtOde ('FRESCO', 
