@@ -395,7 +395,7 @@ if __name__ == '__main__':
 
     if args.mode == 'fresco_sweep':
         app = None if args.app.lower() == 'random' else args.app.upper()
-        k = 4
+        k = 5
         base_port = 8545
         suffix = 1
         max_parallel = multiprocessing.cpu_count()  # or set MAX_PARALLEL = 40
