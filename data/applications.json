@@ -1,0 +1,543 @@
+{
+	"INTRASAFED": {
+		"qos": {
+			"rt": 0.108
+		},
+		"tasks": {
+			"LOAD_MODEL": {
+				"out": ["ANALYZE"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"UPLOAD": {
+				"out": ["ANALYZE"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"ANALYZE": {
+				"out": ["AGGREGATE"],
+				"memory": 4,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"AGGREGATE": {
+				"out": ["SEND_ALERT"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"SEND_ALERT": {
+				"out": [],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			}
+		}
+	},
+	"MOBIAR": {
+		"qos": {
+			"rt": 0.45
+		},
+		"tasks": {
+			"UPLOAD": {
+				"out": ["EXTRACT"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"EXTRACT": {
+				"out": ["PROCESS"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"PROCESS": {
+				"out": ["DATA"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"DATA": {
+				"out": ["DOWNLOAD"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"DOWNLOAD": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			}
+		}
+	},
+	"NAVIAR": {
+		"qos": {
+			"rt": 0.8
+		},
+		"tasks": {
+			"MAP": {
+				"out": ["COORDINATION_PROCESSING", "RUNTIME_LOCATION"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"GUI": {
+				"out": ["COORDINATION_PROCESSING"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"COORDINATION_PROCESSING": {
+				"out": ["SHORTEST_PATH"],
+				"memory": 4,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"SHORTEST_PATH": {
+				"out": ["MOTION_COMMAND"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"MOTION_COMMAND": {
+				"out": ["VIRTUAL_GUIDANCE"],
+				"memory": 1,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"VIRTUAL_GUIDANCE": {
+				"out": ["RUNTIME_LOCATION"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"RUNTIME_LOCATION": {
+				"out": ["DISPLAY"],
+				"memory": 1,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			},
+			"DISPLAY": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.5,
+					"ec": 1.2,
+					"pr": 3
+				}
+			}
+		}
+	},
+	"FACERECOGNIZER": {
+		"qos": {
+			"rt": 0.8,
+			"ec": 1.0,
+			"pr": 3.5
+		},
+		"tasks": {
+			"GUI": {
+				"out": ["FIND_MATCH"],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 3.5
+				}
+			},
+			"FIND_MATCH": {
+				"out": ["INIT", "DETECT_FACE"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 3.5
+				}
+			},
+			"INIT": {
+				"out": ["DETECT_FACE"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 3.5
+				}
+			},
+			"DETECT_FACE": {
+				"out": ["OUTPUT"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 3.5
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.8,
+					"ec": 1.0,
+					"pr": 3.5
+				}
+			}
+		}
+	},
+	"CHESS": {
+		"qos": {
+			"rt": 0.3,
+			"ec": 1.5,
+			"pr": 3.2
+		},
+		"tasks": {
+			"GUI": {
+				"out": ["UPDATE_CHESS"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 3.2
+				}
+			},
+			"UPDATE_CHESS": {
+				"out": ["COMPUTE_MOVE"],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 3.2
+				}
+			},
+			"COMPUTE_MOVE": {
+				"out": ["OUTPUT"],
+				"memory": 2,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 3.2
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.3,
+					"ec": 1.5,
+					"pr": 3.2
+				}
+			}
+		}
+	},
+	"FACEBOOK": {
+		"qos": {
+			"rt": 0.2,
+			"ec": 0.8,
+			"pr": 2.8
+		},
+		"tasks": {
+			"FACEBOOK_GUI": {
+				"out": ["GET_TOKEN", "POST_REQUEST"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"GET_TOKEN": {
+				"out": ["POST_REQUEST"],
+				"memory": 1,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"POST_REQUEST": {
+				"out": ["PROCESS_RESPONSE"],
+				"memory": 2,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"PROCESS_RESPONSE": {
+				"out": ["FILE_UPLOAD"],
+				"memory": 2,
+				"offload": true,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"FILE_UPLOAD": {
+				"out": ["APPLY_FILTER"],
+				"memory": 2,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"APPLY_FILTER": {
+				"out": ["FACEBOOK_POST"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"FACEBOOK_POST": {
+				"out": ["OUTPUT"],
+				"memory": 2,
+				"offload": false,
+				"type": "DI",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			},
+			"OUTPUT": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 0.2,
+					"ec": 0.8,
+					"pr": 2.8
+				}
+			}
+		}
+	},
+	"GPS_NAVIGATOR": {
+		"qos": {
+			"rt": 1.2,
+			"ec": 0.9,
+			"pr": 3.1
+		},
+		"tasks": {
+			"CONF_PANEL": {
+				"out": ["CONTROL"],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"GPS": {
+				"out": ["CONTROL"],
+				"memory": 2,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"CONTROL": {
+				"out": ["MAPS", "PATH_CALC", "TRAFFIC"],
+				"memory": 5,
+				"offload": true,
+				"type": "CI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"MAPS": {
+				"out": ["PATH_CALC"],
+				"memory": 5,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"TRAFFIC": {
+				"out": ["PATH_CALC"],
+				"memory": 1,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"PATH_CALC": {
+				"out": ["VOICE_SYNTH", "GUI", "SPEED_TRAP"],
+				"memory": 2,
+				"offload": true,
+				"type": "DI",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"VOICE_SYNTH": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"GUI": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			},
+			"SPEED_TRAP": {
+				"out": [],
+				"memory": 1,
+				"offload": false,
+				"type": "MODERATE",
+				"qos": {
+					"rt": 1.2,
+					"ec": 0.9,
+					"pr": 3.1
+				}
+			}
+		}
+	}
+}
