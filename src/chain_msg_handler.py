@@ -23,7 +23,26 @@ class ChainHandler:
         self._base = None
         self._contract_address = None
         self._account_index = account_index
+        self._port = port
         self.__prepare_basics(testnet, port)
+    
+    def _is_ganache_running(self):
+        """Check if Ganache is reachable through the current Web3 instance."""
+        try:
+            _ = self._w3.eth.block_number
+            return True
+        except Exception as e:
+            print(f"[GANACHE CHECK] ❌ Cannot connect to Ganache: {e}")
+            return False
+
+    def _is_node_registered(self, node_id):
+        """Check if a node is registered on the smart contract."""
+        try:
+            _, _, valid = self._smart_contract.functions.getNode(node_id).call()
+            return valid
+        except ContractLogicError:
+            print(f"[CHAIN] ❌ ContractLogicError: node {node_id} not found in getNode()")
+            return False    
 
     def __prepare_basics(self, testnet, port):
         load_dotenv()
@@ -89,12 +108,30 @@ class ChainHandler:
     def get_base(self):
         return self._smart_contract.functions.BASE().call()
 
-    def get_reputation(self, nodeId):
-        try:
-            return self._smart_contract.functions.getReputationScore(nodeId).call()[0] / self._base
-        except ContractLogicError as e:
-            print("Contract logic error occurred:", str(e))
+    def get_reputation(self, node_id):
+      """Safely fetch reputation for a node, with diagnostics."""
+      try:
+        # print(f"[REPUTATION] Fetching reputation for node {node_id}...")
+
+        if not self._is_ganache_running():
+            print("[REPUTATION] 🚨 Ganache not running — skipping reputation call.")
             return None
+
+        if not self._is_node_registered(node_id):
+            print(f"[REPUTATION] ⚠️ Node {node_id} not registered on-chain.")
+            return None
+
+        score, valid = self._smart_contract.functions.getReputationScore(node_id).call()
+        # print(f"[REPUTATION] ✅ Node {node_id} → Reputation = {score}")
+        return score
+
+      except ContractLogicError as e:
+        print(f"[REPUTATION] ❌ ContractLogicError for node {node_id}: {e}")
+        return None
+
+      except Exception as e:
+        print(f"[REPUTATION] ❌ Unexpected error while fetching reputation for node {node_id}: {e}")
+        return None
 
     def register_node(self, nodeId):
         event = self._smart_contract.events.NodeRegistered()

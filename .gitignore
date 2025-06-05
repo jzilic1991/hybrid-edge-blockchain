@@ -8,4 +8,5 @@ src/tags
 src/sim_exe_log.txt
 src/log.txt
 src/contract_address.txt
+src/ganache_logs
 tags

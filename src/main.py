@@ -77,9 +77,20 @@ def start_ganache_instance(port):
     mnemonic = ""
     with open("../mnemonic.txt", "r") as mfile:
         mnemonic = mfile.read().strip()
-    ganache_cmd = ["ganache-cli", "--port", str(port), "--mnemonic", mnemonic, "--defaultBalanceEther", "1000", "--accounts", "100"]
-    proc = subprocess.Popen(ganache_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"🚀 Starting Ganache on port {port} with PID {proc.pid}")
+    logfile_path = f"ganache_logs/ganache_{port}.log"
+    os.makedirs("ganache_logs", exist_ok=True)
+    logfile = open(logfile_path, "w")
+
+    ganache_cmd = [
+        "ganache-cli",
+        "--port", str(port),
+        "--mnemonic", mnemonic,
+        "--defaultBalanceEther", "1000",
+        "--accounts", "100"
+    ]
+
+    proc = subprocess.Popen(ganache_cmd, stdout=logfile, stderr=subprocess.STDOUT)
+    print(f"🚀 Starting Ganache on port {port} with PID {proc.pid}, logging to {logfile_path}")
     
     import socket
     start = time.time()
