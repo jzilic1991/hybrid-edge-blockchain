@@ -12,6 +12,7 @@ import atexit
 import multiprocessing
 import socket
 import shutil
+import logging
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process
@@ -20,6 +21,19 @@ from web3 import Web3, HTTPProvider
 from chain_msg_handler import ChainHandler
 from util import Testnets, MobApps, Settings
 from edge_off import EdgeOffloading
+from logging_setup import setup_logging
+
+logger = logging.getLogger(__name__)
+setup_logging(os.path.join("logs", "simulation.log"))
+
+def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    logger.exception("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+
+sys.excepthook = log_uncaught_exceptions
 
 # public functions
 def init_sensitivity_csvs():
@@ -50,15 +64,15 @@ def cleanup_ganache_processes():
         lines = output.decode().splitlines()
         ganache_pids = [line.split()[1] for line in lines if "ganache-cli" in line and "--port" in line]
         for pid in ganache_pids:
-            print(f"[CLEANUP] Killing Ganache process PID {pid}")
+            logger.info(f"[CLEANUP] Killing Ganache process PID {pid}")
             os.kill(int(pid), signal.SIGKILL)
     except Exception as e:
-        print(f"[ERROR] Cleanup failed: {e}")
+        logger.error(f"[ERROR] Cleanup failed: {e}")
 
     clean_ganache_temp()
 
 def clean_ganache_temp():
-    print("[INFO] Cleaning old Ganache temp files in /tmp...")
+    logger.info("[INFO] Cleaning old Ganache temp files in /tmp...")
     import glob
 
     for temp_path in glob.glob("/tmp/tmp-*"):
@@ -67,11 +81,11 @@ def clean_ganache_temp():
                 shutil.rmtree(temp_path)
             else:
                 os.remove(temp_path)
-            print(f"[CLEANUP] Removed {temp_path}")
+            logger.info(f"[CLEANUP] Removed {temp_path}")
         except FileNotFoundError:
             pass
         except Exception as e:
-            print(f"[WARN] Could not delete {temp_path}: {e}")
+            logger.info(f"[WARN] Could not delete {temp_path}: {e}")
 
 def start_ganache_instance(port):
     mnemonic = ""
@@ -90,7 +104,7 @@ def start_ganache_instance(port):
     ]
 
     proc = subprocess.Popen(ganache_cmd, stdout=logfile, stderr=subprocess.STDOUT)
-    print(f"🚀 Starting Ganache on port {port} with PID {proc.pid}, logging to {logfile_path}")
+    logger.info(f"🚀 Starting Ganache on port {port} with PID {proc.pid}, logging to {logfile_path}")
     
     import socket
     start = time.time()
@@ -197,10 +211,10 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
     """
   
     proc_name = current_process().name
-    print(f"\n=== Starting {proc_name} ===")
-    print(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
+    logger.info(f"\n=== Starting {proc_name} ===")
+    logger.info(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
     Settings.workload_profile = profile
-    print(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
+    logger.info(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
     ganache_proc = None
 
     if os.getenv("MULTICHAIN") == "1":
@@ -254,17 +268,17 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
 
     finally:
         if ganache_proc is not None:
-            print(f"[CLEANUP] Terminating Ganache PID {ganache_proc.pid}")
+            logger.info(f"[CLEANUP] Terminating Ganache PID {ganache_proc.pid}")
             try:
                 ganache_proc.terminate()
                 ganache_proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                print(f"[FORCE-KILL] Ganache PID {ganache_proc.pid} did not exit cleanly. Killing...")
+                logger.info(f"[FORCE-KILL] Ganache PID {ganache_proc.pid} did not exit cleanly. Killing...")
                 ganache_proc.kill()
 
 atexit.register(cleanup_ganache_processes)
 def handle_interrupt(signum, frame):
-    print(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
+    logger.info(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
     cleanup_ganache_processes()
     sys.exit(1)
 
@@ -420,8 +434,8 @@ if __name__ == '__main__':
                     if round(alpha + beta + gamma, 2) == 1.0:
                         param_combinations.append((alpha, beta, gamma))
 
-        print(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
-        print(f"[INFO] Max parallel processes (CPU cores): {max_parallel}")
+        logger.info(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
+        logger.info(f"[INFO] Max parallel processes (CPU cores): {max_parallel}")
         used_ports = set()
     
         # Batch execution
@@ -444,7 +458,7 @@ if __name__ == '__main__':
                 )
                 proc.start()
                 processes.append(proc)
-                print(f"[SPAWN] α={alpha}, β={beta}, γ={gamma}, port={port}")
+                logger.info(f"[SPAWN] α={alpha}, β={beta}, γ={gamma}, port={port}")
 
         # Wait for current batch to finish before starting next
             for proc in processes:

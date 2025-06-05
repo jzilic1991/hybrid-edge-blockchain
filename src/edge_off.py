@@ -2,6 +2,7 @@ import random
 import datetime
 import fcntl
 import os
+import logging
 from threading import Thread
 
 from smt_ode import SmtOde
@@ -11,6 +12,7 @@ from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
 from util import Util, Settings
 
+logger = logging.getLogger(__name__)
 
 class EdgeOffloading (Thread):
 
@@ -89,9 +91,23 @@ class EdgeOffloading (Thread):
         f.flush()
         fcntl.flock(f, fcntl.LOCK_UN)
 
-    print(f"[LOGGED] ID={self.suffix}: α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
-          f"Score={score:.3f}, Latency={avg_latency}, Energy={avg_energy}, "
-          f"Cost={avg_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
+    #print(f"[LOGGED] ID={self.suffix}: α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k} → "
+    #      f"Score={score:.3f}, Latency={avg_latency}, Energy={avg_energy}, "
+    #      f"Cost={avg_cost}, QoS Violations={qos_violation}%, Decision Time={avg_dec_time}")
+    logger.info(
+        "[LOGGED] ID=%s: α=%s, β=%s, γ=%s, k=%s → Score=%.3f, Latency=%s, Energy=%s, Cost=%s, QoS Violations=%s%%, Decision Time=%s",
+        self.suffix,
+        self.alpha,
+        self.beta,
+        self.gamma,
+        self.k,
+        score,
+        avg_latency,
+        avg_energy,
+        avg_cost,
+        qos_violation,
+        avg_dec_time,
+    )
 
   def deploy_fresco_ode (self):
     self._s_ode = SmtOde ('FRESCO', 
@@ -154,9 +170,15 @@ class EdgeOffloading (Thread):
     # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
 
     
-    print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
-    print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
+    # print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
+    # print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
     # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
+    logger.info(
+        "**************** PROGRESS %s (ID = %s) ****************",
+        self._s_ode.get_name(),
+        self.suffix,
+    )
+    logger.info("%s%% - %s (ID = %s)", prev_progress, datetime.datetime.utcnow(), self.suffix)
 
     while True:
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
@@ -285,7 +307,8 @@ class EdgeOffloading (Thread):
 
       trace += "SC ID: " + str (site.get_sc_id ()) + ": " + str (site.get_reputation ()) + " | "
 
-    print (trace)
+    # print (trace)
+    logger.info(trace)
 
 
   def __get_avail_distro (self, off_sites):
@@ -325,9 +348,18 @@ class EdgeOffloading (Thread):
     curr_progress = round((exe_cnt + (samp_cnt * self._exe)) / \
       (self._samp * self._exe) * 100)
 
-    if curr_progress != prev_progress and (curr_progress % \
-      Settings.PROGRESS_REPORT_INTERVAL == 0):
-      print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()) + " (ID = " + str(self.suffix) + ")")
+    # if curr_progress != prev_progress and (curr_progress % \
+    #  Settings.PROGRESS_REPORT_INTERVAL == 0):
+    #  print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()) + " (ID = " + str(self.suffix) + ")")
+    if curr_progress != prev_progress and (
+        curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0
+    ):
+      logger.info(
+          "%s%% - %s (ID = %s)",
+          curr_progress,
+          datetime.datetime.utcnow(),
+          self.suffix,
+      )
 
     return (curr_progress, prev_progress)
 
@@ -335,7 +367,13 @@ class EdgeOffloading (Thread):
   def __register_nodes (self, off_sites):
 
     names = [site.get_n_id () for site in off_sites]
-    print("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ") -> [ODE ID = " + str(self.suffix) + "]")
+    # print("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ") -> [ODE ID = " + str(self.suffix) + "]")
+    logger.info(
+        "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s]",
+        len(names),
+        self._cell_number,
+        self.suffix,
+    )
     self._req_q.put (('reg', names))
     reg_nodes = self._rsp_q.get ()
   

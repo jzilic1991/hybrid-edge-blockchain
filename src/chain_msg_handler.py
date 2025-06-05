@@ -3,7 +3,7 @@ import os
 import json
 import re
 import time
-
+import logging
 # third-party libs
 from dotenv import load_dotenv
 from web3 import Web3, HTTPProvider
@@ -12,6 +12,7 @@ from web3.exceptions import ContractLogicError
 # user-defined libs
 from util import Testnets, PrivateKeys
 
+logger = logging.getLogger(__name__)
 
 class ChainHandler:
     def __init__(self, testnet, port = 8545, account_index = 0):
@@ -56,9 +57,15 @@ class ChainHandler:
                 self._account = accounts[self._account_index]
                 break
             if time.time() - start > 10:
-                raise RuntimeError(f"Account index {account_index} invalid or not ready after 10s: {accounts}")
+                raise RuntimeError(f"Account index {self._account_index} invalid or not ready after 10s: {accounts}")
             time.sleep(0.3)
-        print(f"Web3 is connected: {self._w3.is_connected()}; [Proc {self._account_index}] Using account: {self._account}")
+        #print(f"Web3 is connected: {self._w3.is_connected()}; [Proc {self._account_index}] Using account: {self._account}")
+        logger.info(
+            "Web3 is connected: %s; [Proc %s] Using account: %s",
+            self._w3.is_connected(),
+            self._account_index,
+            self._account,
+        )
 
     def __determine_testnet(self, testnet, port):
         if testnet == Testnets.KOVAN:
@@ -102,7 +109,12 @@ class ChainHandler:
 
         self._smart_contract = self._w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
         self._base = self._smart_contract.functions.BASE().call()
-        print(f"[INFO] (Proc = {self._account_index}) Smart contract is deployed: {self._smart_contract.address}")
+        # print(f"[INFO] (Proc = {self._account_index}) Smart contract is deployed: {self._smart_contract.address}")
+        logger.info(
+            "[Proc %s] Smart contract deployed at %s",
+            self._account_index,
+            self._smart_contract.address,
+        )
         return self._smart_contract.address
 
     def get_base(self):
@@ -114,11 +126,11 @@ class ChainHandler:
         # print(f"[REPUTATION] Fetching reputation for node {node_id}...")
 
         if not self._is_ganache_running():
-            print("[REPUTATION] 🚨 Ganache not running — skipping reputation call.")
+            logger.error("[REPUTATION] 🚨 Ganache not running — skipping reputation call.")
             return None
 
         if not self._is_node_registered(node_id):
-            print(f"[REPUTATION] ⚠️ Node {node_id} not registered on-chain.")
+            logger.error(f"[REPUTATION] ⚠️ Node {node_id} not registered on-chain.")
             return None
 
         score, valid = self._smart_contract.functions.getReputationScore(node_id).call()
@@ -126,11 +138,11 @@ class ChainHandler:
         return score
 
       except ContractLogicError as e:
-        print(f"[REPUTATION] ❌ ContractLogicError for node {node_id}: {e}")
+        logger.error(f"[REPUTATION] ❌ ContractLogicError for node {node_id}: {e}")
         return None
 
       except Exception as e:
-        print(f"[REPUTATION] ❌ Unexpected error while fetching reputation for node {node_id}: {e}")
+        logger.error(f"[REPUTATION] ❌ Unexpected error while fetching reputation for node {node_id}: {e}")
         return None
 
     def register_node(self, nodeId):
