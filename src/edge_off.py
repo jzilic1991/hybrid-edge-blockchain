@@ -8,6 +8,7 @@ from threading import Thread
 from smt_ode import SmtOde
 from sq_ode import SqOde
 from mdp_ode import MdpOde
+from qrl_ode import QrlOde
 from mob_app_profiler import MobileAppProfiler
 from res_mon import ResourceMonitor
 from util import Util, Settings
@@ -138,6 +139,9 @@ class EdgeOffloading (Thread):
     self._s_ode = MdpOde ('MDP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
       self._app_name, self._con_delay)
 
+  def deploy_qrl_ode (self):
+    self._s_ode = QrlOde ("QRL", self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), 
+      self._app_name, self._con_delay)
 
   def run (self):
     # logging but after ODE is deployed
@@ -331,7 +335,7 @@ class EdgeOffloading (Thread):
     # register offloading sites of new switched cell location
     off_sites = self.__register_nodes (off_sites)
     # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
-    if isinstance (self._s_ode, MdpOde):
+    if isinstance (self._s_ode, (MdpOde, QrlOde)):
       self._s_ode.update_matrices (off_sites)
 
     return off_sites
