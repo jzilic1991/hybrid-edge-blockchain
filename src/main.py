@@ -407,6 +407,12 @@ if __name__ == '__main__':
       choices=['random', 'mobiar', 'intrasafed', 'naviar'],
       help="App deployment mode: 'random' for LiveLab sampling or fixed: 'mobiar', 'intrasafed', 'naviar'"
     )
+    parser.add_argument(
+        "--max-parallel",
+        type=int,
+        default=5,
+        help="Maximum number of simulation processes running in parallel",
+    )
     args = parser.parse_args()
 
     if not args.multi_chain:
@@ -423,7 +429,7 @@ if __name__ == '__main__':
         k = 5
         base_port = 8545
         suffix = 1
-        max_parallel = multiprocessing.cpu_count()  # or set MAX_PARALLEL = 40
+        max_parallel = args.max_parallel
         step = 0.2
         values = [round(x * step, 2) for x in range(int(1 / step) + 1)]
         param_combinations = []
@@ -435,7 +441,7 @@ if __name__ == '__main__':
                         param_combinations.append((alpha, beta, gamma))
 
         logger.info(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
-        logger.info(f"[INFO] Max parallel processes (CPU cores): {max_parallel}")
+        logger.info(f"[INFO] Max parallel processes: {max_parallel}")
         used_ports = set()
     
         # Batch execution
@@ -463,23 +469,6 @@ if __name__ == '__main__':
         # Wait for current batch to finish before starting next
             for proc in processes:
                 proc.join()
-
-        cleanup_ganache_processes()
-
-# edge_off = EdgeOffloading (req_q, rsp_q, 100, 2)
-# edge_off.deploy_sq_ode ()
-# edge_off.start ()
-
-# experiment_run ()
-
-# edge_off = EdgeOffloading (req_q, rsp_q, 100, 2)
-# edge_off.deploy_rep_smt_ode ()
-# edge_off.start ()
-
-# experiment_run ()
-
-# edge_off = EdgeOffloading (req_q, rsp_q, 100, 2)
-# edge_off.deploy_smt_ode ()
-# edge_off.start ()
-
-# experiment_run ()
+            
+            if args.multi_chain:
+                cleanup_ganache_processes()  # ✅ Only clean up if using multichain
