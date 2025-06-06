@@ -37,7 +37,7 @@ class MdpOde(OffloadingDecisionEngine):
 
           raise ValueError ("Mobile device instance was not found in the current cell location!")
 
-        cls.__init_MDP_settings()
+        cls._init_settings()
 
 
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos, cell_name):
@@ -60,7 +60,7 @@ class MdpOde(OffloadingDecisionEngine):
             offloading_site_index = cls._curr_n.get_offloading_action_index()
 
             start = time.time ()
-            cls._policy = cls.__MDP_run(task, metrics, validity_vector)
+            cls._policy = cls._run_policy(task, metrics, validity_vector)
             # Logger.w("Current node: " + cls._current_node.get_name())
             # Logger.w("Current offloading policy: " + str(cls._policy))
             end = time.time ()
@@ -118,7 +118,7 @@ class MdpOde(OffloadingDecisionEngine):
             metrics[cls._offloading_sites[offloading_site_index]])
 
 
-    def __init_MDP_settings(cls):
+    def _init_settings(cls):
 
         cls._P = np.array([[[0.0 for i in range(len (cls._offloading_sites))] \
                 for i in range(len(cls._offloading_sites))] for i in range(len(cls._offloading_sites))])
@@ -152,10 +152,10 @@ class MdpOde(OffloadingDecisionEngine):
         # print ('Init R matrix = ' + str(cls._R))
 
 
-    def __MDP_run(cls, task, metrics, validity_vector):
+    def _run_policy(cls, task, metrics, validity_vector):
         
-        cls.__update_P_matrix()
-        cls.__update_R_matrix(task, metrics, validity_vector)
+        cls._update_P_matrix()
+        cls._update_R_matrix(task, metrics, validity_vector)
 
         # Logger.w("P = " + str(cls._P))
         # Logger.w("R = " + str(cls._R))
@@ -166,7 +166,7 @@ class MdpOde(OffloadingDecisionEngine):
         return PIA.policy
 
     
-    def __update_P_matrix(cls):
+    def _update_P_matrix(cls):
         
         for i in range(len (cls._offloading_sites)): 
             for j in range(math.ceil(cls._P[i].size / cls._P[i][0].size)):
@@ -191,7 +191,7 @@ class MdpOde(OffloadingDecisionEngine):
         # exit()
 
 
-    def __update_R_matrix(cls, task, metrics, validity_vector):
+    def _update_R_matrix(cls, task, metrics, validity_vector):
         
         for i in range(len (cls._offloading_sites)):
             for j in range(math.ceil(cls._R[i].size / cls._R[i][0].size)): 

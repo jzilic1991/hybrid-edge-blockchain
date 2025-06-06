@@ -37,10 +37,10 @@ class OffloadingSite:
 
         if profile == "ar":
             self.workload = ARProfile()
-            print(f"[EDGE QUEUE] Using AR workload profile")
+            #print(f"[EDGE QUEUE] Using AR workload profile")
         else:
             self.workload = DefaultProfile()
-            print(f"[EDGE QUEUE] Using default workload profile")
+            #print(f"[EDGE QUEUE] Using default workload profile")
 
         #self._task_exe_queue = CompQueue (self._mips, arrival_rate = random.randint (PoissonRate.MIN_RATE, PoissonRate.MAX_RATE), \
         #  task_size_rate = random.uniform (ExpRate.MIN_RATE, ExpRate.MAX_RATE), site_name = self._node_type)
