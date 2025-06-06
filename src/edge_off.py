@@ -33,7 +33,8 @@ class EdgeOffloading (Thread):
     suffix = None,
     app_name = None,
     profile = "default",
-    disable_trace_log = True):
+    disable_trace_log = True,
+    use_blockchain = False):
 
     Thread.__init__ (self)
 
@@ -61,6 +62,7 @@ class EdgeOffloading (Thread):
     self.k = k if k is not None else 5
     self.suffix = suffix if suffix is not None else 0
     self.disable_trace_log = disable_trace_log
+    self.use_blockchain = use_blockchain
 
   def log_sensitivity_summary(self):
     stats = self._s_ode._stats
@@ -124,16 +126,13 @@ class EdgeOffloading (Thread):
         disable_trace_log = self.disable_trace_log)
     #print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
-
   def deploy_smt_ode (self):
     self._s_ode = SmtOde ('MINLP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
       self._app_name, False, self._con_delay)
 
-
   def deploy_sq_ode (self):
     self._s_ode = SqOde ('SQ_MOBILE_EDGE', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), self._app_name, \
       self._con_delay)
-
 
   def deploy_mdp_ode (self):
     self._s_ode = MdpOde ('MDP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
@@ -141,10 +140,9 @@ class EdgeOffloading (Thread):
 
   def deploy_qrl_ode (self):
     self._s_ode = QrlOde ("QRL", self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), 
-      self._app_name, self._con_delay)
+      self._app_name, self._con_delay, disable_trace_log = self.disable_trace_log)
 
   def run (self):
-    # logging but after ODE is deployed
     if not self.disable_trace_log:
         self._log = self._s_ode.get_logger ()
     
@@ -155,9 +153,8 @@ class EdgeOffloading (Thread):
         app = self._m_app_prof.dep_rand_mob_app()
     
     app.run ()
-    # setting cell statistics (this is updated after each cell move)
+    
     self._s_ode.set_cell_stats (self._r_mon.get_cell_name ())
-
     epoch_cnt = 0 # counts task offloadings
     exe_cnt = 0   # counts application executions
     samp_cnt = 0  # counts samples
@@ -169,14 +166,7 @@ class EdgeOffloading (Thread):
     con_delay = 0 # consensus delay constraint
     task_n_delay = "" # delay counter (counting epochs)
     off_transactions = list ()
-
-    # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
-    # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
-
     
-    # print("**************** PROGRESS " + self._s_ode.get_name() + " (ID = " + str(self.suffix) + ") ****************")
-    # print(str(prev_progress) + "% - " + str(datetime.datetime.utcnow()) + "(ID = " + str(self.suffix) + ")")
-    # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
     logger.info(
         "**************** PROGRESS %s (ID = %s) ****************",
         self._s_ode.get_name(),
@@ -197,7 +187,6 @@ class EdgeOffloading (Thread):
             app = self._m_app_prof.dep_app (self._app_name)
         else:
             app = self._m_app_prof.dep_rand_mob_app()
-        # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
         app.run ()
         # update current site of task exeuction when previous app execution is completed
         self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
@@ -220,21 +209,13 @@ class EdgeOffloading (Thread):
           self._s_ode.summarize_cell_stats (self._cell_number, \
             self.__get_avail_distro (off_sites))
 
-          # update cell number of new switched cell location and get offloading sites of new cell 
-          # self._cell_number = int (exe_cnt / self._user_move)
           self._cell_number += 1
           off_sites = self.__update_and_register_off_sites ()
-          # set new cell statistics for a new cell
           self._s_ode.set_cell_stats (self._cell_number)
-          # update current site of task exeuction when switching cells
           self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
 
-        # self._log.w ("APP EXECUTION No." + str (exe_cnt + 1))
-        
-        if not cell_mover:
+        if not cell_mover and self.use_blockchain:
           # update reputation after each application execution and reset transaction list
-          # print ("############## UPDATING TRANSACTIONS ###############")
-          # print ("Transactions: " + str (off_transactions))
           self._req_q.put (('update', off_transactions))
           off_transactions = list ()
         
@@ -247,9 +228,7 @@ class EdgeOffloading (Thread):
       # incrementing epoch (i.e. task offloading) and period counter (i.e. epochs within same time period)
       epoch_cnt = epoch_cnt + 1
       period_cnt = period_cnt + 1
-      # self._log.w ('Time epoch ' + str (epoch_cnt) + '.')
 
-      # all executions are completed
       if exe_cnt >= self._exe:
         self._s_ode.summarize (exe_cnt)
         samp_cnt = samp_cnt + 1
@@ -260,31 +239,27 @@ class EdgeOffloading (Thread):
         if samp_cnt == self._samp: 
           self._s_ode.log_stats ()
           # self.__reset_reputation (off_sites)
-          self._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
+          if self.use_blockchain:
+              self._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
         
-          if self._rsp_q.get () == 'confirm':
-            # break from the run loop
+              if self._rsp_q.get () == 'confirm':
+                break
+          else:
             break
 
-        # self._log.w ("SAMPLE No." + str (samp_cnt + 1))
         if self._app_name:
             app = self._m_app_prof.dep_app (self._app_name)
         else:
             app = self._m_app_prof.dep_rand_mob_app()
         app.run ()
-        # print("Deployed MOBILE_APP: " + app.get_name() + " (ID = " + str(self.suffix) + ")")
-        # off_sites = self.__reset_reputation (off_sites)
         continue
 
       # getting updated reputation when consensus is finished after certain delay
-      # print ("\n\n\n******************** OFFLOADING TRANSACTION ***************************")
       if con_delay == self._con_delay:
         off_sites = self.__get_reputation (off_sites)
-        # self.__print_reputation (off_sites)
         con_delay = 0
         task_n_delay = tasks[0].get_name ()
 
-      # off_sites = self.__update_behav (off_sites, exe_cnt)
       trxs = self._s_ode.offload (tasks, off_sites, timestamp, app.get_name (), app.get_qos (), self._r_mon.get_cell_name ())
       off_transactions += trxs
 
@@ -369,34 +344,34 @@ class EdgeOffloading (Thread):
 
 
   def __register_nodes (self, off_sites):
-
     names = [site.get_n_id () for site in off_sites]
-    # print("Registration of " + str (len (names)) + " nodes (Cell ID = " + str (self._cell_number) + ") -> [ODE ID = " + str(self.suffix) + "]")
     logger.info(
         "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s]",
         len(names),
         self._cell_number,
         self.suffix,
     )
-    self._req_q.put (('reg', names))
-    reg_nodes = self._rsp_q.get ()
+    if self.use_blockchain:
+        self._req_q.put (('reg', names))
+        reg_nodes = self._rsp_q.get ()
   
-    if reg_nodes[0] == 'reg_rsp':
-      for ele in reg_nodes[1]:
-        for site in off_sites:
-          if ele['name'] == site.get_n_id ():
-            site.set_sc_id (ele['id'])
-            # print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
-            # print ("SC ID is a " + str (ele['id']))
-            break
+        if reg_nodes[0] == 'reg_rsp':
+          for ele in reg_nodes[1]:
+            for site in off_sites:
+              if ele['name'] == site.get_n_id ():
+                site.set_sc_id (ele['id'])
+                # print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
+                # print ("SC ID is a " + str (ele['id']))
+                break
 
     # measuring offloading decision time 
     self._s_ode.start_measuring_overhead ()
-    
     return off_sites
 
 
   def __get_reputation (self, off_sites):
+    if not self.use_blockchain:
+      return off_sites
 
     sc_ids = [site.get_sc_id () for site in off_sites]
     self._req_q.put (('get', sc_ids))
@@ -413,7 +388,6 @@ class EdgeOffloading (Thread):
 
 
   def __print_setup (self, off_sites, app):
-
     app.print_entire_config ()
 
     for off_site in off_sites:
@@ -421,7 +395,8 @@ class EdgeOffloading (Thread):
 
 
   def __reset_reputation (self, off_sites):
-
+    if not self.use_blockchain:
+      return off_sites
     sc_ids = [site.get_sc_id () for site in off_sites]
     self._req_q.put (('reset', sc_ids))
     reset_msg = self._rsp_q.get ()

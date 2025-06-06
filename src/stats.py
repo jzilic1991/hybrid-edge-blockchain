@@ -40,55 +40,55 @@ class Stats:
         return round(np.mean(self._qos_viol_samp), 4)
 
 
-    def get_avg_qos_viol (cls):
-        return ("After " + str (len (cls._qos_viol_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._qos_viol_samp), 4)) + " % QoS violation rate (min: " + \
-            str (np.min (cls._qos_viol_samp)) + ", max: " + \
-            str (np.max (cls._qos_viol_samp)) + ", var: " + \
-            str (np.var (cls._qos_viol_samp)) + ", std: "+ \
-            str (np.std (cls._qos_viol_samp)) + ", median: " + \
-            str (np.median (cls._qos_viol_samp)) + ")")
+    def get_avg_qos_viol (self):
+        if not self._qos_viol_samp:
+            return "Average QoS violation rate: 0.000 %"
+        return (
+            f"After {len(self._qos_viol_samp)} samples, average is {np.mean(self._qos_viol_samp):.3f} % QoS violation rate "
+            f"(min: {np.min(self._qos_viol_samp):.3f}, max: {np.max(self._qos_viol_samp):.3f}, "
+            f"var: {np.var(self._qos_viol_samp):.3f}, std: {np.std(self._qos_viol_samp):.3f}, "
+            f"median: {np.median(self._qos_viol_samp):.3f})"
+        )
 
+    def get_avg_rsp_time (self): 
+        if not self._rsp_time_samp:
+            return "Average response time: 0.000 s"
+        return (
+            f"After {len(self._rsp_time_samp)} samples, average is {np.mean(self._rsp_time_samp):.3f} s "
+            f"(min: {np.min(self._rsp_time_samp):.3f}, max: {np.max(self._rsp_time_samp):.3f}, "
+            f"var: {np.var(self._rsp_time_samp):.3f}, std: {np.std(self._rsp_time_samp):.3f}, "
+            f"median: {np.median(self._rsp_time_samp):.3f})"
+        )
 
-    def get_avg_rsp_time (cls): 
-        return ("After " + str (len (cls._rsp_time_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._rsp_time_samp), 4)) + " s (min: " + \
-            str (np.min (cls._rsp_time_samp)) + ", max: " + \
-            str (np.max (cls._rsp_time_samp)) + ", var: " + \
-            str (np.var (cls._rsp_time_samp)) + ", std: "+ \
-            str (np.std (cls._rsp_time_samp)) + ", median: " + \
-            str (np.median (cls._rsp_time_samp)) + ")")
+    def get_avg_e_consum (self):
+        if not self._e_consum_samp:
+            return "Average energy consumption: 0.000 J"
+        return (
+            f"After {len(self._e_consum_samp)} samples, average is {np.mean(self._e_consum_samp):.3f} J "
+            f"(min: {np.min(self._e_consum_samp):.3f}, max: {np.max(self._e_consum_samp):.3f}, "
+            f"var: {np.var(self._e_consum_samp):.3f}, std: {np.std(self._e_consum_samp):.3f}, "
+            f"median: {np.median(self._e_consum_samp):.3f})"
+        )
 
+    def get_avg_prices (self):
+        if not self._price_samp:
+            return "Average price: 0.000 monetary units"
+        return (
+            f"After {len(self._price_samp)} samples, average is {np.mean(self._price_samp):.3f} monetary units "
+            f"(min: {np.min(self._price_samp):.3f}, max: {np.max(self._price_samp):.3f}, "
+            f"var: {np.var(self._price_samp):.3f}, std: {np.std(self._price_samp):.3f}, "
+            f"median: {np.median(self._price_samp):.3f})"
+        )
 
-    def get_avg_e_consum (cls):
-        return ("After " + str (len (cls._e_consum_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._e_consum_samp), 4)) + " J (min: " + \
-            str (np.min (cls._e_consum_samp)) + ", max: " + \
-            str (np.max (cls._e_consum_samp)) + ", var: " + \
-            str (np.var (cls._e_consum_samp)) + ", std: "+ \
-            str (np.std (cls._e_consum_samp)) + ", median: " + \
-            str (np.median (cls._e_consum_samp)) + ")")
-
-
-    def get_avg_prices (cls):
-        return ("After " + str (len (cls._price_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._price_samp), 4)) + " monetary units (min: " + \
-            str (np.min (cls._price_samp)) + ", max: " + \
-            str (np.max (cls._price_samp)) + ", var: " + \
-            str (np.var (cls._price_samp)) + ", std: "+ \
-            str (np.std (cls._price_samp)) + ", median: " + \
-            str (np.median (cls._price_samp)) + ")")
-
-
-    def get_avg_bl (cls):
-        return ("After " + str (len (cls._bl_samp)) + " samples, average is " + \
-            str (round (np.mean(cls._bl_samp), 4)) + " % of energy remains (min: " + \
-            str (np.min (cls._bl_samp)) + ", max: " + \
-            str (np.max (cls._bl_samp)) + ", var: " + \
-            str (np.var (cls._bl_samp)) + ", std: "+ \
-            str (np.std (cls._bl_samp)) + ", median: " + \
-            str (np.median (cls._bl_samp)) + ")")
-
+    def get_avg_bl (self):
+        if not self._bl_samp:
+            return "Average battery level: 0.000 %"
+        return (
+            f"After {len(self._bl_samp)} samples, average is {np.mean(self._bl_samp):.3f} % of energy remains "
+            f"(min: {np.min(self._bl_samp):.3f}, max: {np.max(self._bl_samp):.3f}, "
+            f"var: {np.var(self._bl_samp):.3f}, std: {np.std(self._bl_samp):.3f}, "
+            f"median: {np.median(self._bl_samp):.3f})"
+        )
 
     def get_avg_off_dist (cls, cells):
 
@@ -264,12 +264,14 @@ class Stats:
         return ("Constraint violation distribution (percentage): " + str (result))
 
 
-    def get_all (cls):
-
-        return cls.get_avg_rsp_time () + '\n' + cls.get_avg_e_consum () + '\n' + \
-            cls.get_avg_prices () + '\n' + cls.get_avg_bl () + '\n' + \
-            cls.get_avg_qos_viol () + '\n'
-
+    def get_all (self):
+        return "\n".join([
+            self.get_avg_rsp_time(),
+            self.get_avg_e_consum(),
+            self.get_avg_prices(),
+            self.get_avg_bl(),
+            self.get_avg_qos_viol()
+        ])
 
     def get_cell_stats (cls, cell_stats):
 

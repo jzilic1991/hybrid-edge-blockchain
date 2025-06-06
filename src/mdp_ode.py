@@ -12,9 +12,9 @@ from models import Model
 
 class MdpOde(OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay):
+    def __init__(self, name, curr_n, md, app_name, con_delay, disable_trace_log = True):
 
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, curr_n, md, app_name, con_delay, disable_trace_log = disable_trace_log)
         self._mobile_device = md
         self._offloading_sites = list ()
 

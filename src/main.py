@@ -212,62 +212,25 @@ def run_qrl_sim(app, suffix, profile, port=8545):
     print(f"[Init] Parameters -> app: {app}, ID: {suffix}, port: {port}")
     Settings.workload_profile = profile
     print(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
-    ganache_proc = None
 
-    if os.getenv("MULTICHAIN") == "1":
-        ganache_proc = start_ganache_instance(port)
+    edge_off = EdgeOffloading(
+        req_q,
+        rsp_q,
+        Settings.APP_EXECUTIONS,
+        Settings.SAMPLES,
+        Settings.CONSENSUS_DELAY,
+        Settings.SCALABILITY,
+        Settings.NUM_LOCS,
+        suffix=suffix,
+        app_name=app,
+        profile=profile,
+        disable_trace_log = False,
+    )
 
-    try:
-        handler = ChainHandler(Testnets.GANACHE, port=port, account_index=suffix)
-        if not re.fullmatch(r"0x[a-fA-F0-9]{40}", handler._account):
-            raise ValueError(f"Invalid Ethereum account for suffix {suffix}: {handler._account}")
-
-        if os.getenv("MULTICHAIN") == "1":
-            contract_address = handler.deploy_smart_contract()
-            handler.load_contract(contract_address)
-        else:
-            import pathlib
-            addr_path = pathlib.Path("contract_address.txt")
-            start = time.time()
-            while not addr_path.exists():
-                if time.time() - start > 10:
-                    raise RuntimeError("Timeout waiting for contract_address.txt to be created.")
-                time.sleep(0.2)
-            with open(addr_path, "r") as f:
-                addr = f.read().strip()
-                handler.load_contract(addr)
-
-        edge_off = EdgeOffloading(
-            req_q,
-            rsp_q,
-            Settings.APP_EXECUTIONS,
-            Settings.SAMPLES,
-            Settings.CONSENSUS_DELAY,
-            Settings.SCALABILITY,
-            Settings.NUM_LOCS,
-            suffix=suffix,
-            app_name=app,
-            profile=profile,
-            disable_trace_log=True,
-        )
-
-        edge_off.deploy_qrl_ode()
-        edge_off._id_suffix = suffix
-        edge_off.start()
-        experiment_run(handler)
-        #output_filename = f"fresco_sensitivity/sensitivity_summary_QRL_a{alpha}_b{beta}_g{gamma}_{app}.csv"
-        #edge_off.log_sensitivity_summary()
-        #print(f"[{proc_name}] Summary saved to {output_filename}")
-
-    finally:
-        if ganache_proc is not None:
-            print(f"[CLEANUP] Terminating Ganache PID {ganache_proc.pid}")
-            try:
-                ganache_proc.terminate()
-                ganache_proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                print(f"[FORCE-KILL] Ganache PID {ganache_proc.pid} did not exit cleanly. Killing...")
-                ganache_proc.kill()
+    edge_off.deploy_qrl_ode()
+    edge_off._id_suffix = suffix
+    edge_off.start()
+    # experiment_run()
 
 def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
     """
@@ -475,7 +438,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    if not args.multi_chain:
+    if not args.multi_chain and args.mode == "fresco_sweep":
         start_ganache_instance(8545)
 
         # Deploy contract if not already done
