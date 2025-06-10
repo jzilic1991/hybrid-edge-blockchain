@@ -36,11 +36,10 @@ class SmtOde (OffloadingDecisionEngine):
         
         self._activate = activate
         self._disable_trace_log = disable_trace_log
-        # print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
+        print(f"[SMT ODE INIT] α={self._alpha}, β={self._beta}, γ={self._gamma}, k={self._k}")
 
 
     def offloading_decision (self, task, metrics, timestamp, app_name, constr, qos, cell_name):
-
         if task.is_offloadable ():
             # self._k = round ((len (metrics) / 2))
             # print ("K param is " + str (self._k))
