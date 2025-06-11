@@ -4,6 +4,7 @@ import fcntl
 import os
 import logging
 from threading import Thread
+from multiprocessing import Event
 
 from smt_ode import SmtOde
 from sq_ode import SqOde
@@ -34,7 +35,8 @@ class EdgeOffloading (Thread):
     app_name = None,
     profile = "default",
     disable_trace_log = True,
-    use_blockchain = False):
+    use_blockchain = False,
+    stop_event = None):
 
     Thread.__init__ (self)
 
@@ -63,6 +65,7 @@ class EdgeOffloading (Thread):
     self.suffix = suffix if suffix is not None else 0
     self.disable_trace_log = disable_trace_log
     self.use_blockchain = use_blockchain
+    self.stop_event = stop_event or Event()
 
   def log_sensitivity_summary(self):
     stats = self._s_ode._stats
@@ -124,7 +127,7 @@ class EdgeOffloading (Thread):
         gamma = self.gamma,
         k = self.k,
         disable_trace_log = self.disable_trace_log)
-    #print(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
+    logger.info(f"[FRESCO CONFIG] α={self.alpha}, β={self.beta}, γ={self.gamma}, k={self.k}")
 
   def deploy_smt_ode (self):
     self._s_ode = SmtOde ('MINLP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
@@ -172,9 +175,9 @@ class EdgeOffloading (Thread):
         self._s_ode.get_name(),
         self.suffix,
     )
-    logger.info("%s%% - %s (ID = %s)", prev_progress, datetime.datetime.utcnow(), self.suffix)
+    logger.info("%s%% - %s (ID = %s [%s])", prev_progress, datetime.datetime.utcnow(), self.suffix, self._s_ode.get_name())
 
-    while True:
+    while not self.stop_event.is_set():
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
         curr_progress, prev_progress)
 
@@ -243,8 +246,12 @@ class EdgeOffloading (Thread):
               self._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
         
               if self._rsp_q.get () == 'confirm':
+                logger.info(f"Confirm signal received for termination proc {self.suffix}!")
+                self.stop_event.set() 
                 break
           else:
+            logger.info(f"Terminating process {self.suffix}")
+            self.stop_event.set()
             break
 
         if self._app_name:
@@ -272,6 +279,8 @@ class EdgeOffloading (Thread):
       if not off_transactions:
         exe_cnt = self._exe
         continue
+
+    logger.info(f"[ODE {self._s_ode.get_name()} = {self.suffix}] EdgeOffloading thread terminated cleanly.")
 
 
   # printing reputation score values per offloading site
@@ -334,10 +343,11 @@ class EdgeOffloading (Thread):
         curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0
     ):
       logger.info(
-          "%s%% - %s (ID = %s)",
+          "%s%% - %s (ID = %s [%s])",
           curr_progress,
           datetime.datetime.utcnow(),
           self.suffix,
+          self._s_ode.get_name()
       )
 
     return (curr_progress, prev_progress)
@@ -346,22 +356,26 @@ class EdgeOffloading (Thread):
   def __register_nodes (self, off_sites):
     names = [site.get_n_id () for site in off_sites]
     logger.info(
-        "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s]",
+        "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s [%s]]",
         len(names),
         self._cell_number,
         self.suffix,
+        self._s_ode.get_name()
     )
+    #print("use blockchain = " + str(self.use_blockchain))
     if self.use_blockchain:
+        #print ("Send names: " + str(names))
         self._req_q.put (('reg', names))
         reg_nodes = self._rsp_q.get ()
-  
+        #print ("Register nodes are " + str(reg_nodes))
         if reg_nodes[0] == 'reg_rsp':
           for ele in reg_nodes[1]:
+            #print ("off_sites = " + str(off_sites))
             for site in off_sites:
               if ele['name'] == site.get_n_id ():
                 site.set_sc_id (ele['id'])
-                # print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
-                # print ("SC ID is a " + str (ele['id']))
+                #print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
+                #print ("SC ID is a " + str (ele['id']))
                 break
 
     # measuring offloading decision time 

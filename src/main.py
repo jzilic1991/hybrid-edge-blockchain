@@ -15,7 +15,7 @@ import shutil
 import logging
 from threading import Thread
 from queue import Queue
-from multiprocessing import Process, current_process
+from multiprocessing import Process, current_process, Event
 from web3 import Web3, HTTPProvider
 # user-defined libs
 from chain_msg_handler import ChainHandler
@@ -35,7 +35,16 @@ def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_uncaught_exceptions
 
-# public functions
+def cleanup_child_processes(edge_off):
+    logger.info("[CLEANUP] Running child process/thread cleanup")
+
+    if edge_off is not None:
+        if edge_off.is_alive():
+            logger.warning(f"[CLEANUP] EdgeOffloading still alive. Attempting shutdown...")
+            edge_off.join(timeout=5)
+            if edge_off.is_alive():
+                logger.error(f"[FORCE] EdgeOffloading thread still hanging.")
+
 def init_sensitivity_csvs():
     results_dir = "fresco_sensitivity/"
     os.makedirs(results_dir, exist_ok=True)
@@ -145,11 +154,11 @@ def submit_cached_trx (chain):
     update_thread = False
 
 
-def experiment_run (chain):
+def experiment_run (chain, req_q, rsp_q):
     # skip real experiment run
     #print("[Mock] experiment_run() called – skipping actual execution.")
     #return
-    global req_q, rsp_q, cached_trx, update_thread
+    global cached_trx, update_thread
 
     while True:
         # node registration
@@ -207,12 +216,14 @@ def experiment_run (chain):
 def run_qrl_sim(app, suffix, profile, port=8545):
     """Run simulation using the QRL offloading decision engine."""
 
+    req_q, rsp_q = Queue(), Queue()
     proc_name = current_process().name
     print(f"\n=== Starting {proc_name} ===")
     print(f"[Init] Parameters -> app: {app}, ID: {suffix}, port: {port}")
     Settings.workload_profile = profile
     print(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
-
+    
+    stop_event = Event()
     edge_off = EdgeOffloading(
         req_q,
         rsp_q,
@@ -230,21 +241,30 @@ def run_qrl_sim(app, suffix, profile, port=8545):
     edge_off.deploy_qrl_ode()
     edge_off._id_suffix = suffix
     edge_off.start()
+    try:
+        edge_off.join()
+    except KeyboardInterrupt:
+        logger.warning(f"[INTERRUPT] Simulation interrupted. Stopping EdgeOffloading...")
+        stop_event.set()  # ✅ signal the thread to shut down
+        edge_off.join(timeout=5)
+        if edge_off.is_alive():
+            logger.error(f"[FORCE] EdgeOffloading thread did not exit cleanly.")
     # experiment_run()
 
-def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
+def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545, sweep = False):
     """
     Executes full benchmarking across all offloading models (FRESCO, SQ, SMT, MDP)
     with the same application and simulation setup, using legacy-style execution
     and full reputation integration.
     """
-  
+    req_q, rsp_q = Queue(), Queue()
     proc_name = current_process().name
     logger.info(f"\n=== Starting {proc_name} ===")
     logger.info(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
     Settings.workload_profile = profile
     logger.info(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
     ganache_proc = None
+    edge_off = None
 
     if os.getenv("MULTICHAIN") == "1":
         ganache_proc = start_ganache_instance(port)
@@ -268,7 +288,8 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
             with open(addr_path, "r") as f:
                 addr = f.read().strip()
                 handler.load_contract(addr)
-    
+   
+        stop_event = Event()
         edge_off = EdgeOffloading(
             req_q,
             rsp_q,
@@ -284,26 +305,103 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545):
             suffix=suffix,
             app_name = app,
             profile = profile,
-            disable_trace_log=True
+            disable_trace_log = True,
+            use_blockchain = True
         )   
 
         edge_off.deploy_fresco_ode()
         edge_off._id_suffix = suffix
         edge_off.start()
-        experiment_run(handler)
-        output_filename = f"fresco_sensitivity/sensitivity_summary_FRESCO_a{alpha}_b{beta}_g{gamma}_{app}.csv"
-        edge_off.log_sensitivity_summary()
-        print(f"[{proc_name}] Summary saved to {output_filename}")
+        experiment_run(handler, req_q, rsp_q)
+        if sweep:
+          output_filename = f"fresco_sensitivity/sensitivity_summary_FRESCO_a{alpha}_b{beta}_g{gamma}_{app}.csv"
+          edge_off.log_sensitivity_summary()
+          print(f"[{proc_name}] Summary saved to {output_filename}")
 
     finally:
-        if ganache_proc is not None:
-            logger.info(f"[CLEANUP] Terminating Ganache PID {ganache_proc.pid}")
+        cleanup_child_processes(edge_off)
+        cleanup_ganache_processes()
+
+def run_simulation(ode_type, app, suffix, profile, port=8545):
+    """
+    Unified simulation runner for SQ, SMT, MDP, QRL (FRESCO uses run_fresco_sim separately).
+    Automatically skips blockchain setup if not needed.
+    """
+    req_q, rsp_q = Queue(), Queue()
+    proc_name = current_process().name
+    logger.info(f"\n=== Starting {proc_name} - {ode_type.upper()} ===")
+    logger.info(f"[Init] app={app}, suffix={suffix}, port={port}, model={ode_type}")
+
+    use_blockchain = ode_type in ("fresco", "sq")
+    ganache_proc = None
+    edge_off = None
+
+    if use_blockchain and os.getenv("MULTICHAIN") == "1":
+        ganache_proc = start_ganache_instance(port)
+
+    try:
+        handler = None
+        if use_blockchain:
+            handler = ChainHandler(Testnets.GANACHE, port=port, account_index=suffix)
+            if not re.fullmatch(r"0x[a-fA-F0-9]{40}", handler._account):
+                raise ValueError(f"Invalid Ethereum account for suffix {suffix}: {handler._account}")
+
+            if os.getenv("MULTICHAIN") == "1":
+                contract_address = handler.deploy_smart_contract()
+                handler.load_contract(contract_address)
+            else:
+                import pathlib
+                addr_path = pathlib.Path("contract_address.txt")
+                start = time.time()
+                while not addr_path.exists():
+                    if time.time() - start > 10:
+                        raise RuntimeError("Timeout waiting for contract_address.txt to be created.")
+                    time.sleep(0.2)
+                with open(addr_path, "r") as f:
+                    addr = f.read().strip()
+                    handler.load_contract(addr)
+
+        stop_event = Event()
+        edge_off = EdgeOffloading(
+            req_q, rsp_q,
+            Settings.APP_EXECUTIONS, Settings.SAMPLES,
+            Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS,
+            suffix=suffix, app_name=app, profile=profile,
+            disable_trace_log=True
+        )
+
+        deploy_map = {
+            "sq": edge_off.deploy_sq_ode,
+            "smt": edge_off.deploy_smt_ode,
+            "mdp": edge_off.deploy_mdp_ode,
+            "qrl": edge_off.deploy_qrl_ode,
+        }
+
+        if ode_type not in deploy_map:
+            raise ValueError(f"Unsupported model: {ode_type}")
+
+        deploy_map[ode_type]()  # Dynamically invoke deployment method
+
+        edge_off._id_suffix = suffix
+        edge_off.start()
+
+        if use_blockchain:
+            experiment_run(handler, req_q, rsp_q)
+        else:
+            # No blockchain run loop needed
             try:
-                ganache_proc.terminate()
-                ganache_proc.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                logger.info(f"[FORCE-KILL] Ganache PID {ganache_proc.pid} did not exit cleanly. Killing...")
-                ganache_proc.kill()
+                edge_off.join()
+            except KeyboardInterrupt:
+                logger.warning(f"[INTERRUPT] Simulation interrupted. Stopping EdgeOffloading...")
+                stop_event.set()  # ✅ signal the thread to shut down
+                edge_off.join(timeout=5)
+                if edge_off.is_alive():
+                    logger.error(f"[FORCE] EdgeOffloading thread did not exit cleanly.")
+
+    finally:
+        cleanup_child_processes(edge_off)
+        if use_blockchain:
+            cleanup_ganache_processes()
 
 atexit.register(cleanup_ganache_processes)
 def handle_interrupt(signum, frame):
@@ -427,7 +525,11 @@ if __name__ == '__main__':
     clean_ganache_temp()
     init_sensitivity_csvs()
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["fresco_sweep", "qrl"])
+    parser.add_argument(
+        "mode",
+        choices=["fresco_sweep", "ode_all", "ode"],
+        help="Execution mode: 'fresco_sweep' for param grid, 'ode_all' for all engines, 'ode' for one specific engine"
+    )
     parser.add_argument("--multi-chain", action="store_true")
     parser.add_argument("--profile", choices=["default", "ar"], default="default",
                         help="Workload profile to use: 'default' or 'ar'")
@@ -442,9 +544,15 @@ if __name__ == '__main__':
         default=5,
         help="Maximum number of simulation processes running in parallel",
     )
+    parser.add_argument(
+        "--ode",
+        type=str,
+        choices=["fresco", "sq", "smt", "mdp", "qrl"],
+        help="Run only a specific offloading decision engine (mutually exclusive with fresco_sweep)",
+    )
     args = parser.parse_args()
 
-    if not args.multi_chain and args.mode == "fresco_sweep":
+    if not args.multi_chain and (args.mode == "fresco_sweep" or args.ode in ("fresco", "sq")):
         start_ganache_instance(8545)
 
         # Deploy contract if not already done
@@ -489,7 +597,7 @@ if __name__ == '__main__':
                 proc = Process(
                     target=run_fresco_sim,
                     args=(alpha, beta, gamma, k, app, suffix, args.profile),
-                    kwargs={"port": port}
+                    kwargs={"port": port, "sweep": args.mode == "fresco_sweep"}
                 )
                 proc.start()
                 processes.append(proc)
@@ -503,8 +611,114 @@ if __name__ == '__main__':
                 cleanup_ganache_processes()  # ✅ Only clean up if using multichain
 
         cleanup_ganache_processes()
-   
-    elif args.mode == 'qrl':
-        app = None if args.app.lower() == 'random' else args.app.upper()
-        port = 8545
-        run_qrl_sim(app, 0, args.profile, port=port)
+    
+    elif args.mode == "ode_all":
+      # 1. Clean stale Ganache processes first (system-wide safety)
+      cleanup_ganache_processes()
+
+      app = None if args.app.lower() == "random" else args.app.upper()
+      suffix = 1
+      port_base = 8545
+      used_ports = set()
+
+      models = ["fresco", "sq", "smt", "mdp", "qrl"]
+      processes = []
+      ganache_procs = []
+
+      try:
+        for model in models:
+            suffix += 1
+
+            if model in ("fresco", "sq"):
+                port = find_available_port(port_base + suffix, used_ports)
+                os.environ["MULTICHAIN"] = "1"
+
+                logger.info(f"[GANACHE] Launching Ganache for {model.upper()} on port {port}")
+                ganache_proc = start_ganache_instance(port)
+                ganache_procs.append(ganache_proc)
+            else:
+                port = 8545
+
+            if model == "fresco":
+                proc = Process(
+                    target=run_fresco_sim,
+                    args=(Settings.W_RT, Settings.W_EC, Settings.W_PR, Settings.K, app, suffix, args.profile),
+                    kwargs={"port": port, "sweep": args.mode == "fresco_sweep"}
+                )
+            else:
+                proc = Process(
+                    target=run_simulation,
+                    args=(model, app, suffix, args.profile, port)
+                )
+
+            proc.start()
+            processes.append(proc)
+            logger.info(f"[SPAWN] {model.upper()} launched with suffix={suffix}, port={port}")
+
+        #for proc in processes:
+        #    proc.join()
+         # ✅ NEW: Poll for completion with timeout
+        POLL_INTERVAL = 2
+        MAX_WAIT = 600  # Wait at most 10 minutes
+        start_time = time.time()
+        while time.time() - start_time < MAX_WAIT:
+            alive_procs = [p for p in processes if p.is_alive()]
+            if not alive_procs:
+                break
+            time.sleep(POLL_INTERVAL)
+
+        for proc in processes:
+            if proc.is_alive():
+                logger.warning(f"[TIMEOUT] Terminating hanging process PID={proc.pid}")
+                proc.terminate()
+                proc.join(timeout=5)
+
+      #except KeyboardInterrupt:
+      #  logger.warning("[INTERRUPT] Received. Attempting graceful shutdown...")
+      #  for proc in processes:
+      #      if proc.is_alive():
+      #          proc.terminate()
+      #  cleanup_ganache_processes()  # fallback cleanup
+
+      finally:
+        logger.warning("[CLEANUP] Cleaning everything...")
+        for proc in processes:
+            if proc.is_alive():
+                proc.terminate()
+        cleanup_ganache_processes()
+
+    elif args.mode == "ode":
+      if not args.ode:
+        raise ValueError("ODE engine must be specified with --ode when using mode 'ode'")
+
+      app = None if args.app.lower() == "random" else args.app.upper()
+      suffix = 1
+      port = 8545
+      used_ports = set()
+      
+      if args.multi_chain and args.ode in ("fresco", "sq"):
+          suffix = 1
+          port = find_available_port(8545 + suffix, used_ports)
+          os.environ["MULTICHAIN"] = "1"
+      else:
+          suffix = 0  # ✅ Important: matches account_index used during contract deployment
+          port = 8545
+
+      if args.ode == "fresco":
+        proc = Process(
+            target=run_fresco_sim,
+            args=(Settings.W_RT, Settings.W_EC, Settings.W_PR, Settings.K, app, suffix, args.profile),
+            kwargs={"port": port}
+        )
+      else:
+        proc = Process(
+            target=run_simulation,
+            args=(args.ode, app, suffix, args.profile, port)
+        )
+
+      proc.start()
+      proc.join()
+
+      if args.multi_chain:
+        cleanup_ganache_processes()
+
