@@ -11,11 +11,11 @@ from models import Model
 
 class SqOde (OffloadingDecisionEngine):
 
-    def __init__(self, name, curr_n, md, app_name, con_delay):
+    def __init__(self, name, curr_n, md, app_name, con_delay, disable_trace_log = True):
 
         # self._k = Settings.K
         # self._k = round ((len (metrics) / 2))
-        super().__init__(name, curr_n, md, app_name, con_delay)
+        super().__init__(name, curr_n, md, app_name, con_delay, disable_trace_log = disable_trace_log)
 
 
     def offloading_decision(cls, task, metrics, timestamp, app_name, constr, qos, cell_name):

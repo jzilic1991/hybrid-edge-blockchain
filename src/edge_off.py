@@ -131,15 +131,15 @@ class EdgeOffloading (Thread):
 
   def deploy_smt_ode (self):
     self._s_ode = SmtOde ('MINLP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
-      self._app_name, False, self._con_delay)
+      self._app_name, False, self._con_delay, disable_trace_log = self.disable_trace_log)
 
   def deploy_sq_ode (self):
     self._s_ode = SqOde ('SQ_MOBILE_EDGE', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), self._app_name, \
-      self._con_delay)
+      self._con_delay, disable_trace_log = self.disable_trace_log)
 
   def deploy_mdp_ode (self):
     self._s_ode = MdpOde ('MDP', self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), \
-      self._app_name, self._con_delay)
+      self._app_name, self._con_delay, disable_trace_log = self.disable_trace_log)
 
   def deploy_qrl_ode (self):
     self._s_ode = QrlOde ("QRL", self._r_mon.get_md (self._cell_number), self._r_mon.get_md (self._cell_number), 

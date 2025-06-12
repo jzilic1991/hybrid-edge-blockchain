@@ -13,6 +13,7 @@ import multiprocessing
 import socket
 import shutil
 import logging
+from datetime import datetime
 from threading import Thread
 from queue import Queue
 from multiprocessing import Process, current_process, Event
@@ -25,6 +26,21 @@ from logging_setup import setup_logging
 
 logger = logging.getLogger(__name__)
 setup_logging(os.path.join("logs", "simulation.log"))
+# Will be set to the PID of the main process inside the
+# ``if __name__ == "__main__"`` block. Child processes keep this
+# value to identify that they are not the main process.
+MAIN_PID = None
+
+def handle_interrupt(signum, frame):
+    logger.info(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
+
+    for child in multiprocessing.active_children():
+        logger.info(f"[CLEANUP] Terminating child PID={child.pid}")
+        child.terminate()
+        child.join(timeout=5)
+
+    cleanup_ganache_processes()
+    sys.exit(1)
 
 def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -34,16 +50,6 @@ def log_uncaught_exceptions(exc_type, exc_value, exc_traceback):
 
 
 sys.excepthook = log_uncaught_exceptions
-
-def cleanup_child_processes(edge_off):
-    logger.info("[CLEANUP] Running child process/thread cleanup")
-
-    if edge_off is not None:
-        if edge_off.is_alive():
-            logger.warning(f"[CLEANUP] EdgeOffloading still alive. Attempting shutdown...")
-            edge_off.join(timeout=5)
-            if edge_off.is_alive():
-                logger.error(f"[FORCE] EdgeOffloading thread still hanging.")
 
 def init_sensitivity_csvs():
     results_dir = "fresco_sensitivity/"
@@ -67,18 +73,39 @@ def find_available_port(starting_from, used_ports):
         port += 1
     raise RuntimeError("No available ports found.")
 
-def cleanup_ganache_processes():
-    try:
-        output = subprocess.check_output(["ps", "aux"])
-        lines = output.decode().splitlines()
-        ganache_pids = [line.split()[1] for line in lines if "ganache-cli" in line and "--port" in line]
-        for pid in ganache_pids:
-            logger.info(f"[CLEANUP] Killing Ganache process PID {pid}")
-            os.kill(int(pid), signal.SIGKILL)
-    except Exception as e:
-        logger.error(f"[ERROR] Cleanup failed: {e}")
+def cleanup_ganache_processes(proc=None, tmp_erase=True):
+    """
+    Terminates a specific Ganache process (Popen or PID), or all Ganache if none provided.
+    """
+    if proc is not None:
+        try:
+            if isinstance(proc, subprocess.Popen):
+                logger.info(f"[CLEANUP] Terminating Ganache subprocess (PID={proc.pid})")
+                proc.terminate()
+                proc.wait(timeout=3)
+                logger.info("[CLEANUP] Ganache subprocess terminated successfully.")
+            elif isinstance(proc, int):
+                logger.info(f"[CLEANUP] Killing Ganache by PID={proc}")
+                os.kill(proc, signal.SIGKILL)
+                logger.info("[CLEANUP] Ganache PID killed successfully.")
+            else:
+                logger.warning(f"[CLEANUP] Unsupported proc type: {type(proc)}")
+        except Exception as e:
+            logger.warning(f"[CLEANUP] Failed to terminate Ganache: {e}")
+    else:
+        logger.info("[CLEANUP] No specific process provided — legacy mode (kill all Ganache)")
+        try:
+            output = subprocess.check_output(["ps", "aux"])
+            lines = output.decode().splitlines()
+            ganache_pids = [line.split()[1] for line in lines if "ganache-cli" in line and "--port" in line]
+            for pid in ganache_pids:
+                logger.info(f"[CLEANUP] Killing Ganache process PID {pid}")
+                os.kill(int(pid), signal.SIGKILL)
+        except Exception as e:
+            logger.error(f"[ERROR] Cleanup failed: {e}")
 
-    clean_ganache_temp()
+    if tmp_erase:
+        clean_ganache_temp()
 
 def clean_ganache_temp():
     logger.info("[INFO] Cleaning old Ganache temp files in /tmp...")
@@ -236,6 +263,7 @@ def run_qrl_sim(app, suffix, profile, port=8545):
         app_name=app,
         profile=profile,
         disable_trace_log = False,
+        stop_event = stop_event
     )
 
     edge_off.deploy_qrl_ode()
@@ -249,9 +277,10 @@ def run_qrl_sim(app, suffix, profile, port=8545):
         edge_off.join(timeout=5)
         if edge_off.is_alive():
             logger.error(f"[FORCE] EdgeOffloading thread did not exit cleanly.")
-    # experiment_run()
-
-def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545, sweep = False):
+    finally:
+      cleanup_child_processes(edge_off)
+   # experiment_run()
+def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port=8545, sweep=False):
     """
     Executes full benchmarking across all offloading models (FRESCO, SQ, SMT, MDP)
     with the same application and simulation setup, using legacy-style execution
@@ -260,20 +289,22 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545, swe
     req_q, rsp_q = Queue(), Queue()
     proc_name = current_process().name
     logger.info(f"\n=== Starting {proc_name} ===")
-    logger.info(f"[Init] Parameters -> alpha: {alpha}, beta: {beta}, gamma: {gamma}, k: {k}, app: {app}, ID: {suffix}, port: {port}")
+    logger.info(f"[Init] Parameters -> α={alpha}, β={beta}, γ={gamma}, k={k}, app={app}, ID={suffix}, port={port}")
     Settings.workload_profile = profile
     logger.info(f"[SETTINGS] Workload profile set to: {Settings.workload_profile}")
+    
     ganache_proc = None
     edge_off = None
+    stop_event = Event()
 
     if os.getenv("MULTICHAIN") == "1":
         ganache_proc = start_ganache_instance(port)
-    
+
     try:
         handler = ChainHandler(Testnets.GANACHE, port=port, account_index=suffix)
         if not re.fullmatch(r"0x[a-fA-F0-9]{40}", handler._account):
             raise ValueError(f"Invalid Ethereum account for suffix {suffix}: {handler._account}")
-    
+
         if os.getenv("MULTICHAIN") == "1":
             contract_address = handler.deploy_smart_contract()
             handler.load_contract(contract_address)
@@ -286,41 +317,46 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port = 8545, swe
                     raise RuntimeError("Timeout waiting for contract_address.txt to be created.")
                 time.sleep(0.2)
             with open(addr_path, "r") as f:
-                addr = f.read().strip()
-                handler.load_contract(addr)
-   
-        stop_event = Event()
+                handler.load_contract(f.read().strip())
+
         edge_off = EdgeOffloading(
-            req_q,
-            rsp_q,
-            Settings.APP_EXECUTIONS,
-            Settings.SAMPLES,
-            Settings.CONSENSUS_DELAY,
-            Settings.SCALABILITY,
-            Settings.NUM_LOCS,
-            alpha=alpha,
-            beta=beta,
-            gamma=gamma,
-            k=k,
-            suffix=suffix,
-            app_name = app,
-            profile = profile,
-            disable_trace_log = True,
-            use_blockchain = True
-        )   
+            req_q, rsp_q,
+            Settings.APP_EXECUTIONS, Settings.SAMPLES,
+            Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS,
+            alpha=alpha, beta=beta, gamma=gamma, k=k,
+            suffix=suffix, app_name=app, profile=profile,
+            disable_trace_log=False, use_blockchain=True,
+            stop_event=stop_event
+        )
 
         edge_off.deploy_fresco_ode()
         edge_off._id_suffix = suffix
         edge_off.start()
         experiment_run(handler, req_q, rsp_q)
-        if sweep:
-          output_filename = f"fresco_sensitivity/sensitivity_summary_FRESCO_a{alpha}_b{beta}_g{gamma}_{app}.csv"
-          edge_off.log_sensitivity_summary()
-          print(f"[{proc_name}] Summary saved to {output_filename}")
 
+        #logger.info(f"[{proc_name}] Waiting for EdgeOff thread to finish")
+        #edge_off.join(timeout=15)
+
+        #if edge_off.is_alive():
+        #    logger.warning(f"[{proc_name}] EdgeOff thread did not exit after timeout. Forcing shutdown...")
+        #    stop_event.set()
+        #    edge_off.join(timeout=5)
+        #    if edge_off.is_alive():
+        #        logger.error(f"[{proc_name}] EdgeOff thread is STILL alive after forced shutdown.")
+        #    else:
+        #        logger.info(f"[{proc_name}] EdgeOff thread stopped on second attempt.")
+        
+        if sweep:
+            edge_off.log_sensitivity_summary()
+            logger.info(f"[{proc_name}] Summary saved for α={alpha}, β={beta}, γ={gamma}")
+
+    except Exception as e:
+        logger.exception(f"[{proc_name}] Exception occurred: {e}")
     finally:
+        logger.info(f"[{proc_name}] Entering final cleanup...")
         cleanup_child_processes(edge_off)
-        cleanup_ganache_processes()
+        cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
+        logger.info(f"[{proc_name}] Final cleanup complete.")
 
 def run_simulation(ode_type, app, suffix, profile, port=8545):
     """
@@ -366,8 +402,8 @@ def run_simulation(ode_type, app, suffix, profile, port=8545):
             req_q, rsp_q,
             Settings.APP_EXECUTIONS, Settings.SAMPLES,
             Settings.CONSENSUS_DELAY, Settings.SCALABILITY, Settings.NUM_LOCS,
-            suffix=suffix, app_name=app, profile=profile,
-            disable_trace_log=True
+            suffix=suffix, app_name=app, profile=profile, disable_trace_log=False, 
+            use_blockchain = use_blockchain, stop_event = stop_event
         )
 
         deploy_map = {
@@ -400,24 +436,56 @@ def run_simulation(ode_type, app, suffix, profile, port=8545):
 
     finally:
         cleanup_child_processes(edge_off)
+        print(f"ODE ID = {edge_off.suffix} use blockchain: {use_blockchain}")
         if use_blockchain:
-            cleanup_ganache_processes()
+            cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
 
-atexit.register(cleanup_ganache_processes)
-def handle_interrupt(signum, frame):
-    logger.info(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
-    cleanup_ganache_processes()
-    sys.exit(1)
+def cleanup_child_processes(edge_off):
+    logger.info("[CLEANUP] Running child process/thread cleanup")
 
-signal.signal(signal.SIGINT, handle_interrupt)
-signal.signal(signal.SIGTERM, handle_interrupt)
+    children = multiprocessing.active_children()
+    if not children:
+        logger.info("[CLEANUP] No active multiprocessing children detected.")
+    else:
+        logger.info(f"[CLEANUP] Found {len(children)} active child processes:")
+        for child in children:
+            logger.info(f" - PID={child.pid} Name={child.name} Alive={child.is_alive()}")
+
+    for child in children:
+        try:
+            logger.info(f"[CLEANUP] Terminating child process PID={child.pid}")
+            child.terminate()
+            child.join(timeout=5)
+            logger.info(f"[CLEANUP] Child process PID={child.pid} terminated")
+        except Exception as e:
+            logger.error(f"[CLEANUP] Failed to terminate child PID={child.pid}: {e}")
+
+    if edge_off is not None:
+        logger.info(f"[CLEANUP] EdgeOff thread check: {edge_off.name}")
+        if edge_off.is_alive():
+            logger.warning("[CLEANUP] EdgeOffloading thread is still alive. Attempting graceful shutdown...")
+            try:
+                edge_off.stop_event.set()
+            except Exception as e:
+                logger.warning(f"[CLEANUP] Failed to set stop_event: {e}")
+
+            edge_off.join(timeout=5)
+            if edge_off.is_alive():
+                logger.error("[FORCE] EdgeOffloading thread is STILL hanging after join.")
+            else:
+                logger.info("[CLEANUP] EdgeOffloading thread joined successfully.")
+        else:
+            logger.info("[CLEANUP] EdgeOffloading already stopped.")
+    else:
+        logger.info("[CLEANUP] No edge_off instance provided (None)")
 
 random.seed (42)
 # public variables
 reg_nodes = list ()
 cached_trx = list ()
 update_thread = False
-req_q, rsp_q = Queue (), Queue ()
+running_processes = []
+#req_q, rsp_q = Queue (), Queue ()
 #chain = None
 
 #if (len (sys.argv) - 1) == 2: 
@@ -522,6 +590,10 @@ if sys.argv[1] == 'naviar':
 
 
 if __name__ == '__main__':
+    MAIN_PID = os.getpid()
+    atexit.register(cleanup_ganache_processes)
+    signal.signal(signal.SIGINT, handle_interrupt)
+    signal.signal(signal.SIGTERM, handle_interrupt)
     clean_ganache_temp()
     init_sensitivity_csvs()
     parser = argparse.ArgumentParser()
@@ -601,6 +673,7 @@ if __name__ == '__main__':
                 )
                 proc.start()
                 processes.append(proc)
+                running_processes.append(proc)
                 logger.info(f"[SPAWN] α={alpha}, β={beta}, γ={gamma}, port={port}")
 
         # Wait for current batch to finish before starting next
@@ -636,8 +709,8 @@ if __name__ == '__main__':
                 logger.info(f"[GANACHE] Launching Ganache for {model.upper()} on port {port}")
                 ganache_proc = start_ganache_instance(port)
                 ganache_procs.append(ganache_proc)
-            else:
-                port = 8545
+            #else:
+            #    port = 8545
 
             if model == "fresco":
                 proc = Process(
@@ -653,25 +726,18 @@ if __name__ == '__main__':
 
             proc.start()
             processes.append(proc)
+            running_processes.append(proc)
             logger.info(f"[SPAWN] {model.upper()} launched with suffix={suffix}, port={port}")
 
-        #for proc in processes:
-        #    proc.join()
-         # ✅ NEW: Poll for completion with timeout
-        POLL_INTERVAL = 2
-        MAX_WAIT = 600  # Wait at most 10 minutes
-        start_time = time.time()
-        while time.time() - start_time < MAX_WAIT:
-            alive_procs = [p for p in processes if p.is_alive()]
-            if not alive_procs:
-                break
-            time.sleep(POLL_INTERVAL)
-
+        for proc in processes:
+            proc.join()
+        
+        logger.warning("[CLEANUP] Cleaning everything...")
         for proc in processes:
             if proc.is_alive():
-                logger.warning(f"[TIMEOUT] Terminating hanging process PID={proc.pid}")
                 proc.terminate()
-                proc.join(timeout=5)
+        cleanup_ganache_processes()
+         # ✅ NEW: Poll for completion with timeout
 
       #except KeyboardInterrupt:
       #  logger.warning("[INTERRUPT] Received. Attempting graceful shutdown...")
@@ -717,6 +783,7 @@ if __name__ == '__main__':
         )
 
       proc.start()
+      running_processes.append(proc)
       proc.join()
 
       if args.multi_chain:

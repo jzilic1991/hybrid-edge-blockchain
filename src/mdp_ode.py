@@ -26,15 +26,11 @@ class MdpOde(OffloadingDecisionEngine):
         cls._mobile_device = None
         
         for i in range (len (cls._offloading_sites)):
-
             cls._offloading_sites[i].set_off_action_index (i)
-
             if cls._offloading_sites[i].get_node_prototype () == NodePrototypes.MD:
-
               cls._mobile_device = cls._offloading_sites[i]
 
         if cls._mobile_device == None:
-
           raise ValueError ("Mobile device instance was not found in the current cell location!")
 
         cls._init_settings()
@@ -106,13 +102,11 @@ class MdpOde(OffloadingDecisionEngine):
 
                 if any(validity_vector):
                     continue
-
                 else:
                     offloading_site_index = cls._mobile_device.get_offloading_action_index()
                     break
 
             break
-
           
         return (cls._offloading_sites[offloading_site_index], \
             metrics[cls._offloading_sites[offloading_site_index]])
@@ -201,11 +195,20 @@ class MdpOde(OffloadingDecisionEngine):
                         cls._response_time_matrix[i][j][k] = 0.0
                         continue
 
-                    task_rsp_time = metrics[cls._offloading_sites[k]]['rt']
+                    site = cls._offloading_sites[k]
+                    if site not in metrics:
+                        cls._R[i][j][k] = 0.0
+                        cls._response_time_matrix[i][j][k] = 0.0
+                        continue
+
+                    task_rsp_time = metrics[site]['rt']
+                    #task_rsp_time = metrics[cls._offloading_sites[k]]['rt']
                     #cls._OffloadingDecisionEngine__compute_complete_task_time_completion(task, \
                     #        cls._offloading_sites[k], cls._offloading_sites[j])
-                    task_energy_consum = metrics[cls._offloading_sites[k]]['ec']
-                    task_price = metrics[cls._offloading_sites[k]]['pr']
+                    #task_energy_consum = metrics[cls._offloading_sites[k]]['ec']
+                    #task_price = metrics[cls._offloading_sites[k]]['pr']
+                    task_energy_consum = metrics[site]['ec']
+                    task_price = metrics[site]['pr']
                     #cls._OffloadingDecisionEngine__compute_complete_energy_consumption\
                     #        (task_rsp_time, cls._offloading_sites[k], cls._offloading_sites[j])
                     task_time_completion_reward = Model.task_rsp_time_rwd(task_rsp_time)
