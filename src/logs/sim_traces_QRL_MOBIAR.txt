@@ -1,0 +1,38 @@
+########### CELL 0 #############
+Availability distributions (statistically): {'ER': 0.38, 'ED': 0.24, 'EC': 0.97, 'CD': 1.0, 'MD': 1.0}
+Offloading distribution (percentage): {'ER': 0.0, 'ED': 20.0, 'EC': 20.0, 'CD': 0.0, 'MD': 60.0}
+Offloading failure distribution (percentage): {'ER': 0, 'ED': 0.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
+Average task failure rate (percentage) is 0.0
+Constraint violation distribution (percentage): {'ER': 0, 'ED': 0.0, 'EC': 0.0, 'CD': 0, 'MD': 0.0}
+Average constraint violation rate is 0.0 %
+Offloading decision time overhead: (36 nodes, 0.300000 s)
+
+########### CELL 1 #############
+Availability distributions (statistically): {'ER': 0.34, 'ED': 0.17, 'EC': 0.25, 'CD': 0.99, 'MD': 1.0}
+Offloading distribution (percentage): {'ER': 10.0, 'ED': 0.0, 'EC': 0.0, 'CD': 10.0, 'MD': 80.0}
+Offloading failure distribution (percentage): {'ER': 0.0, 'ED': 0, 'EC': 0, 'CD': 0.0, 'MD': 0.0}
+Average task failure rate (percentage) is 0.0
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0, 'EC': 0, 'CD': 0.0, 'MD': 0.0}
+Average constraint violation rate is 0.0 %
+Offloading decision time overhead: (62 nodes, 0.774000 s)
+
+########### CELL 2 #############
+Availability distributions (statistically): {}
+Offloading distribution (percentage): {}
+Offloading failure distribution (percentage): {}
+Average task failure rate (percentage) is 0.0
+Constraint violation distribution (percentage): {}
+Average constraint violation rate 0.0 %
+Offloading decision time overhead: (166 nodes, 9.323000 s)
+
+After 2 samples, average is 0.412 s (min: 0.298, max: 0.525, var: 0.013, std: 0.113, median: 0.412)
+After 2 samples, average is 0.414 J (min: 0.272, max: 0.556, var: 0.020, std: 0.142, median: 0.414)
+After 2 samples, average is 1.032 monetary units (min: 0.823, max: 1.241, var: 0.044, std: 0.209, median: 1.032)
+After 2 samples, average is 99.959 % of energy remains (min: 99.944, max: 99.973, var: 0.000, std: 0.014, median: 99.959)
+After 2 samples, average is 0.000 % QoS violation rate (min: 0.000, max: 0.000, var: 0.000, std: 0.000, median: 0.000)
+Offloading distribution (percentage): {'ER': 5.0, 'ED': 10.0, 'EC': 10.0, 'CD': 5.0, 'MD': 70.0}
+Offloading failure distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0.0, 'CD': 0.0, 'MD': 0.0}
+Average task failure rate is 0.0 %
+Constraint violation distribution (percentage): {'ER': 0.0, 'ED': 0.0, 'EC': 0.0, 'CD': 0.0, 'MD': 0.0}
+Average constraint violation rate is 0.0 %
+

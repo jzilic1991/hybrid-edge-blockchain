@@ -148,14 +148,15 @@ class EdgeOffloading (Thread):
     if not self.disable_trace_log:
         self._log = self._s_ode.get_logger ()
     
-    off_sites = self.__update_and_register_off_sites ()
-    if self._app_name:
+    app = None 
+    if self._app_name != "random" and self._app_name != None:
         app = self._m_app_prof.dep_app (self._app_name)
     else:
         app = self._m_app_prof.dep_rand_mob_app()
     
     app.run ()
     
+    off_sites = self.__update_and_register_off_sites(app.get_name())
     self._s_ode.set_cell_stats (self._r_mon.get_cell_name ())
     epoch_cnt = 0 # counts task offloadings
     exe_cnt = 0   # counts application executions
@@ -178,17 +179,18 @@ class EdgeOffloading (Thread):
 
     while not self.stop_event.is_set():
       (curr_progress, prev_progress) = self.__print_progress (exe_cnt, samp_cnt, \
-        curr_progress, prev_progress)
+        curr_progress, prev_progress, app.get_name())
 
       tasks = app.get_ready_tasks ()
       timestamp = round(time_period * period_cnt, 3)
 
       # when all application tasks are completeid
       if len (tasks) == 0:
-        if self._app_name:
+        if self._app_name != "random" and self._app_name != None:
             app = self._m_app_prof.dep_app (self._app_name)
         else:
             app = self._m_app_prof.dep_rand_mob_app()
+        
         app.run ()
         # update current site of task exeuction when previous app execution is completed
         self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
@@ -212,7 +214,7 @@ class EdgeOffloading (Thread):
             self.__get_avail_distro (off_sites))
 
           self._cell_number += 1
-          off_sites = self.__update_and_register_off_sites ()
+          off_sites = self.__update_and_register_off_sites(app.get_name())
           self._s_ode.set_cell_stats (self._cell_number)
           self._s_ode.set_curr_node (Util.get_mob_site (off_sites))
 
@@ -296,9 +298,7 @@ class EdgeOffloading (Thread):
 
 
   def __get_avail_distro (self, off_sites):
-
     avail_distro = dict ()
-  
     for site in off_sites:
       # avail distro is stored by node prototype key
       node_proto = site.get_node_prototype ()
@@ -310,24 +310,20 @@ class EdgeOffloading (Thread):
     return avail_distro
 
 
-  def __update_and_register_off_sites (self):
+  def __update_and_register_off_sites (self, app_name):
     off_sites = self._r_mon.get_cell (self._cell_number)
     # register offloading sites of new switched cell location
-    off_sites = self.__register_nodes (off_sites)
+    off_sites = self.__register_nodes (off_sites, app_name)
     # check if MDP decision engine is deployed, if yes, then update matrices with offloading site list
     if isinstance (self._s_ode, (MdpOde, QrlOde)):
       self._s_ode.update_matrices (off_sites)
 
     return off_sites
 
-
   def __compute_time_period (self, num_of_tasks):
-
     return round (1 / (num_of_tasks * (self._user_move)), 3)
 
-
-  def __print_progress (self, exe_cnt, samp_cnt, curr_progress, prev_progress):
-
+  def __print_progress (self, exe_cnt, samp_cnt, curr_progress, prev_progress, app_name):
     prev_progress = curr_progress
     curr_progress = round((exe_cnt + (samp_cnt * self._exe)) / \
       (self._samp * self._exe) * 100)
@@ -338,24 +334,25 @@ class EdgeOffloading (Thread):
         curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0
     ):
       logger.info(
-          "%s%% - %s (ID = %s [%s])",
+          "%s%% - %s (ID = %s [%s], app_name = %s)",
           curr_progress,
           datetime.datetime.utcnow(),
           self.suffix,
-          self._s_ode.get_name()
+          self._s_ode.get_name(),
+          app_name
       )
 
     return (curr_progress, prev_progress)
 
-
-  def __register_nodes (self, off_sites):
+  def __register_nodes (self, off_sites, app_name):
     names = [site.get_n_id () for site in off_sites]
     logger.info(
-        "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s [%s]]",
+        "Registration of %s nodes (Cell ID = %s) -> [ODE ID = %s [%s], app_name = %s]",
         len(names),
         self._cell_number,
         self.suffix,
-        self._s_ode.get_name()
+        self._s_ode.get_name(),
+        app_name
     )
     if self.use_blockchain:
         self._req_q.put (('reg', names))

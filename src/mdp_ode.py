@@ -13,7 +13,6 @@ from models import Model
 class MdpOde(OffloadingDecisionEngine):
 
     def __init__(self, name, curr_n, md, app_name, con_delay, disable_trace_log = True):
-
         super().__init__(name, curr_n, md, app_name, con_delay, disable_trace_log = disable_trace_log)
         self._mobile_device = md
         self._offloading_sites = list ()
@@ -21,7 +20,6 @@ class MdpOde(OffloadingDecisionEngine):
 
     # when mobile device arrives in a new cell then offloading site list and MDP matrices  are updated
     def update_matrices (cls, off_sites):
-
         cls._offloading_sites = off_sites
         cls._mobile_device = None
         
@@ -37,14 +35,14 @@ class MdpOde(OffloadingDecisionEngine):
 
 
     def offloading_decision (cls, task, metrics, timestamp, app_name, constr, qos, cell_name):
-
         validity_vector = [cls._offloading_sites[i].avail_or_not (timestamp) \
             for i in range (len (cls._offloading_sites))]
         
         for off_site in cls._offloading_sites:
             if not off_site in metrics.keys ():
                 validity_vector[off_site.get_offloading_action_index()] = False
-
+        
+        offloading_site_index = 0
         while True:
             if not task.is_offloadable():
                 for i in range (len(validity_vector)):
@@ -108,8 +106,17 @@ class MdpOde(OffloadingDecisionEngine):
 
             break
           
-        return (cls._offloading_sites[offloading_site_index], \
-            metrics[cls._offloading_sites[offloading_site_index]])
+       # return (cls._offloading_sites[offloading_site_index], \
+       #     metrics[cls._offloading_sites[offloading_site_index]])
+        # The candidate site might not be present in the metrics dict when
+        # offloading sites are removed due to failure. Attempting to access a
+        # missing key would raise ``KeyError``. In such cases fallback to the
+        # mobile device which is always included in ``metrics``.
+        cand_site = cls._offloading_sites[offloading_site_index]
+        if cand_site not in metrics:
+            cand_site = cls._mobile_device
+
+        return (cand_site, metrics[cand_site])
 
 
     def _init_settings(cls):

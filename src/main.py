@@ -193,7 +193,6 @@ def experiment_run (chain, req_q, rsp_q):
         if msg[0] == 'reg':
             for name in msg[1]:
                 result = chain.register_node (name)
-                # print ('Node is registered: ' + str (result))
                 reg_nodes.append (result)
 
             rsp_q.put (('reg_rsp', reg_nodes))
@@ -229,8 +228,6 @@ def experiment_run (chain, req_q, rsp_q):
                     if not update_thread:
                         result = chain.unregister_node (nodeId)
                         break
-                    
-                    # print ('Node is unregistered: ' + str (result))
             
             rsp_q.put ('confirm')
             break
@@ -279,7 +276,7 @@ def run_qrl_sim(app, suffix, profile, port=8545):
             logger.error(f"[FORCE] EdgeOffloading thread did not exit cleanly.")
     finally:
       cleanup_child_processes(edge_off)
-   # experiment_run()
+
 def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port=8545, sweep=False):
     """
     Executes full benchmarking across all offloading models (FRESCO, SQ, SMT, MDP)
@@ -423,9 +420,6 @@ def run_simulation(ode_type, app, suffix, profile, port=8545):
 
     finally:
         cleanup_child_processes(edge_off)
-        print(f"ODE ID = {edge_off.suffix} use blockchain: {use_blockchain}")
-        #if use_blockchain:
-        #    cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
 
 def cleanup_child_processes(edge_off):
     logger.info("[CLEANUP] Running child process/thread cleanup")
@@ -609,6 +603,10 @@ if __name__ == '__main__':
         choices=["fresco", "sq", "smt", "mdp", "qrl"],
         help="Run only a specific offloading decision engine (mutually exclusive with fresco_sweep)",
     )
+    parser.add_argument(
+        '--all-apps', action='store_true',
+        help='Run the chosen ODE for all applications in parallel'
+    )
     args = parser.parse_args()
 
     if not args.multi_chain and (args.mode == "fresco_sweep" or args.ode in ("fresco", "sq")):
@@ -734,40 +732,83 @@ if __name__ == '__main__':
         cleanup_ganache_processes()
 
     elif args.mode == "ode":
-      if not args.ode:
-        raise ValueError("ODE engine must be specified with --ode when using mode 'ode'")
+        if not args.ode:
+            raise ValueError("ODE engine must be specified with --ode when using mode 'ode'")
+      
+        if args.all_apps:
+            apps = ["mobiar", "naviar", "intrasafed", "random"]
+            processes = []
+            ganache_procs = []
+            used_ports = set()
+            suffix = 0
 
-      app = None if args.app.lower() == "random" else args.app.upper()
-      suffix = 1
-      port = 8545
-      used_ports = set()
-      ganache_proc = None 
+            for app_name in apps:
+                suffix += 1
+                port = 8545
+                ganache_proc = None
+                
+                if args.multi_chain and args.ode in ("fresco", "sq"):
+                    port = find_available_port(8545 + suffix, used_ports)
+                    os.environ["MULTICHAIN"] = "1"
+                    ganache_proc = start_ganache_instance(port)
+                    ganache_procs.append(ganache_proc)
 
-      if args.multi_chain and args.ode in ("fresco", "sq"):
-          suffix = 1
-          port = find_available_port(8545 + suffix, used_ports)
-          os.environ["MULTICHAIN"] = "1"
-          ganache_proc = sart_ganache_instance(port)
-      else:
-          suffix = 0  # ✅ Important: matches account_index used during contract deployment
-          port = 8545
+                if args.ode == "fresco":
+                    proc = Process(
+                        target=run_fresco_sim,
+                        args=(Settings.W_RT, Settings.W_EC, Settings.W_PR, Settings.K,
+                              None if app_name == "random" else app_name.upper(),
+                              suffix, args.profile),
+                        kwargs={"port": port}
+                    )
+                else:
+                    proc = Process(
+                        target=run_simulation,
+                        args=(args.ode,
+                              None if app_name == "random" else app_name.upper(),
+                              suffix, args.profile, port)
+                    )
 
-      if args.ode == "fresco":
-        proc = Process(
-            target=run_fresco_sim,
-            args=(Settings.W_RT, Settings.W_EC, Settings.W_PR, Settings.K, app, suffix, args.profile),
-            kwargs={"port": port}
-        )
-      else:
-        proc = Process(
-            target=run_simulation,
-            args=(args.ode, app, suffix, args.profile, port)
-        )
+                proc.start()
+                processes.append(proc)
+                running_processes.append(proc)
 
-      proc.start()
-      running_processes.append(proc)
-      proc.join()
+            for proc in processes:
+                proc.join()
 
-      if args.multi_chain:
-        cleanup_ganache_processes(proc = ganache_proc)
+            if args.multi_chain:
+                cleanup_ganache_processes()
+        else:
+            app = None if args.app.lower() == "random" else args.app.upper()
+            suffix = 1
+            port = 8545
+            used_ports = set()
+            ganache_proc = None
 
+            if args.multi_chain and args.ode in ("fresco", "sq"):
+                suffix = 1
+                port = find_available_port(8545 + suffix, used_ports)
+                os.environ["MULTICHAIN"] = "1"
+                ganache_proc = start_ganache_instance(port)
+            else:
+                suffix = 0  # ✅ Important: matches account_index used during contract deployment
+                port = 8545
+
+            if args.ode == "fresco":
+                proc = Process(
+                    target=run_fresco_sim,
+                    args=(Settings.W_RT, Settings.W_EC, Settings.W_PR, Settings.K, app, suffix, args.profile),
+                    kwargs={"port": port}
+                )
+            else:
+                proc = Process(
+                    target=run_simulation,
+                    args=(args.ode, app, suffix, args.profile, port)
+                )
+
+            proc.start()
+            running_processes.append(proc)
+            proc.join()
+
+            if args.multi_chain:
+                cleanup_ganache_processes(proc=ganache_proc)
