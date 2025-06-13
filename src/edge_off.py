@@ -56,7 +56,6 @@ class EdgeOffloading (Thread):
     # it only works when number of executions is higher than number of locations
     # the division result should be a integer
     self._user_move = self._exe / locs
-    # print ("User move: " + str (self._user_move))
     # Sensitivity analysis params (FRESCO only)
     self.alpha = alpha if alpha is not None else 0.3
     self.beta = beta if beta is not None else 0.3
@@ -246,11 +245,9 @@ class EdgeOffloading (Thread):
               self._req_q.put (('close', [site.get_sc_id () for site in off_sites]))
         
               if self._rsp_q.get () == 'confirm':
-                logger.info(f"Confirm signal received for termination proc {self.suffix}!")
                 self.stop_event.set() 
                 break
           else:
-            logger.info(f"Terminating process {self.suffix}")
             self.stop_event.set()
             break
 
@@ -295,7 +292,6 @@ class EdgeOffloading (Thread):
 
       trace += "SC ID: " + str (site.get_sc_id ()) + ": " + str (site.get_reputation ()) + " | "
 
-    # print (trace)
     logger.info(trace)
 
 
@@ -338,7 +334,6 @@ class EdgeOffloading (Thread):
 
     # if curr_progress != prev_progress and (curr_progress % \
     #  Settings.PROGRESS_REPORT_INTERVAL == 0):
-    #  print(str(curr_progress) + "% - " + str(datetime.datetime.utcnow()) + " (ID = " + str(self.suffix) + ")")
     if curr_progress != prev_progress and (
         curr_progress % Settings.PROGRESS_REPORT_INTERVAL == 0
     ):
@@ -362,20 +357,14 @@ class EdgeOffloading (Thread):
         self.suffix,
         self._s_ode.get_name()
     )
-    #print("use blockchain = " + str(self.use_blockchain))
     if self.use_blockchain:
-        #print ("Send names: " + str(names))
         self._req_q.put (('reg', names))
         reg_nodes = self._rsp_q.get ()
-        #print ("Register nodes are " + str(reg_nodes))
         if reg_nodes[0] == 'reg_rsp':
           for ele in reg_nodes[1]:
-            #print ("off_sites = " + str(off_sites))
             for site in off_sites:
               if ele['name'] == site.get_n_id ():
                 site.set_sc_id (ele['id'])
-                #print (site.get_n_id () + " has availability of " + str (site.get_avail ()))
-                #print ("SC ID is a " + str (ele['id']))
                 break
 
     # measuring offloading decision time 
@@ -396,7 +385,6 @@ class EdgeOffloading (Thread):
         for site in off_sites:
           if site_rep[0] == site.get_sc_id ():
             site.set_reputation (site_rep[1])
-            # self._log.w (site.get_n_id () + " reputation is " + str (site.get_reputation ()))
 
     return off_sites
 
@@ -420,7 +408,6 @@ class EdgeOffloading (Thread):
         for site in off_sites:
           if site_rep['id'] == site.get_sc_id ():
             site.set_reputation (site_rep['score'])
-            # print (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
             # self._log.w (site.get_n_id () + " reputation reseted on " + str (site.get_reputation ()))
     
     return off_sites

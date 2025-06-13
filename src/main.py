@@ -297,8 +297,8 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port=8545, sweep
     edge_off = None
     stop_event = Event()
 
-    if os.getenv("MULTICHAIN") == "1":
-        ganache_proc = start_ganache_instance(port)
+    #if os.getenv("MULTICHAIN") == "1":
+    #    ganache_proc = start_ganache_instance(port)
 
     try:
         handler = ChainHandler(Testnets.GANACHE, port=port, account_index=suffix)
@@ -333,18 +333,6 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port=8545, sweep
         edge_off._id_suffix = suffix
         edge_off.start()
         experiment_run(handler, req_q, rsp_q)
-
-        #logger.info(f"[{proc_name}] Waiting for EdgeOff thread to finish")
-        #edge_off.join(timeout=15)
-
-        #if edge_off.is_alive():
-        #    logger.warning(f"[{proc_name}] EdgeOff thread did not exit after timeout. Forcing shutdown...")
-        #    stop_event.set()
-        #    edge_off.join(timeout=5)
-        #    if edge_off.is_alive():
-        #        logger.error(f"[{proc_name}] EdgeOff thread is STILL alive after forced shutdown.")
-        #    else:
-        #        logger.info(f"[{proc_name}] EdgeOff thread stopped on second attempt.")
         
         if sweep:
             edge_off.log_sensitivity_summary()
@@ -355,7 +343,6 @@ def run_fresco_sim(alpha, beta, gamma, k, app, suffix, profile, port=8545, sweep
     finally:
         logger.info(f"[{proc_name}] Entering final cleanup...")
         cleanup_child_processes(edge_off)
-        cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
         logger.info(f"[{proc_name}] Final cleanup complete.")
 
 def run_simulation(ode_type, app, suffix, profile, port=8545):
@@ -372,8 +359,8 @@ def run_simulation(ode_type, app, suffix, profile, port=8545):
     ganache_proc = None
     edge_off = None
 
-    if use_blockchain and os.getenv("MULTICHAIN") == "1":
-        ganache_proc = start_ganache_instance(port)
+    #if use_blockchain and os.getenv("MULTICHAIN") == "1":
+    #    ganache_proc = start_ganache_instance(port)
 
     try:
         handler = None
@@ -437,8 +424,8 @@ def run_simulation(ode_type, app, suffix, profile, port=8545):
     finally:
         cleanup_child_processes(edge_off)
         print(f"ODE ID = {edge_off.suffix} use blockchain: {use_blockchain}")
-        if use_blockchain:
-            cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
+        #if use_blockchain:
+        #    cleanup_ganache_processes(proc = ganache_proc, tmp_erase = False)
 
 def cleanup_child_processes(edge_off):
     logger.info("[CLEANUP] Running child process/thread cleanup")
@@ -652,7 +639,7 @@ if __name__ == '__main__':
         logger.info(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
         logger.info(f"[INFO] Max parallel processes: {max_parallel}")
         used_ports = set()
-    
+        ganache_procs = [] 
         # Batch execution
         for i in range(0, len(param_combinations), max_parallel):
             batch = param_combinations[i:i + max_parallel]
@@ -663,6 +650,8 @@ if __name__ == '__main__':
                     port = find_available_port(base_port + suffix, used_ports)
                     suffix = port - base_port  # Bind suffix to port offset
                     os.environ["MULTICHAIN"] = "1"
+                    ganache_proc = start_ganache_instance(port)
+                    ganache_procs.append(ganache_proc)
                 else:
                     port = 8545
 
@@ -709,8 +698,6 @@ if __name__ == '__main__':
                 logger.info(f"[GANACHE] Launching Ganache for {model.upper()} on port {port}")
                 ganache_proc = start_ganache_instance(port)
                 ganache_procs.append(ganache_proc)
-            #else:
-            #    port = 8545
 
             if model == "fresco":
                 proc = Process(
@@ -739,13 +726,6 @@ if __name__ == '__main__':
         cleanup_ganache_processes()
          # ✅ NEW: Poll for completion with timeout
 
-      #except KeyboardInterrupt:
-      #  logger.warning("[INTERRUPT] Received. Attempting graceful shutdown...")
-      #  for proc in processes:
-      #      if proc.is_alive():
-      #          proc.terminate()
-      #  cleanup_ganache_processes()  # fallback cleanup
-
       finally:
         logger.warning("[CLEANUP] Cleaning everything...")
         for proc in processes:
@@ -761,11 +741,13 @@ if __name__ == '__main__':
       suffix = 1
       port = 8545
       used_ports = set()
-      
+      ganache_proc = None 
+
       if args.multi_chain and args.ode in ("fresco", "sq"):
           suffix = 1
           port = find_available_port(8545 + suffix, used_ports)
           os.environ["MULTICHAIN"] = "1"
+          ganache_proc = sart_ganache_instance(port)
       else:
           suffix = 0  # ✅ Important: matches account_index used during contract deployment
           port = 8545
@@ -787,5 +769,5 @@ if __name__ == '__main__':
       proc.join()
 
       if args.multi_chain:
-        cleanup_ganache_processes()
+        cleanup_ganache_processes(proc = ganache_proc)
 
