@@ -13,6 +13,7 @@ import multiprocessing
 import socket
 import shutil
 import logging
+import tempfile
 from datetime import datetime
 from threading import Thread
 from queue import Queue
@@ -30,6 +31,9 @@ setup_logging(os.path.join("logs", "simulation.log"))
 # ``if __name__ == "__main__"`` block. Child processes keep this
 # value to identify that they are not the main process.
 MAIN_PID = None
+# Track Ganache processes started by this instance so we only
+# terminate our own at cleanup time.
+GANACHE_PROCESSES = []
 
 def handle_interrupt(signum, frame):
     logger.info(f"\n[INTERRUPT] Received signal {signum}. Cleaning up...")
@@ -74,44 +78,38 @@ def find_available_port(starting_from, used_ports):
     raise RuntimeError("No available ports found.")
 
 def cleanup_ganache_processes(proc=None, tmp_erase=True):
-    """
-    Terminates a specific Ganache process (Popen or PID), or all Ganache if none provided.
-    """
+    """Terminate Ganache processes started by this instance."""
+    global GANACHE_PROCESSES
+
+    targets = []
     if proc is not None:
-        try:
-            if isinstance(proc, subprocess.Popen):
-                logger.info(f"[CLEANUP] Terminating Ganache subprocess (PID={proc.pid})")
-                proc.terminate()
-                proc.wait(timeout=3)
-                logger.info("[CLEANUP] Ganache subprocess terminated successfully.")
-            elif isinstance(proc, int):
-                logger.info(f"[CLEANUP] Killing Ganache by PID={proc}")
-                os.kill(proc, signal.SIGKILL)
-                logger.info("[CLEANUP] Ganache PID killed successfully.")
-            else:
-                logger.warning(f"[CLEANUP] Unsupported proc type: {type(proc)}")
-        except Exception as e:
-            logger.warning(f"[CLEANUP] Failed to terminate Ganache: {e}")
+      targets = [entry for entry in GANACHE_PROCESSES if entry[0] == proc]
     else:
-        logger.info("[CLEANUP] No specific process provided — legacy mode (kill all Ganache)")
+      targets = GANACHE_PROCESSES[:]
+    for p, tdir in targets:
         try:
-            output = subprocess.check_output(["ps", "aux"])
-            lines = output.decode().splitlines()
-            ganache_pids = [line.split()[1] for line in lines if "ganache-cli" in line and "--port" in line]
-            for pid in ganache_pids:
-                logger.info(f"[CLEANUP] Killing Ganache process PID {pid}")
-                os.kill(int(pid), signal.SIGKILL)
+          if p.poll() is None:
+                logger.info(f"[CLEANUP] Terminating Ganache subprocess PID={p.pid}")
+                p.terminate()
+                p.wait(timeout=3)
         except Exception as e:
-            logger.error(f"[ERROR] Cleanup failed: {e}")
+          logger.warning(f"[CLEANUP] Failed to terminate Ganache: {e}")
 
-    if tmp_erase:
-        clean_ganache_temp()
+        if tmp_erase and tdir:
+            clean_ganache_temp([tdir])
 
-def clean_ganache_temp():
+        if (p, tdir) in GANACHE_PROCESSES:
+            GANACHE_PROCESSES.remove((p, tdir))
+
+def clean_ganache_temp(dirs=None):
+    """Remove Ganache temporary directories for this instance."""
     logger.info("[INFO] Cleaning old Ganache temp files in /tmp...")
     import glob
+    
+    if dirs is None:
+        dirs = glob.glob("/tmp/tmp-*")
 
-    for temp_path in glob.glob("/tmp/tmp-*"):
+    for temp_path in dirs:
         try:
             if os.path.isdir(temp_path):
                 shutil.rmtree(temp_path)
@@ -127,27 +125,33 @@ def start_ganache_instance(port):
     mnemonic = ""
     with open("../mnemonic.txt", "r") as mfile:
         mnemonic = mfile.read().strip()
-    logfile_path = f"ganache_logs/ganache_{port}.log"
     os.makedirs("ganache_logs", exist_ok=True)
+    logfile_path = f"ganache_logs/ganache_{port}.log"
     logfile = open(logfile_path, "w")
-
+    temp_dir = tempfile.mkdtemp(prefix=f"ganache_{port}_")
     ganache_cmd = [
         "ganache-cli",
         "--port", str(port),
         "--mnemonic", mnemonic,
         "--defaultBalanceEther", "1000",
-        "--accounts", "100"
+        "--accounts", "100",
+        "--db", temp_dir
     ]
 
-    proc = subprocess.Popen(ganache_cmd, stdout=logfile, stderr=subprocess.STDOUT)
-    logger.info(f"🚀 Starting Ganache on port {port} with PID {proc.pid}, logging to {logfile_path}")
-    
-    import socket
+    try:
+        proc = subprocess.Popen(ganache_cmd, stdout=logfile, stderr=subprocess.STDOUT)
+        GANACHE_PROCESSES.append((proc, temp_dir))
+    finally:
+        logfile.close()
+
+    logger.info(
+        f"🚀 Starting Ganache on port {port} with PID {proc.pid}, logging to {logfile_path}"
+    )
+
     start = time.time()
     while time.time() - start < 10:
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=1):
-                #break
                 return proc
         except (OSError, ConnectionRefusedError):
             time.sleep(0.5)
@@ -575,7 +579,7 @@ if __name__ == '__main__':
     atexit.register(cleanup_ganache_processes)
     signal.signal(signal.SIGINT, handle_interrupt)
     signal.signal(signal.SIGTERM, handle_interrupt)
-    clean_ganache_temp()
+    clean_ganache_temp([])
     init_sensitivity_csvs()
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -610,7 +614,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.multi_chain and (args.mode == "fresco_sweep" or args.ode in ("fresco", "sq")):
-        start_ganache_instance(8545)
+        ganache_proc = start_ganache_instance(8545)
 
         # Deploy contract if not already done
         deployer = ChainHandler(Testnets.GANACHE, account_index=0)
@@ -671,8 +675,11 @@ if __name__ == '__main__':
             if args.multi_chain:
                 cleanup_ganache_processes()  # ✅ Only clean up if using multichain
 
-        cleanup_ganache_processes()
-    
+        if args.multi_chain:
+            cleanup_ganache_processes()
+        else:
+            cleanup_ganache_processes(proc=ganache_proc)
+
     elif args.mode == "ode_all":
       # 1. Clean stale Ganache processes first (system-wide safety)
       cleanup_ganache_processes()
