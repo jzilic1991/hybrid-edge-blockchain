@@ -1,4 +1,5 @@
-import sys
+import argparse
+import os
 import re
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +14,17 @@ def _get_log_path(ode_name, app_name):
   return f"logs/sim_traces_{ode_name}_{app_name}.txt"
 
 
-def overhead_plot ():
+def _maybe_savefig(filename, save_dir):
+  """Save the current matplotlib figure if save_dir is provided, otherwise show."""
+  if save_dir:
+    os.makedirs(save_dir, exist_ok=True)
+    plt.savefig(os.path.join(save_dir, filename), dpi=300)
+    plt.close()
+  else:
+    plt.show()
+
+
+def overhead_plot (save_dir = None):
   data = dict ()
   ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
   # Include all targeted applications and the random workload
@@ -55,8 +66,7 @@ def overhead_plot ():
   plt.ylabel(r'Time (ms) [$log_{10}$ scale]')
   plt.tight_layout ()
   plt.legend(loc='upper left', fontsize = 12)
-  plt.show()
-
+  _maybe_savefig('overhead.png', save_dir)
   overhead_print (data)
 
 
@@ -68,8 +78,7 @@ def overhead_print(data):
     print (ode_names[i] + ": " + str (np.mean (data[ode_names[i]][1])) + " ms (" + str (data[ode_names[i]][1]) + ")" + \
       ", std: " + str (np.std (data[ode_names[i]][1])))
 
-
-def plot_objective (regex_exp, y_axis_title, show):
+def plot_objective (regex_exp, y_axis_title, show, save_dir=None, filename='objective.png'):
   # Add 'random' to include evaluation logs for the random workload
   app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
   x = np.arange(len(app_names))
@@ -116,8 +125,7 @@ def plot_objective (regex_exp, y_axis_title, show):
     plt.legend()
 
   plt.tight_layout ()
-  plt.show()
-
+  _maybe_savefig(filename, save_dir)
 
 def stacked_bar(data, series_labels, color_labels, category_labels = None, 
                 show_values = False, value_format = "{}", y_label = None, 
@@ -180,8 +188,7 @@ def stacked_bar(data, series_labels, color_labels, category_labels = None,
                              value_format.format(h), ha = "center", 
                              va = "center")
 
-
-def plot_offloading_distributions ():
+def plot_offloading_distributions (save_dir=None):
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
@@ -257,7 +264,7 @@ def plot_offloading_distributions ():
     ax.set_ylim(0, 102)
     plt.tight_layout ()
     plt.show()
-
+    _maybe_savefig(f'offload_dist_{app}.png', save_dir)
 
 def print_constraint_violation_distribution (samples):
   plt.rcParams.update({'font.size': 16})
@@ -306,7 +313,7 @@ def print_constraint_violation_distribution (samples):
     print ()
 
 
-def plot_average_qos_viols (regex, title):
+def plot_average_qos_viols (regex, title, save_dir=None, filename='qos_viols.png'):
   # Evaluate QoS violations for all apps including the random workload
   app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
   x = np.arange(len(app_n))
@@ -348,11 +355,10 @@ def plot_average_qos_viols (regex, title):
   plt.xticks(x, app_n, fontsize = 14)
   plt.legend(fontsize = 12)
   plt.tight_layout ()
-  plt.show()
+  _maybe_savefig(filename, save_dir)
 
 
-def plot_average_constr_viols (regex, title, samples):
-
+def plot_average_constr_viols (regex, title, samples, save_dir=None, filename='constr_viols.png'):
   # Include random workload when evaluating constraint violations
   app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED, 'random']
   x = np.arange(len(app_n))
@@ -394,11 +400,10 @@ def plot_average_constr_viols (regex, title, samples):
   plt.xlabel("Mobile applications")
   plt.xticks(x, app_n, fontsize = 14)
   plt.legend()
-  plt.show()
+  _maybe_savefig(filename, save_dir)
 
 
-def plot_objective_with_mal (regex_exp, y_axis_title, show):
-
+def plot_objective_with_mal (regex_exp, y_axis_title, show, save_dir=None, filename='objective_mal.png'):
   app_n = MobApps.NAVIAR
   mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
   x = np.arange(len(mal_scenarios))
@@ -447,17 +452,27 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show):
   if show:
     plt.legend()
 
-  plt.show()
+  _maybe_savefig(filename, save_dir)
+
+def main():
+  parser = argparse.ArgumentParser(description='Plot simulator results')
+  parser.add_argument('--save-dir', help='Directory to save figures instead of displaying them')
+  args = parser.parse_args()
+
+  overhead_plot(args.save_dir)
+  plot_objective("After (\d+) samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)",
+                'Response time (seconds)', True, args.save_dir, 'response_time.png')
+  plot_objective("After (\d+) samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)",
+                "Battery lifetime (%)", False, args.save_dir, 'battery_lifetime.png')
+  plot_objective("After (\d+) samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)",
+                "Monetary units", False, args.save_dir, 'monetary_units.png')
+  # print_constraint_violation_distribution ()
+  plot_offloading_distributions(args.save_dir)
+  # regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
+  # plot_average_constr_viols (regex, "Constraint violation rate (%)", samples, args.save_dir)
+  regex = "After (\d+) samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
+  plot_average_qos_viols(regex, "QoS violation rate (%)", args.save_dir, 'qos_violation_rate.png')
 
 
-# samples = sys.argv[1]
-overhead_plot ()
-plot_objective ("After (\d+) samples, average is (\d+\.\d+) s(.*) std: (\d+\.\d+)(.*)", 'Response time (seconds)', True)
-plot_objective ("After (\d+) samples, average is (\d+\.\d+) % of energy remains(.*) std: (\d+\.\d+)(.*)", "Battery lifetime (%)", False)
-plot_objective ("After (\d+) samples, average is (\d+\.\d+) monetary units(.*) std: (\d+\.\d+)(.*)", "Monetary units", False)
-# print_constraint_violation_distribution ()
-plot_offloading_distributions ()
-# regex = "Average constraint violation rate \(percentage\) is (\d+\.\d+)(.*)"
-# plot_average_constr_viols (regex, "Constraint violation rate (%)", samples)
-regex = "After (\d+) samples, average is (\d+\.\d+) % QoS violation rate(.*) std: (\d+\.\d+)(.*)"
-plot_average_qos_viols (regex, "QoS violation rate (%)")
+if __name__ == '__main__':
+  main()
