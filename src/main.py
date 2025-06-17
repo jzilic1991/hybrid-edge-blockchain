@@ -630,11 +630,12 @@ if __name__ == '__main__':
         max_parallel = args.max_parallel
         step = 0.2
         values = [round(x * step, 2) for x in range(int(1 / step) + 1)]
+        gammas = [0.2, 0.4, 0.6]
         param_combinations = []
 
-        for alpha in values:
-            for beta in values:
-                for gamma in values:
+        for gamma in gammas:
+            for alpha in values:
+                for beta in values:
                     if round(alpha + beta + gamma, 2) == 1.0:
                         param_combinations.append((alpha, beta, gamma))
 

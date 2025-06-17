@@ -37,6 +37,7 @@ for app in apps:
     betas = sorted(df["beta"].unique())
     alphas = sorted(df["alpha"].unique())
     gammas = sorted(df["gamma"].unique())
+    gammas_to_plot = [0.2, 0.4, 0.6]
 
     # ==================================================================
     #                       SCORE PLOTS
@@ -165,3 +166,74 @@ for app in apps:
     plt.savefig(output_objectives_file, dpi=300)
     plt.close(fig_objectives)
     print(f"Objective features plot saved: {output_objectives_file}")
+
+    # ==================================================================
+    #          GAMMA FIXED SUBPLOTS (γ = 0.2, 0.4, 0.6)
+    # ==================================================================
+    fig_gamma, axes_gamma = plt.subplots(len(gammas_to_plot), 3,
+                                         figsize=(FIGURE_WIDTH, FIGURE_HEIGHT * len(gammas_to_plot)))
+
+    for idx, gamma_fixed in enumerate(gammas_to_plot):
+        df_gamma = df[df["gamma"] == gamma_fixed]
+        if df_gamma.empty:
+            continue
+
+        # --------------------------------------------------
+        # Latency vs Alpha — connect all data visually
+        # --------------------------------------------------
+        ax_lat = axes_gamma[idx, 0]
+        df_sorted = df_gamma.sort_values("alpha")
+        ax_lat.plot(df_sorted["alpha"], df_sorted["latency"],
+                    label=f"γ={gamma_fixed:.1f}", marker='o')
+        for _, row in df_sorted.iterrows():
+            ax_lat.annotate(f"β={row['beta']:.1f}",
+                            (row["alpha"], row["latency"]),
+                            textcoords="offset points", xytext=(0, 5),
+                            ha='center', fontsize=ANNOTATION_FONTSIZE)
+        ax_lat.set_title(f"Latency vs Alpha (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
+        ax_lat.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_lat.set_ylabel("Latency", fontsize=AXIS_LABEL_FONTSIZE)
+
+        # --------------------------------------------------
+        # Energy vs Beta — connect all data visually
+        # --------------------------------------------------
+        ax_energy = axes_gamma[idx, 1]
+        df_sorted = df_gamma.sort_values("beta")
+        ax_energy.plot(df_sorted["beta"], df_sorted["energy"],
+                       label=f"γ={gamma_fixed:.1f}", marker='o')
+        for _, row in df_sorted.iterrows():
+            ax_energy.annotate(f"β={row['beta']:.1f}",
+                               (row["beta"], row["energy"]),
+                               textcoords="offset points", xytext=(0, 5),
+                               ha='center', fontsize=ANNOTATION_FONTSIZE)
+        ax_energy.set_title(f"Energy vs Beta (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
+        ax_energy.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_energy.set_ylabel("Energy", fontsize=AXIS_LABEL_FONTSIZE)
+
+        # --------------------------------------------------
+        # Cost vs Alpha — connect all data visually
+        # --------------------------------------------------
+        ax_cost = axes_gamma[idx, 2]
+        df_sorted = df_gamma.sort_values("alpha")
+        ax_cost.plot(df_sorted["alpha"], df_sorted["cost"],
+                     label=f"γ={gamma_fixed:.1f}", marker='o')
+        for _, row in df_sorted.iterrows():
+            ax_cost.annotate(f"β={row['beta']:.1f}",
+                             (row["alpha"], row["cost"]),
+                             textcoords="offset points", xytext=(0, 5),
+                             ha='center', fontsize=ANNOTATION_FONTSIZE)
+        ax_cost.set_title(f"Cost vs Alpha (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
+        ax_cost.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_cost.set_ylabel("Cost", fontsize=AXIS_LABEL_FONTSIZE)
+
+        # Common styling
+        for ax in axes_gamma[idx]:
+            ax.tick_params(axis='both', which='major', labelsize=TICK_LABEL_FONTSIZE)
+            ax.legend(fontsize=LEGEND_FONTSIZE)
+
+    plt.tight_layout()
+    output_gamma_file = os.path.join(output_dir, f"fresco_gamma_fixed_{app}.png")
+    plt.savefig(output_gamma_file, dpi=300)
+    plt.close(fig_gamma)
+    print(f"Gamma fixed plots saved: {output_gamma_file}")
+
