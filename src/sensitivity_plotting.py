@@ -202,10 +202,14 @@ for app in apps:
         ax_energy.plot(df_sorted["beta"], df_sorted["energy"],
                        label=f"γ={gamma_fixed:.1f}", marker='o')
         for _, row in df_sorted.iterrows():
-            ax_energy.annotate(f"β={row['beta']:.1f}",
-                               (row["beta"], row["energy"]),
-                               textcoords="offset points", xytext=(0, 5),
-                               ha='center', fontsize=ANNOTATION_FONTSIZE)
+            ax_energy.annotate(
+                f"α={row['alpha']:.1f}",
+                (row["beta"], row["energy"]),
+                textcoords="offset points",
+                xytext=(0, 5),
+                ha='center',
+                fontsize=ANNOTATION_FONTSIZE,
+            )
         ax_energy.set_title(f"Energy vs Beta (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
         ax_energy.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
         ax_energy.set_ylabel("Energy", fontsize=AXIS_LABEL_FONTSIZE)
