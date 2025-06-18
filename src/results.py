@@ -237,12 +237,26 @@ def plot_offloading_distributions (save_dir=None):
         else:
           matched = re.search(regex_ex, line)
           if matched:
-            result[ode_n][app_n]["ER"] = float (matched.group (2))
-            result[ode_n][app_n]["ED"] = float (matched.group (4))
-            result[ode_n][app_n]["EC"] = float (matched.group (6))
-            result[ode_n][app_n]["CD"] = float (matched.group (8))
-            result[ode_n][app_n]["MD"] = float (matched.group (10))
+              # Parse values
+              values = {
+                "ER": float(matched.group(2)),
+                "ED": float(matched.group(4)),
+                "EC": float(matched.group(6)),
+                "CD": float(matched.group(8)),
+                "MD": float(matched.group(10))
+              }
 
+              total = round(sum(values.values()))
+              if total == 99 or total == 101:
+              # Find key with the largest value
+                  max_key = max(values, key=values.get)
+                  if total == 99:
+                      values[max_key] += 1.0
+                  elif total == 101:
+                      values[max_key] -= 1.0
+              
+              # Assign corrected values
+              result[ode_n][app_n] = values
   # print (result)
   # exit ()
   for app in app_names:
@@ -263,6 +277,10 @@ def plot_offloading_distributions (save_dir=None):
 
     fig = plt.figure(figsize = (8, 6))
     ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
+    print(f"--- {app} ---")
+    for i, ode in enumerate(ode_names):
+        total = sum(result[ode][app].values())
+        print(f"{ode}: {result[ode][app]} (Sum: {total})")
 
     stacked_bar(
           data,
