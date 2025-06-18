@@ -9,6 +9,8 @@ from util import MobApps
 
 def _get_log_path(ode_name, app_name):
   """Return path to the log file for given ODE and application."""
+  if app_name == 'RANDOM':
+    app_name = app_name.lower()
   if ode_name == 'SMT' and app_name == 'random':
     return f"logs/sim_traces_MINLP_{app_name}.txt"
   return f"logs/sim_traces_{ode_name}_{app_name}.txt"
@@ -26,9 +28,9 @@ def _maybe_savefig(filename, save_dir):
 
 def overhead_plot (save_dir = None):
   data = dict ()
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
-  # Include all targeted applications and the random workload
-  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
+  # Include all targeted applications and the RANDOM workload
+  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'RANDOM']
 
   for ode in ode_names:
     data[ode] = list ([list (), list ()])
@@ -57,11 +59,10 @@ def overhead_plot (save_dir = None):
       data[ode][1].append (ele[1])
 
   plt.rcParams.update({'font.size': 16})
-  plt.scatter(data[ode_names[0]][0], np.log(data[ode_names[0]][1]), marker='o', color='red', label='MINLP')
-  plt.scatter(data[ode_names[1]][0], np.log(data[ode_names[1]][1]), marker='x', color='blue', label='SQ EDGE')
-  plt.scatter(data[ode_names[2]][0], np.log(data[ode_names[2]][1]), marker='.', color='green', label='MDP')
-  plt.scatter(data[ode_names[3]][0], np.log(data[ode_names[3]][1]), marker='+', color='orange', label='QRL')
-  plt.scatter(data[ode_names[4]][0], np.log(data[ode_names[4]][1]), marker='^', color='magenta', label='FRESCO')
+  plt.scatter(data["SMT"][0], np.log(data["SMT"][1]), marker='o', color='red', label='MINLP')
+  plt.scatter(data["SQ_MOBILE_EDGE"][0], np.log(data["SQ_MOBILE_EDGE"][1]), marker='x', color='blue', label='SQ')
+  plt.scatter(data["QRL"][0], np.log(data["QRL"][1]), marker='+', color='orange', label='QRL')
+  plt.scatter(data["FRESCO"][0], np.log(data["FRESCO"][1]), marker='^', color='magenta', label='FRESCO')
   plt.xlabel('Number of nodes')
   plt.ylabel(r'Time (ms) [$log_{10}$ scale]')
   plt.tight_layout ()
@@ -71,19 +72,19 @@ def overhead_plot (save_dir = None):
 
 
 def overhead_print(data):
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
 
   print ("Average time overhead:")
-  for i in range (len (ode_names)):
-    print (ode_names[i] + ": " + str (np.mean (data[ode_names[i]][1])) + " ms (" + str (data[ode_names[i]][1]) + ")" + \
-      ", std: " + str (np.std (data[ode_names[i]][1])))
+  for i in range(len(ode_names)):
+    print(ode_names[i] + ": " + str(np.mean(data[ode_names[i]][1])) + " ms (" + str(data[ode_names[i]][1]) + ")" +
+          ", std: " + str(np.std(data[ode_names[i]][1])))
 
 def plot_objective (regex_exp, y_axis_title, show, save_dir=None, filename='objective.png'):
-  # Add 'random' to include evaluation logs for the random workload
-  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
+  # Add 'RANDOM' to include evaluation logs for the RANDOM workload
+  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'RANDOM']
   x = np.arange(len(app_names))
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "QRL": 0.0, "FRESCO": 0.0}
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "QRL": 0.0, "FRESCO": 0.0}
   result = dict ()
 
   for ode_n in ode_names:
@@ -101,15 +102,31 @@ def plot_objective (regex_exp, y_axis_title, show, save_dir=None, filename='obje
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['SMT'], yerr=yerr_ode['SMT'], width=0.1, color='green',
+
+  err_smt = np.array([
+      [min(yerr_ode['SMT'], v) for v in result['SMT']],
+      [yerr_ode['SMT'] for _ in result['SMT']]
+  ])
+  err_sq = np.array([
+      [min(yerr_ode['SQ_MOBILE_EDGE'], v) for v in result['SQ_MOBILE_EDGE']],
+      [yerr_ode['SQ_MOBILE_EDGE'] for _ in result['SQ_MOBILE_EDGE']]
+  ])
+  err_qrl = np.array([
+      [min(yerr_ode['QRL'], v) for v in result['QRL']],
+      [yerr_ode['QRL'] for _ in result['QRL']]
+  ])
+  err_fresco = np.array([
+      [min(yerr_ode['FRESCO'], v) for v in result['FRESCO']],
+      [yerr_ode['FRESCO'] for _ in result['FRESCO']]
+  ])
+
+  ax.bar(x - 0.15, result['SMT'], yerr=err_smt, width=0.1, color='green',
          align='center', label='MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr=yerr_ode['SQ_MOBILE_EDGE'], width=0.1,
-         color='yellow', align='center', label='SQ EDGE', capsize=3)
-  ax.bar(x, result['MDP'], yerr=yerr_ode['MDP'], width=0.1, color='purple',
-         align='center', label='MDP', capsize=3)
-  ax.bar(x + 0.1, result['QRL'], yerr=yerr_ode['QRL'], width=0.1, color='orange',
+  ax.bar(x - 0.05, result['SQ_MOBILE_EDGE'], yerr=err_sq, width=0.1,
+         color='yellow', align='center', label='SQ', capsize=3)
+  ax.bar(x + 0.05, result['QRL'], yerr=err_qrl, width=0.1, color='orange',
          align='center', label='QRL', capsize=3)
-  ax.bar(x + 0.2, result['FRESCO'], yerr=yerr_ode['FRESCO'], width=0.1, color='red',
+  ax.bar(x + 0.15, result['FRESCO'], yerr=err_fresco, width=0.1, color='red',
          align='center', label='FRESCO', capsize=3)
 
   plt.xlabel('Mobile applications')
@@ -120,11 +137,13 @@ def plot_objective (regex_exp, y_axis_title, show, save_dir=None, filename='obje
   if y_axis_title == "Battery lifetime (%)":
     ax.set_ylim (60, 100)
 
-  # showing legend on the figure or not
-  if show:
-    plt.legend()
+  # showing legend only for response time plots
+  if y_axis_title == 'Response time (seconds)' and show:
+    plt.legend(loc='upper left', fontsize=12)
+    ax.set_ylim(0, 80)
 
-  plt.tight_layout ()
+  # Increase bottom margin to avoid overlap
+  plt.tight_layout(rect=[0, 0.05, 1, 1])
   _maybe_savefig(filename, save_dir)
 
 def stacked_bar(data, series_labels, color_labels, category_labels = None, 
@@ -192,10 +211,10 @@ def plot_offloading_distributions (save_dir=None):
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
-  # Include random workload results alongside fixed applications
-  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
+  # Include RANDOM workload results alongside fixed applications
+  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'RANDOM']
   x = np.arange(len(app_names))
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
   result = dict ()
   regex_ex = "Offloading distribution \(percentage\): {'(ER[^']*'): (\d+\.\d+), '(ED[^']*'): (\d+\.\d+)," + \
     " '(EC[^']*'): (\d+\.\d+), '(CD[^']*'): (\d+\.\d+), '(MD[^']*'): (\d+\.\d+)}"
@@ -227,22 +246,17 @@ def plot_offloading_distributions (save_dir=None):
   # print (result)
   # exit ()
   for app in app_names:
-    data = list ()
+    data = list()
     data.append((result[ode_names[0]][app]["MD"], result[ode_names[1]][app]["MD"],
-                 result[ode_names[2]][app]["MD"], result[ode_names[3]][app]["MD"],
-                 result[ode_names[4]][app]["MD"]))
+                 result[ode_names[2]][app]["MD"], result[ode_names[3]][app]["MD"]))
     data.append((result[ode_names[0]][app]["ER"], result[ode_names[1]][app]["ER"],
-                 result[ode_names[2]][app]["ER"], result[ode_names[3]][app]["ER"],
-                 result[ode_names[4]][app]["ER"]))
+                 result[ode_names[2]][app]["ER"], result[ode_names[3]][app]["ER"]))
     data.append((result[ode_names[0]][app]["ED"], result[ode_names[1]][app]["ED"],
-                 result[ode_names[2]][app]["ED"], result[ode_names[3]][app]["ED"],
-                 result[ode_names[4]][app]["ED"]))
+                 result[ode_names[2]][app]["ED"], result[ode_names[3]][app]["ED"]))
     data.append((result[ode_names[0]][app]["CD"], result[ode_names[1]][app]["CD"],
-                 result[ode_names[2]][app]["CD"], result[ode_names[3]][app]["CD"],
-                 result[ode_names[4]][app]["CD"]))
+                 result[ode_names[2]][app]["CD"], result[ode_names[3]][app]["CD"]))
     data.append((result[ode_names[0]][app]["EC"], result[ode_names[1]][app]["EC"],
-                 result[ode_names[2]][app]["EC"], result[ode_names[3]][app]["EC"],
-                 result[ode_names[4]][app]["EC"]))
+                 result[ode_names[2]][app]["EC"], result[ode_names[3]][app]["EC"]))
 
     series_labels = ['MD', 'ER', 'ED', 'CD', 'EC']
     color_labels = ['lightgreen', 'lightblue', 'lightpink', 'yellow', 'lavender']
@@ -250,13 +264,14 @@ def plot_offloading_distributions (save_dir=None):
     fig = plt.figure(figsize = (8, 6))
     ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
 
-    stacked_bar(data,
+    stacked_bar(
+          data,
           series_labels,
           color_labels,
-          category_labels = ["MINLP", "SQ EDGE", "MDP", "QRL", "FRESCO"],
-          show_values = True, 
-          value_format = "{:.2f}",
-          y_label = "Quantity (units)") 
+          category_labels=["MINLP", "SQ", "QRL", "FRESCO"],
+          show_values=True,
+          value_format="{:.2f}",
+          y_label="Quantity (units)")
 
     # ax.set_title (app + " application")
     ax.set_xlabel('Offloading decision engines', fontsize = 16)
@@ -270,10 +285,10 @@ def print_constraint_violation_distribution (samples):
   plt.rcParams.update({'font.size': 16})
   # key: ODE, value: {key: app, value: {key: site, value: distribution percentage}}}
   offload_dist_dict = dict ()
-  # Consider the random workload in constraint violation distribution
-  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
+  # Consider the RANDOM workload in constraint violation distribution
+  app_names = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'RANDOM']
   x = np.arange(len(app_names))
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
   result = dict ()
 
   for ode_n in ode_names:
@@ -314,11 +329,11 @@ def print_constraint_violation_distribution (samples):
 
 
 def plot_average_qos_viols (regex, title, save_dir=None, filename='qos_viols.png'):
-  # Evaluate QoS violations for all apps including the random workload
-  app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'random']
+  # Evaluate QoS violations for all apps including the RANDOM workload
+  app_n = [MobApps.INTRASAFED, MobApps.MOBIAR, MobApps.NAVIAR, 'RANDOM']
   x = np.arange(len(app_n))
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
-  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "MDP": 0.0, "QRL": 0.0, "FRESCO": 0.0}
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
+  yerr_ode = {"SMT": 0.0, "SQ_MOBILE_EDGE": 0.0, "QRL": 0.0, "FRESCO": 0.0}
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -339,16 +354,32 @@ def plot_average_qos_viols (regex, title, save_dir=None, filename='qos_viols.png
   # print (result)
   plt.rcParams.update({'font.size': 14})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['SMT'], yerr=yerr_ode['SMT'], width=0.1, color='green',
-         align='center', label='MINLP', capsize=3)
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], yerr=yerr_ode['SQ_MOBILE_EDGE'], width=0.1,
-         color='yellow', align='center', label='SQ EDGE', capsize=3)
-  ax.bar(x, result['MDP'], yerr=yerr_ode['MDP'], width=0.1, color='purple',
-         align='center', label='MDP', capsize=3)
-  ax.bar(x + 0.1, result['QRL'], yerr=yerr_ode['QRL'], width=0.1, color='orange',
-         align='center', label='QRL', capsize=3)
-  ax.bar(x + 0.2, result['FRESCO'], yerr=yerr_ode['FRESCO'], width=0.1, color='red',
-         align='center', label='FRESCO', capsize=3)
+  # Asymmetric error bars that avoid negative lower bounds
+  err_smt = np.array([
+    [min(result['SMT'][i], yerr_ode['SMT']) for i in range(len(result['SMT']))],  # lower error
+    [yerr_ode['SMT']] * len(result['SMT'])                                       # upper error
+])
+  err_sq = np.array([
+    [min(result['SQ_MOBILE_EDGE'][i], yerr_ode['SQ_MOBILE_EDGE']) for i in range(len(result['SQ_MOBILE_EDGE']))],
+    [yerr_ode['SQ_MOBILE_EDGE']] * len(result['SQ_MOBILE_EDGE'])
+])
+  err_qrl = np.array([
+    [min(result['QRL'][i], yerr_ode['QRL']) for i in range(len(result['QRL']))],
+    [yerr_ode['QRL']] * len(result['QRL'])
+])
+  err_fresco = np.array([
+    [min(result['FRESCO'][i], yerr_ode['FRESCO']) for i in range(len(result['FRESCO']))],
+    [yerr_ode['FRESCO']] * len(result['FRESCO'])
+])
+
+  ax.bar(x - 0.15, result['SMT'], yerr=err_smt, width=0.1, color='green',
+       align='center', label='MINLP', capsize=3)
+  ax.bar(x - 0.05, result['SQ_MOBILE_EDGE'], yerr=err_sq, width=0.1, color='yellow',
+       align='center', label='SQ', capsize=3)
+  ax.bar(x + 0.05, result['QRL'], yerr=err_qrl, width=0.1, color='orange',
+       align='center', label='QRL', capsize=3)
+  ax.bar(x + 0.15, result['FRESCO'], yerr=err_fresco, width=0.1, color='red',
+       align='center', label='FRESCO', capsize=3)
 
   plt.ylabel(title)
   plt.xlabel("Mobile applications")
@@ -359,10 +390,10 @@ def plot_average_qos_viols (regex, title, save_dir=None, filename='qos_viols.png
 
 
 def plot_average_constr_viols (regex, title, samples, save_dir=None, filename='constr_viols.png'):
-  # Include random workload when evaluating constraint violations
-  app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED, 'random']
+  # Include RANDOM workload when evaluating constraint violations
+  app_n = [MobApps.NAVIAR, MobApps.MOBIAR, MobApps.INTRASAFED, 'RANDOM']
   x = np.arange(len(app_n))
-  ode_names = ["SMT", "SQ_MOBILE_EDGE", "MDP", "QRL", "FRESCO"]
+  ode_names = ["SMT", "SQ_MOBILE_EDGE", "QRL", "FRESCO"]
   result = dict ()
   # flag to detect when final part of result log will be parsed 
   # for summarizing overall task failure rate
@@ -390,11 +421,10 @@ def plot_average_constr_viols (regex, title, samples, save_dir=None, filename='c
   print (result)
   plt.rcParams.update({'font.size': 14})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['SMT'], width=0.1, color='green', align='center', label='MINLP')
-  ax.bar(x - 0.1, result['SQ_MOBILE_EDGE'], width=0.1, color='yellow', align='center', label='SQ EDGE')
-  ax.bar(x, result['MDP'], width=0.1, color='purple', align='center', label='MDP')
-  ax.bar(x + 0.1, result['QRL'], width=0.1, color='orange', align='center', label='QRL')
-  ax.bar(x + 0.2, result['FRESCO'], width=0.1, color='red', align='center', label='FRESCO')
+  ax.bar(x - 0.15, result['SMT'], width=0.1, color='green', align='center', label='MINLP')
+  ax.bar(x - 0.05, result['SQ_MOBILE_EDGE'], width=0.1, color='yellow', align='center', label='SQ')
+  ax.bar(x + 0.05, result['QRL'], width=0.1, color='orange', align='center', label='QRL')
+  ax.bar(x + 0.15, result['FRESCO'], width=0.1, color='red', align='center', label='FRESCO')
 
   plt.ylabel(title)
   plt.xlabel("Mobile applications")
@@ -407,7 +437,7 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show, save_dir=None, filen
   app_n = MobApps.NAVIAR
   mal_scenarios = ["MAL1/5", "MAL2/5a", "MAL2/5b", "MAL2/5c"]
   x = np.arange(len(mal_scenarios))
-  ode_names = ["FRESCO", "SMT", "SQ_MOBILE_EDGE", "MDP"]
+  ode_names = ["FRESCO", "SMT", "SQ_MOBILE_EDGE"]
   result = dict ()
 
   for ode_n in ode_names:
@@ -435,14 +465,12 @@ def plot_objective_with_mal (regex_exp, y_axis_title, show, save_dir=None, filen
 
   plt.rcParams.update({'font.size': 16})
   ax = plt.subplot(111)
-  ax.bar(x - 0.2, result['FRESCO'], width = 0.1, color = 'red', \
-    align = 'center', label = 'FRESCO')
-  ax.bar(x - 0.1, result['SMT'], width = 0.1, color = 'green', \
-    align = 'center', label = 'MINLP')
-  ax.bar(x, result['SQ'], width = 0.1, color = 'yellow', \
-    align = 'center', label = 'SQ MOBILE-EDGE')
-  ax.bar(x + 0.1, result['MDP'], width = 0.1, color = 'purple', \
-    align = 'center', label = 'MDP')
+  ax.bar(x - 0.15, result['FRESCO'], width=0.1, color='red',
+    align='center', label='FRESCO')
+  ax.bar(x - 0.05, result['SMT'], width=0.1, color='green',
+    align='center', label='MINLP')
+  ax.bar(x + 0.05, result['SQ'], width=0.1, color='yellow',
+    align='center', label='SQ')
 
   plt.ylabel(y_axis_title)
   plt.xlabel("Malicious scenarios")
