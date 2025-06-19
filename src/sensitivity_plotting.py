@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from io import StringIO
+from util import Settings
 
 # --- Configuration Variables for Plotting ---
 # A readable font size for the simple annotations.
@@ -33,6 +34,8 @@ for app in apps:
         "latency", "energy", "cost", "dec_time",
         "qos_violation", "score"
     ]
+    # Compute battery lifetime (percentage of remaining capacity)
+    df["battery_lifetime"] = (1 - df["energy"] / Settings.BATTERY_LF) * 100
 
     betas = sorted(df["beta"].unique())
     alphas = sorted(df["alpha"].unique())
@@ -124,21 +127,23 @@ for app in apps:
     ax0_obj.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
     ax0_obj.set_ylabel("Latency", fontsize=AXIS_LABEL_FONTSIZE)
 
-    # === Plot 2 (Objectives): Energy vs Beta ===
+    # === Plot 2 (Objectives): Battery Lifetime vs Beta ===
     ax1_obj = axes_objectives[1]
     for alpha_fixed in alphas:
         subset = df[df["alpha"] == alpha_fixed].sort_values("beta")
-        ax1_obj.plot(subset["beta"], subset["energy"], label=f"α={alpha_fixed:.2f}", marker='o')
+        ax1_obj.plot(subset["beta"], subset["battery_lifetime"], label=f"α={alpha_fixed:.2f}", marker='o')
         for _, row in subset.iterrows():
-            ax1_obj.annotate(f"γ={row['gamma']:.2f}",
-                             (row["beta"], row["energy"]),
-                             textcoords="offset points",
-                             xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
-                             ha='center',
-                             fontsize=ANNOTATION_FONTSIZE)
-    ax1_obj.set_title("Energy vs Beta (Lines: α, Label: γ)", fontsize=TITLE_FONTSIZE)
+            ax1_obj.annotate(
+                f"γ={row['gamma']:.2f}",
+                (row["beta"], row["battery_lifetime"]),
+                textcoords="offset points",
+                xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
+                ha='center',
+                fontsize=ANNOTATION_FONTSIZE,
+            )
+    ax1_obj.set_title("Battery Lifetime vs Beta (Lines: α, Label: γ)", fontsize=TITLE_FONTSIZE)
     ax1_obj.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
-    ax1_obj.set_ylabel("Energy", fontsize=AXIS_LABEL_FONTSIZE)
+    ax1_obj.set_ylabel("Battery lifetime (%)", fontsize=AXIS_LABEL_FONTSIZE)
 
     # === Plot 3 (Objectives): Cost vs Alpha ===
     ax2_obj = axes_objectives[2]
@@ -195,24 +200,31 @@ for app in apps:
         ax_lat.set_ylabel("Latency", fontsize=AXIS_LABEL_FONTSIZE)
 
         # --------------------------------------------------
-        # Energy vs Beta — connect all data visually
+        # Battery Lifetime vs Beta — connect all data visually
         # --------------------------------------------------
         ax_energy = axes_gamma[idx, 1]
         df_sorted = df_gamma.sort_values("beta")
-        ax_energy.plot(df_sorted["beta"], df_sorted["energy"],
-                       label=f"γ={gamma_fixed:.1f}", marker='o')
+        ax_energy.plot(
+            df_sorted["beta"],
+            df_sorted["battery_lifetime"],
+            label=f"γ={gamma_fixed:.1f}",
+            marker="o",
+        )
         for _, row in df_sorted.iterrows():
             ax_energy.annotate(
                 f"α={row['alpha']:.1f}",
-                (row["beta"], row["energy"]),
+                (row["beta"], row["battery_lifetime"]),
                 textcoords="offset points",
                 xytext=(0, 5),
-                ha='center',
+                ha="center",
                 fontsize=ANNOTATION_FONTSIZE,
             )
-        ax_energy.set_title(f"Energy vs Beta (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
+        ax_energy.set_title(
+            f"Battery Lifetime vs Beta (γ={gamma_fixed:.1f})",
+            fontsize=TITLE_FONTSIZE,
+        )
         ax_energy.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
-        ax_energy.set_ylabel("Energy", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_energy.set_ylabel("Battery lifetime (%)", fontsize=AXIS_LABEL_FONTSIZE)
 
         # --------------------------------------------------
         # Cost vs Alpha — connect all data visually
