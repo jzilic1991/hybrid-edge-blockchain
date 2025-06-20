@@ -79,6 +79,14 @@ class EdgeOffloading (Thread):
     if cell_stats:
         avg_dec_time = sum([cell.get_avg_overhead() for cell in cell_stats.values()]) / len(cell_stats)
 
+    # Distribution of offloading actions
+    off_dist = stats.get_off_dist_dict(cell_stats) if cell_stats else {}
+    er = off_dist.get("ER", 0)
+    ec = off_dist.get("EC", 0)
+    ed = off_dist.get("ED", 0)
+    md = off_dist.get("MD", 0)
+    cd = off_dist.get("CD", 0)
+
     score = self.alpha * avg_latency + self.beta * avg_energy + self.gamma * avg_cost
 
     # Determine app name and file
@@ -86,8 +94,11 @@ class EdgeOffloading (Thread):
     filename = os.path.join("fresco_sensitivity/", f"{app_csv}.csv")
 
     # Format CSV line
-    line = (f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
-            f"{avg_latency},{avg_energy},{avg_cost},{avg_dec_time},{qos_violation},{score}\n")
+    line = (
+        f"{self.suffix},{self.alpha},{self.beta},{self.gamma},{self.k},"
+        f"{avg_latency},{avg_energy},{avg_cost},{avg_dec_time},{qos_violation},"
+        f"{er},{ec},{ed},{md},{cd},{score}\n"
+    )
 
     # Append with lock
     with open(filename, "a") as f:

@@ -90,27 +90,35 @@ class Stats:
             f"median: {np.median(self._bl_samp):.3f})"
         )
 
-    def get_avg_off_dist (cls, cells):
+    def get_off_dist_dict(cls, cells):
+        """Return offloading distribution as a dictionary of percentages."""
 
-        result = dict ()
-        off_dist_samp = dict ()
+        result = dict()
+        off_dist_samp = dict()
 
-        for cell_name, cell in cells.items ():
-            for site, samples in cell.get_off_dist_samp().items ():
-                if not site in off_dist_samp:
-                    off_dist_samp[site] = list ()
-                    
+        for cell_name, cell in cells.items():
+            for site, samples in cell.get_off_dist_samp().items():
+                if site not in off_dist_samp:
+                    off_dist_samp[site] = list()
+
                 off_dist_samp[site] += samples
 
-        for key, val in off_dist_samp.items ():
-            result[key] = round (sum (val) / len (val), 2)
+        for key, val in off_dist_samp.items():
+            result[key] = round(sum(val) / len(val), 2)
 
-        rel_result = dict ()
-        all_offloads = sum (result.values ())
-        for key, val in result.items ():
-            rel_result[key] = round (val / all_offloads, 2) * 100
+        rel_result = dict()
+        all_offloads = sum(result.values())
+        if all_offloads == 0:
+            return {key: 0 for key in result}
 
-        return ("Offloading distribution (percentage): " + str (rel_result))
+        for key, val in result.items():
+            rel_result[key] = round((val / all_offloads) * 100, 2)
+
+        return rel_result
+
+    def get_avg_off_dist (cls, cells):
+        dist = cls.get_off_dist_dict(cells)
+        return ("Offloading distribution (percentage): " + str(dist))
 
 
     def get_avg_off_fail (cls, cells):

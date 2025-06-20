@@ -62,7 +62,9 @@ def init_sensitivity_csvs():
     for app in ["mobiar", "intrasafe", "naviar", "random"]:
         filepath = os.path.join(results_dir, f"{app}.csv")
         with open(filepath, "w") as f:
-            f.write("suffix,alpha,beta,gamma,k,latency,energy,cost,dec_time,qos_violation,score\n")
+            f.write(
+                "suffix,alpha,beta,gamma,k,latency,energy,cost,dec_time,qos_violation,ER,EC,ED,MD,CD,score\n"
+            )
 
 def find_available_port(starting_from, used_ports):
     port = starting_from
