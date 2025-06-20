@@ -641,6 +641,13 @@ if __name__ == '__main__':
                     if round(alpha + beta + gamma, 2) == 1.0:
                         param_combinations.append((alpha, beta, gamma))
 
+        # add myopic collapse parameter configs
+        param_combinations.extend([
+            (1.0, 0.0, 0.0),
+            (0.0, 1.0, 0.0),
+            (0.0, 0.0, 1.0),
+        ])
+
         logger.info(f"[INFO] Launching {len(param_combinations)} FRESCO configs")
         logger.info(f"[INFO] Max parallel processes: {max_parallel}")
         used_ports = set()
