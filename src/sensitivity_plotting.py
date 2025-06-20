@@ -14,7 +14,9 @@ AXIS_LABEL_FONTSIZE = 14
 TICK_LABEL_FONTSIZE = 14
 LEGEND_FONTSIZE = 14
 FIGURE_WIDTH = 24
-FIGURE_HEIGHT = 7
+FIGURE_HEIGHT = 5  # landscape orientation
+REFERENCE_LINE_WIDTH = 2
+REFERENCE_LINE_COLOR = "grey"
 
 # Folder and app configurations
 results_dir = "fresco_sensitivity/"
@@ -42,6 +44,10 @@ for app in apps:
     gammas = sorted(df["gamma"].unique())
     gammas_to_plot = [0.2, 0.4, 0.6]
 
+    best_latency = df["latency"].min()
+    best_cost = df["cost"].min()
+    best_battery = df["battery_lifetime"].max()
+
     # ==================================================================
     #                       SCORE PLOTS
     # ==================================================================
@@ -59,7 +65,8 @@ for app in apps:
                                xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                                ha='center',
                                fontsize=ANNOTATION_FONTSIZE)
-    ax0_score.set_title("Score vs Alpha (Lines: β, Label: γ)", fontsize=TITLE_FONTSIZE)
+    ax0_score.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+
 
     # === Plot 2 (Score): Score vs Beta ===
     ax1_score = axes_score[1]
@@ -73,7 +80,8 @@ for app in apps:
                                xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                                ha='center',
                                fontsize=ANNOTATION_FONTSIZE)
-    ax1_score.set_title("Score vs Beta (Lines: α, Label: γ)", fontsize=TITLE_FONTSIZE)
+    ax1_score.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
+
 
     # === Plot 3 (Score): Score vs Alpha ===
     ax2_score = axes_score[2]
@@ -87,16 +95,13 @@ for app in apps:
                                xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                                ha='center',
                                fontsize=ANNOTATION_FONTSIZE)
-    ax2_score.set_title("Score vs Alpha (Lines: γ, Label: β)", fontsize=TITLE_FONTSIZE)
+    ax2_score.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+
 
     # --- Finalize Score Plots ---
     for ax in axes_score:
         ax.tick_params(axis='both', which='major', labelsize=TICK_LABEL_FONTSIZE)
         ax.legend(fontsize=LEGEND_FONTSIZE)
-        if "Alpha" in ax.get_title():
-            ax.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
-        else:
-            ax.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
         ax.set_ylabel("Score", fontsize=AXIS_LABEL_FONTSIZE)
         
     plt.tight_layout()
@@ -123,43 +128,85 @@ for app in apps:
                              xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                              ha='center',
                              fontsize=ANNOTATION_FONTSIZE)
-    ax0_obj.set_title("Latency vs Alpha (Lines: β, Label: γ)", fontsize=TITLE_FONTSIZE)
     ax0_obj.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
-    ax0_obj.set_ylabel("Latency", fontsize=AXIS_LABEL_FONTSIZE)
+    ax0_obj.set_ylabel("Latency (ms)", fontsize=AXIS_LABEL_FONTSIZE)
+    ax0_obj.axhline(
+        best_latency,
+        color=REFERENCE_LINE_COLOR,
+        linestyle="--",
+        linewidth=REFERENCE_LINE_WIDTH,
+    )
+    ax0_obj.annotate(
+        f"{best_latency:.2f} ms",
+        xy=(ax0_obj.get_xlim()[1], best_latency),
+        xytext=(5, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=ANNOTATION_FONTSIZE,
+        color=REFERENCE_LINE_COLOR,
+    )
 
-    # === Plot 2 (Objectives): Battery Lifetime vs Beta ===
+    # === Plot 2 (Objectives): Cost vs Alpha ===
     ax1_obj = axes_objectives[1]
     for alpha_fixed in alphas:
-        subset = df[df["alpha"] == alpha_fixed].sort_values("beta")
-        ax1_obj.plot(subset["beta"], subset["battery_lifetime"], label=f"α={alpha_fixed:.2f}", marker='o')
+        subset = df[df["alpha"] == alpha_fixed].sort_values("alpha")
+        ax1_obj.plot(subset["alpha"], subset["cost"], label=f"α={alpha_fixed:.2f}", marker='o')
         for _, row in subset.iterrows():
             ax1_obj.annotate(
                 f"γ={row['gamma']:.2f}",
-                (row["beta"], row["battery_lifetime"]),
+                (row["alpha"], row["cost"]),
                 textcoords="offset points",
                 xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                 ha='center',
                 fontsize=ANNOTATION_FONTSIZE,
             )
-    ax1_obj.set_title("Battery Lifetime vs Beta (Lines: α, Label: γ)", fontsize=TITLE_FONTSIZE)
-    ax1_obj.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
-    ax1_obj.set_ylabel("Battery lifetime (%)", fontsize=AXIS_LABEL_FONTSIZE)
+    ax1_obj.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+    ax1_obj.set_ylabel("Cost ($)", fontsize=AXIS_LABEL_FONTSIZE)
+    ax1_obj.axhline(
+        best_cost,
+        color=REFERENCE_LINE_COLOR,
+        linestyle="--",
+        linewidth=REFERENCE_LINE_WIDTH,
+    )
+    ax1_obj.annotate(
+        f"${best_cost:.2f}",
+        xy=(ax1_obj.get_xlim()[1], best_cost),
+        xytext=(5, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=ANNOTATION_FONTSIZE,
+        color=REFERENCE_LINE_COLOR,
+    )
 
-    # === Plot 3 (Objectives): Cost vs Alpha ===
+    # === Plot 3 (Objectives): Battery Lifetime vs Beta ===
     ax2_obj = axes_objectives[2]
     for gamma_fixed in gammas:
-        subset = df[df["gamma"] == gamma_fixed].sort_values("alpha")
-        ax2_obj.plot(subset["alpha"], subset["cost"], label=f"γ={gamma_fixed:.2f}", marker='o')
+        subset = df[df["gamma"] == gamma_fixed].sort_values("beta")
+        ax2_obj.plot(subset["beta"], subset["battery_lifetime"], label=f"γ={gamma_fixed:.2f}", marker='o')
         for _, row in subset.iterrows():
             ax2_obj.annotate(f"β={row['beta']:.2f}",
-                             (row["alpha"], row["cost"]),
+                             (row["beta"], row["battery_lifetime"]),
                              textcoords="offset points",
                              xytext=(0, ANNOTATION_XYTEXT_OFFSET_Y),
                              ha='center',
                              fontsize=ANNOTATION_FONTSIZE)
-    ax2_obj.set_title("Cost vs Alpha (Lines: γ, Label: β)", fontsize=TITLE_FONTSIZE)
-    ax2_obj.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
-    ax2_obj.set_ylabel("Cost", fontsize=AXIS_LABEL_FONTSIZE)
+    ax2_obj.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
+    ax2_obj.set_ylabel("Battery lifetime (%)", fontsize=AXIS_LABEL_FONTSIZE)
+    ax2_obj.axhline(
+        best_battery,
+        color=REFERENCE_LINE_COLOR,
+        linestyle="--",
+        linewidth=REFERENCE_LINE_WIDTH,
+    )
+    ax2_obj.annotate(
+        f"{best_battery:.2f}%",
+        xy=(ax2_obj.get_xlim()[1], best_battery),
+        xytext=(5, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=ANNOTATION_FONTSIZE,
+        color=REFERENCE_LINE_COLOR,
+    )
 
     # --- Finalize Objective Plots ---
     for ax in axes_objectives:
@@ -195,14 +242,57 @@ for app in apps:
                             (row["alpha"], row["latency"]),
                             textcoords="offset points", xytext=(0, 5),
                             ha='center', fontsize=ANNOTATION_FONTSIZE)
-        ax_lat.set_title(f"Latency vs Alpha (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
         ax_lat.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
-        ax_lat.set_ylabel("Latency", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_lat.set_ylabel("Latency (ms)", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_lat.axhline(
+            best_latency,
+            color=REFERENCE_LINE_COLOR,
+            linestyle="--",
+            linewidth=REFERENCE_LINE_WIDTH,
+        )
+        ax_lat.annotate(
+            f"{best_latency:.2f} ms",
+            xy=(ax_lat.get_xlim()[1], best_latency),
+            xytext=(-60, 10),
+            textcoords="offset points",
+            va="center",
+            fontsize=ANNOTATION_FONTSIZE,
+            color="black",
+        )
 
+        # --------------------------------------------------
+        # Cost vs Alpha — connect all data visually
+        # --------------------------------------------------
+        ax_cost = axes_gamma[idx, 1]
+        df_sorted = df_gamma.sort_values("alpha")
+        ax_cost.plot(df_sorted["alpha"], df_sorted["cost"],
+                     label=f"γ={gamma_fixed:.1f}", marker='o')
+        for _, row in df_sorted.iterrows():
+            ax_cost.annotate(f"β={row['beta']:.1f}",
+                             (row["alpha"], row["cost"]),
+                             textcoords="offset points", xytext=(0, 5),
+                             ha='center', fontsize=ANNOTATION_FONTSIZE)
+        ax_cost.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_cost.set_ylabel("Cost ($)", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_cost.axhline(
+            best_cost,
+            color=REFERENCE_LINE_COLOR,
+            linestyle="--",
+            linewidth=REFERENCE_LINE_WIDTH,
+        )
+        ax_cost.annotate(
+            f"${best_cost:.2f}",
+            xy=(ax_cost.get_xlim()[1], best_cost),
+            xytext=(-50, 10),
+            textcoords="offset points",
+            va="center",
+            fontsize=ANNOTATION_FONTSIZE,
+            color="black",
+        )
         # --------------------------------------------------
         # Battery Lifetime vs Beta — connect all data visually
         # --------------------------------------------------
-        ax_energy = axes_gamma[idx, 1]
+        ax_energy = axes_gamma[idx, 2]
         df_sorted = df_gamma.sort_values("beta")
         ax_energy.plot(
             df_sorted["beta"],
@@ -219,28 +309,23 @@ for app in apps:
                 ha="center",
                 fontsize=ANNOTATION_FONTSIZE,
             )
-        ax_energy.set_title(
-            f"Battery Lifetime vs Beta (γ={gamma_fixed:.1f})",
-            fontsize=TITLE_FONTSIZE,
-        )
         ax_energy.set_xlabel("Beta", fontsize=AXIS_LABEL_FONTSIZE)
         ax_energy.set_ylabel("Battery lifetime (%)", fontsize=AXIS_LABEL_FONTSIZE)
-
-        # --------------------------------------------------
-        # Cost vs Alpha — connect all data visually
-        # --------------------------------------------------
-        ax_cost = axes_gamma[idx, 2]
-        df_sorted = df_gamma.sort_values("alpha")
-        ax_cost.plot(df_sorted["alpha"], df_sorted["cost"],
-                     label=f"γ={gamma_fixed:.1f}", marker='o')
-        for _, row in df_sorted.iterrows():
-            ax_cost.annotate(f"β={row['beta']:.1f}",
-                             (row["alpha"], row["cost"]),
-                             textcoords="offset points", xytext=(0, 5),
-                             ha='center', fontsize=ANNOTATION_FONTSIZE)
-        ax_cost.set_title(f"Cost vs Alpha (γ={gamma_fixed:.1f})", fontsize=TITLE_FONTSIZE)
-        ax_cost.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
-        ax_cost.set_ylabel("Cost", fontsize=AXIS_LABEL_FONTSIZE)
+        ax_energy.axhline(
+            best_battery,
+            color=REFERENCE_LINE_COLOR,
+            linestyle="--",
+            linewidth=REFERENCE_LINE_WIDTH,
+        )
+        ax_energy.annotate(
+            f"{best_battery:.2f}%",
+            xy=(ax_energy.get_xlim()[1], best_battery),
+            xytext=(5, 0),
+            textcoords="offset points",
+            va="center",
+            fontsize=ANNOTATION_FONTSIZE,
+            color=REFERENCE_LINE_COLOR,
+        )
 
         # Common styling
         for ax in axes_gamma[idx]:
