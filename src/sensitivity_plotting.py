@@ -324,7 +324,7 @@ for app in apps:
             textcoords="offset points",
             va="center",
             fontsize=ANNOTATION_FONTSIZE,
-            color=REFERENCE_LINE_COLOR,
+            color="black",
         )
 
         # Common styling
