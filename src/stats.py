@@ -11,6 +11,7 @@ class Stats:
          self._bl_samp = list ()         # of scalars
          self._mal_beh_samp = list ()    # of dicts per offloading site key
          self._qos_viol_samp = list ()
+         self._score_samp = list ()
     
 
     def get_sum_e_consum(self):
@@ -39,6 +40,11 @@ class Stats:
             return 0.0
         return round(np.mean(self._qos_viol_samp), 4)
 
+    def get_avg_score_value(self):
+        if not self._score_samp:
+            return 0.0
+        return round(np.mean(self._score_samp), 4)
+
 
     def get_avg_qos_viol (self):
         if not self._qos_viol_samp:
@@ -48,6 +54,16 @@ class Stats:
             f"(min: {np.min(self._qos_viol_samp):.3f}, max: {np.max(self._qos_viol_samp):.3f}, "
             f"var: {np.var(self._qos_viol_samp):.3f}, std: {np.std(self._qos_viol_samp):.3f}, "
             f"median: {np.median(self._qos_viol_samp):.3f})"
+        )
+
+    def get_avg_score (self):
+        if not self._score_samp:
+            return "Average score: 0.000"
+        return (
+            f"After {len(self._score_samp)} samples, average is {np.mean(self._score_samp):.3f} score "
+            f"(min: {np.min(self._score_samp):.3f}, max: {np.max(self._score_samp):.3f}, "
+            f"var: {np.var(self._score_samp):.3f}, std: {np.std(self._score_samp):.3f}, "
+            f"median: {np.median(self._score_samp):.3f})"
         )
 
     def get_avg_rsp_time (self): 
@@ -278,7 +294,8 @@ class Stats:
             self.get_avg_e_consum(),
             self.get_avg_prices(),
             self.get_avg_bl(),
-            self.get_avg_qos_viol()
+            self.get_avg_qos_viol(),
+            self.get_avg_score()
         ])
 
     def get_cell_stats (cls, cell_stats):
@@ -327,6 +344,10 @@ class Stats:
 
         cls._qos_viol_samp.append (qos_viol)
 
+    def add_score (cls, score):
+
+        cls._score_samp.append (score)
+
 
     # def add_off_dist (cls, off_dist_samp):
     #     for key, val in off_dist_samp.items ():
@@ -350,9 +371,11 @@ class Stats:
 
 
     def reset (cls):
-        
+
         cls._rsp_time_samp = list ()   # of scalars
         cls._e_consum_samp = list ()   # of scalars
         cls._price_samp = list ()      # of scalars
         cls._bl_samp = list ()        # of scalars
         cls._mal_beh_samp = list ()    # of dicts per offloading site key
+        cls._qos_viol_samp = list ()
+        cls._score_samp = list ()

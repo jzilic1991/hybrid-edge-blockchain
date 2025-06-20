@@ -30,6 +30,7 @@ class OffloadingDecisionEngine(ABC):
         self._rsp_time_hist = list ()
         self._e_consum_hist = list ()
         self._res_pr_hist = list ()
+        self._score_hist = list ()
         self._off_dist_hist = dict ()
         self._off_fail_hist = dict ()
         self._constr_viol_hist = dict ()
@@ -204,6 +205,12 @@ class OffloadingDecisionEngine(ABC):
         self._rsp_time_hist.append (max_rsp_time)
         self._e_consum_hist.append (acc_e_consum)
         self._res_pr_hist.append (acc_price)
+        score = (
+            self._alpha * max_rsp_time
+            + self._beta * acc_e_consum
+            + self._gamma * acc_price
+        )
+        self._score_hist.append(score)
 
         return off_transactions
 
@@ -215,10 +222,12 @@ class OffloadingDecisionEngine(ABC):
         self._stats.add_res_pr (sum (self._res_pr_hist))
         self._stats.add_bl (round (self._BL / Settings.BATTERY_LF * 100, 3))
         self._stats.add_qos_viol (round (self._qos_viol_cnt / exe_cnt * 100, 3))
+        self._stats.add_score(sum(self._score_hist))
 
         self._rsp_time_hist = list ()
         self._e_consum_hist = list ()
         self._res_pr_hist = list ()
+        self._score_hist = list ()
         self._qos_viol_cnt = 0
         self._BL = Settings.BATTERY_LF
 

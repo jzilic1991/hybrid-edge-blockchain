@@ -87,7 +87,7 @@ class EdgeOffloading (Thread):
     md = off_dist.get("MD", 0)
     cd = off_dist.get("CD", 0)
 
-    score = self.alpha * avg_latency + self.beta * avg_energy + self.gamma * avg_cost
+    score = stats.get_avg_score_value()
 
     # Determine app name and file
     app_csv = (self._app_name or "random").lower()
