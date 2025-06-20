@@ -15,7 +15,7 @@ TICK_LABEL_FONTSIZE = 14
 LEGEND_FONTSIZE = 14
 FIGURE_WIDTH = 24
 FIGURE_HEIGHT = 5  # landscape orientation
-REFERENCE_LINE_WIDTH = 2
+REFERENCE_LINE_WIDTH = 4
 REFERENCE_LINE_COLOR = "grey"
 
 # Folder and app configurations
@@ -244,6 +244,10 @@ for app in apps:
                             ha='center', fontsize=ANNOTATION_FONTSIZE)
         ax_lat.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
         ax_lat.set_ylabel("Latency (ms)", fontsize=AXIS_LABEL_FONTSIZE)
+        if idx == 0:
+          ax_lat.set_ylim(bottom=7.5)
+        else:
+          ax_lat.set_ylim(bottom=0)
         ax_lat.axhline(
             best_latency,
             color=REFERENCE_LINE_COLOR,
@@ -274,6 +278,13 @@ for app in apps:
                              ha='center', fontsize=ANNOTATION_FONTSIZE)
         ax_cost.set_xlabel("Alpha", fontsize=AXIS_LABEL_FONTSIZE)
         ax_cost.set_ylabel("Cost ($)", fontsize=AXIS_LABEL_FONTSIZE)
+        if idx == 0:
+            ax_cost.set_ylim(bottom=-10)
+        elif idx == 1:
+            ax_cost.set_ylim(bottom=-2)
+        elif idx == 2:
+            ax_cost.set_ylim(bottom=-0.2)
+
         ax_cost.axhline(
             best_cost,
             color=REFERENCE_LINE_COLOR,
